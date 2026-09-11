@@ -8,7 +8,7 @@
     "dev:solo": "node scripts/run-solo.mjs dev --host 0.0.0.0 --port 5000",
     "build": "vite build",
     "build:solo": "node scripts/run-solo.mjs build && node scripts/package-solo-backend.mjs && node scripts/package-solo-voice.mjs",
-    "build:solo:installer": "npm run tauri build",
+    "build:solo:installer": "tauri build",
     "test:solo:installer": "node --test scripts/tests/solo-installer.test.mjs",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

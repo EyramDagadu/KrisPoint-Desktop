@@ -24,15 +24,18 @@ test('Solo installer owns embedded backend and voice runtimes', async () => {
 });
 
 test('release bundles target Windows and macOS installers', async () => {
-  const [configSource, workflow] = await Promise.all([
+  const [configSource, workflow, packageSource] = await Promise.all([
     read('src-tauri/tauri.conf.json'),
-    read('.github/workflows/solo-installers.yml')
+    read('.github/workflows/solo-installers.yml'),
+    read('package.json')
   ]);
   const config = JSON.parse(configSource);
+  const packageJson = JSON.parse(packageSource);
   assert.equal(config.bundle.targets, 'all');
   assert.equal(config.bundle.windows.nsis.installMode, 'currentUser');
   assert.equal(config.bundle.macOS.hardenedRuntime, true);
   assert.equal(config.bundle.macOS.signingIdentity, '-');
+  assert.equal(packageJson.scripts['build:solo:installer'], 'tauri build');
   assert.match(workflow, /artifact: windows-x64\s+bundle: msi/);
   assert.match(workflow, /artifact: macos-apple-silicon\s+bundle: dmg/);
   assert.match(workflow, /npm run build:solo:installer -- --bundles \$\{\{ matrix\.bundle \}\}/);
