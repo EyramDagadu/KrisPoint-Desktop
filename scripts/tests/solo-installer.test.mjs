@@ -132,3 +132,12 @@ test('native installer verification includes an offline authenticated transcript
   assert.doesNotMatch(windows, /Get-NetConnectionProfile/);
   assert.match(windows, /Get-NetFirewallProfile \| Where-Object \{ -not \$_.Enabled \}/);
 });
+
+test('Solo permits the report creation endpoint while blocking collaborative worklists', async () => {
+  const hooks = await read('src/hooks.server.ts');
+  assert.match(
+    hooks,
+    /pathname === ['"]\/api\/worklist\/create-with-report['"][\s\S]*return false/
+  );
+  assert.match(hooks, /pathname\.startsWith\(['"]\/api\/worklist['"]\)/);
+});
