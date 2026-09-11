@@ -19,7 +19,8 @@ const child = spawn(npm, ['run', script, ...(args.length ? ['--', ...args] : [])
       SOLO_AUDIT_KEY: 'build-only-not-used-at-runtime-0000000000000000000000000000000000'
     } : {})
   },
-  stdio: 'inherit'
+  stdio: 'inherit',
+  shell: process.platform === 'win32'
 });
 
 child.on('error', (error) => {
