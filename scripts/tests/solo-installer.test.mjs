@@ -108,6 +108,8 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(smoke, /token=invalid/);
   assert.match(smoke, /hmac\.compare_digest/);
   assert.match(smoke, /message\.get\("type"\) == "transcription"/);
+  assert.match(smoke, /"PATH": os\.path\.join\(os\.environ\.get\("SystemRoot", "\/usr"\), "System32"\)/);
   assert.match(smoke, /TRANSFORMERS_OFFLINE/);
   assert.match(smoke, /KRISPOINT_OFFLINE_VOICE_SMOKE_RESULT/);
+  assert.doesNotMatch(windows, /Start-Process \$installed\.FullName/);
 });
