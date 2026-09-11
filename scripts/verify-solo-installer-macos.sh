@@ -16,7 +16,10 @@ trap cleanup EXIT
 hdiutil attach "$dmg" -mountpoint "$mount_dir" -nobrowse -quiet
 app="$(find "$mount_dir" -maxdepth 1 -name '*.app' -print -quit)"
 [ -n "$app" ] || { echo "Application bundle is missing from DMG" >&2; exit 1; }
-codesign --verify --deep --strict "$app"
+# The PyInstaller voice runtime is sealed as a resource tree. --deep treats
+# its standalone Mach-O files as nested bundles; strict bundle verification
+# checks the app signature and complete resource envelope correctly.
+codesign --verify --strict "$app"
 app_executable="$app/Contents/MacOS/krispoint"
 voice_executable="$(find "$app/Contents/Resources" -name krispoint-voice -type f -print -quit)"
 file "$app_executable" | grep -q "arm64"

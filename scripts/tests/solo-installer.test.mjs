@@ -28,6 +28,7 @@ test('release bundles target Windows and macOS installers', async () => {
   assert.equal(config.bundle.targets, 'all');
   assert.equal(config.bundle.windows.nsis.installMode, 'currentUser');
   assert.equal(config.bundle.macOS.hardenedRuntime, true);
+  assert.equal(config.bundle.macOS.signingIdentity, '-');
 });
 
 test('packaged Solo does not invoke system Node, Python, or PostgreSQL', async () => {
@@ -82,6 +83,8 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(windows, /New-NetFirewallRule/);
   assert.match(windows, /DomainAuthenticated[\s\S]*Domain/);
   assert.match(macos, /block drop out all/);
+  assert.match(macos, /codesign --verify --strict "\$app"/);
+  assert.doesNotMatch(macos, /codesign --verify --deep/);
   for (const script of [windows, macos]) {
     assert.match(script, /verify-installed-voice\.py/);
     assert.match(script, /session_1766430738966_1urld97w9\.wav/);
