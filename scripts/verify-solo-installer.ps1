@@ -22,14 +22,10 @@ $voice = Get-ChildItem $installed.Directory.FullName -Filter "krispoint-voice.ex
 if (-not $voice) { throw "Installed MedASR executable is missing" }
 $firewallRule = "KrisPoint offline installer smoke $PID"
 try {
-  $activeCategories = Get-NetConnectionProfile | Select-Object -ExpandProperty NetworkCategory -Unique
-  if (-not $activeCategories) { throw "No active Windows network profile was found" }
-  foreach ($category in $activeCategories) {
-    $profileName = if ($category -eq "DomainAuthenticated") { "Domain" } else { $category }
-    $profile = Get-NetFirewallProfile -Name $profileName
-    if (-not $profile.Enabled) {
-      throw "Windows Firewall profile $profileName must be enabled for the offline transcription smoke test"
-    }
+  $disabledProfiles = Get-NetFirewallProfile | Where-Object { -not $_.Enabled }
+  if ($disabledProfiles) {
+    $profileNames = ($disabledProfiles | Select-Object -ExpandProperty Name) -join ", "
+    throw "Windows Firewall profiles must be enabled for the offline transcription smoke test; disabled: $profileNames"
   }
   New-NetFirewallRule -DisplayName $firewallRule -Direction Outbound -Action Block -Profile Any -Program $voice.FullName | Out-Null
   $rule = Get-NetFirewallRule -DisplayName $firewallRule -ErrorAction Stop

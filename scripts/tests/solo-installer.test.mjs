@@ -97,7 +97,6 @@ test('native installer verification includes an offline authenticated transcript
     read('scripts/verify-installed-voice.py')
   ]);
   assert.match(windows, /New-NetFirewallRule/);
-  assert.match(windows, /DomainAuthenticated[\s\S]*Domain/);
   assert.match(macos, /block drop out all/);
   assert.match(macos, /codesign --verify --strict "\$app"/);
   assert.doesNotMatch(macos, /codesign --verify --deep/);
@@ -112,4 +111,6 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(smoke, /TRANSFORMERS_OFFLINE/);
   assert.match(smoke, /KRISPOINT_OFFLINE_VOICE_SMOKE_RESULT/);
   assert.doesNotMatch(windows, /Start-Process \$installed\.FullName/);
+  assert.doesNotMatch(windows, /Get-NetConnectionProfile/);
+  assert.match(windows, /Get-NetFirewallProfile \| Where-Object \{ -not \$_.Enabled \}/);
 });
