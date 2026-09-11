@@ -13,7 +13,11 @@ await new Promise((resolve, reject) => {
   const ncc = spawn(
     process.platform === 'win32' ? 'npx.cmd' : 'npx',
     ['ncc', 'build', 'build/index.js', '-o', 'solo-runtime'],
-    { cwd: root, stdio: 'inherit' }
+    {
+      cwd: root,
+      stdio: 'inherit',
+      shell: process.platform === 'win32'
+    }
   );
   ncc.on('error', reject);
   ncc.on('exit', (code) => code === 0 ? resolve() : reject(new Error(`ncc exited with ${code}`)));
