@@ -141,3 +141,10 @@ test('Solo permits the report creation endpoint while blocking collaborative wor
   );
   assert.match(hooks, /pathname\.startsWith\(['"]\/api\/worklist['"]\)/);
 });
+
+test('license server hostnames are normalized to HTTPS', async () => {
+  const licenseStore = await read('src/lib/stores/licenseStore.js');
+  assert.match(licenseStore, /`https:\/\/\$\{trimmed\}`/);
+  assert.match(licenseStore, /normalizeServerUrl\(storedServerUrl\)/);
+  assert.match(licenseStore, /const cleanUrl = normalizeServerUrl\(url\)/);
+});

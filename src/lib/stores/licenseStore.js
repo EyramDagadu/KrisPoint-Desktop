@@ -5,6 +5,15 @@ const LICENSE_STORAGE_KEY = 'krispoint_license';
 const LICENSE_SERVER_URL_KEY = 'krispoint_license_server_url';
 const PUBLIC_KEY_STORAGE_KEY = 'krispoint_license_public_key';
 
+function normalizeServerUrl(url) {
+  const trimmed = url.trim();
+  if (!trimmed) return '';
+  const withProtocol = /^(https?:\/\/|\/)/i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+  return withProtocol.replace(/\/+$/, '');
+}
+
 function base64ToBytes(base64) {
   const binString = atob(base64);
   return Uint8Array.from(binString, (c) => c.charCodeAt(0));
@@ -114,7 +123,11 @@ export const licenseActions = {
   async initialize() {
     if (!browser) return;
     
-    const serverUrl = localStorage.getItem(LICENSE_SERVER_URL_KEY) || '';
+    const storedServerUrl = localStorage.getItem(LICENSE_SERVER_URL_KEY) || '';
+    const serverUrl = normalizeServerUrl(storedServerUrl);
+    if (serverUrl !== storedServerUrl) {
+      localStorage.setItem(LICENSE_SERVER_URL_KEY, serverUrl);
+    }
     const storedLicense = localStorage.getItem(LICENSE_STORAGE_KEY);
     const publicKey = localStorage.getItem(PUBLIC_KEY_STORAGE_KEY);
     
@@ -163,7 +176,7 @@ export const licenseActions = {
 
   setServerUrl(url) {
     if (!browser) return;
-    const cleanUrl = url.replace(/\/$/, '');
+    const cleanUrl = normalizeServerUrl(url);
     localStorage.setItem(LICENSE_SERVER_URL_KEY, cleanUrl);
     licenseState.update(s => ({ ...s, serverUrl: cleanUrl }));
   },
