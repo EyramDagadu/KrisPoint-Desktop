@@ -1,2 +1,3 @@
 - [License server deployment quirks](license-server-deployment.md) — BASE_URL, migrations, and dependency install must all be handled explicitly for production
 - [Edition licensing authority](edition-licensing-authority.md) — Hospital and Solo editions must share the existing licensing and activation system rather than fork or bypass it
+- [Solo installer CI portability](solo-installer-ci-portability.md) — Windows and Apple Silicon builds need platform-aware packaging, signing, and native dependency choices
