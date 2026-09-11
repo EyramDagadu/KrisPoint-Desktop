@@ -13,6 +13,7 @@ test('Solo installer owns embedded backend and voice runtimes', async () => {
   assert.match(config, /solo-runtime/);
   assert.match(config, /voice-runtime/);
   assert.match(backend, /Command::new\(runtime\)/);
+  assert.match(backend, /command\.current_dir\(runtime_dir\)\.arg\("index\.js"\)/);
   assert.match(backend, /backend\.log/);
   assert.match(backend, /backend_log_tail/);
   assert.doesNotMatch(backend, /\.stderr\(Stdio::null\(\)\)/);

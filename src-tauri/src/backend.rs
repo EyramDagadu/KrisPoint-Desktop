@@ -61,8 +61,11 @@ impl BackendState {
             .try_clone()
             .map_err(|e| format!("Cannot open Solo backend error log: {e}"))?;
 
+        let runtime_dir = entry
+            .parent()
+            .ok_or_else(|| "Packaged Solo backend directory was not found".to_string())?;
         let mut command = Command::new(runtime);
-        command.arg(&entry);
+        command.current_dir(runtime_dir).arg("index.js");
         let process = command
             .env("NODE_ENV", "production")
             .env("PORT", port.to_string())
