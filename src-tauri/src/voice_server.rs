@@ -239,7 +239,9 @@ impl VoiceServerState {
             .map_err(|e| format!("Cannot determine Solo data directory: {e}"))?;
         std::fs::create_dir_all(&data_dir)
             .map_err(|e| format!("Cannot create Solo data directory: {e}"))?;
-        let log_path = data_dir.join("voice.log");
+        let log_path = std::env::var_os("KRISPOINT_OFFLINE_VOICE_SMOKE_LOG")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|| data_dir.join("voice.log"));
         let voice_log = OpenOptions::new()
             .create(true)
             .truncate(true)
@@ -259,6 +261,7 @@ impl VoiceServerState {
             .env("KRISPOINT_PARENT_PID", std::process::id().to_string())
             .env("VOICE_HOST", "127.0.0.1")
             .env("VOICE_PORT", port.to_string())
+            .env("PYTHONUNBUFFERED", "1")
             .stdin(Stdio::null())
             .stdout(Stdio::from(voice_log))
             .stderr(Stdio::from(voice_error_log));

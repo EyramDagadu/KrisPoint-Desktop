@@ -25,6 +25,8 @@ test('Solo installer owns embedded backend and voice runtimes', async () => {
   assert.match(voice, /voice\.log/);
   assert.match(voice, /process_log_tail/);
   assert.match(voice, /for _ in 0\.\.600/);
+  assert.match(voice, /KRISPOINT_OFFLINE_VOICE_SMOKE_LOG/);
+  assert.match(voice, /PYTHONUNBUFFERED/);
   assert.doesNotMatch(voice, /\.stderr\(Stdio::null\(\)\)/);
   assert.match(voice, /executable[\s\S]*\.parent\(\)[\s\S]*working_dir/);
   assert.match(voice, /Some\(voice_url\(port, &health_token\)\)/);
@@ -121,6 +123,8 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(smoke, /"PATH": os\.path\.join\(os\.environ\.get\("SystemRoot", "\/usr"\), "System32"\)/);
   assert.match(smoke, /TRANSFORMERS_OFFLINE/);
   assert.match(smoke, /KRISPOINT_OFFLINE_VOICE_SMOKE_RESULT/);
+  assert.match(smoke, /KRISPOINT_OFFLINE_VOICE_SMOKE_LOG/);
+  assert.match(smoke, /print_voice_log\(log_path\)/);
   assert.doesNotMatch(windows, /Start-Process \$installed\.FullName/);
   assert.doesNotMatch(windows, /Get-NetConnectionProfile/);
   assert.match(windows, /Get-NetFirewallProfile \| Where-Object \{ -not \$_.Enabled \}/);

@@ -25,13 +25,21 @@ async def receive_type(websocket, expected_type, timeout=180):
             return message
 
 
-def wait_for_app_endpoint(result_path, process):
+def print_voice_log(log_path):
+    if log_path.is_file():
+        print(f"===== {log_path} =====", file=sys.stderr)
+        print(log_path.read_text(errors="replace"), file=sys.stderr)
+
+
+def wait_for_app_endpoint(result_path, log_path, process):
     for _ in range(9000):
         if process.poll() is not None:
+            print_voice_log(log_path)
             raise RuntimeError(f"KrisPoint exited during voice startup with {process.returncode}")
         if result_path.is_file():
             return json.loads(result_path.read_text())["url"]
         time.sleep(.1)
+    print_voice_log(log_path)
     raise RuntimeError("KrisPoint did not start its voice runtime within fifteen minutes")
 
 
@@ -49,11 +57,13 @@ async def verify(args):
     with tempfile.TemporaryDirectory(prefix="krispoint-offline-smoke-") as temporary:
         result_path = Path(temporary) / "ready.json"
         stop_path = Path(temporary) / "stop"
+        log_path = Path(temporary) / "voice.log"
         environment = {
             "ASR_ENGINE": "medasr",
             "HF_HUB_OFFLINE": "1",
             "HOME": os.environ.get("HOME", str(Path.home())),
             "KRISPOINT_OFFLINE_VOICE_SMOKE_RESULT": str(result_path),
+            "KRISPOINT_OFFLINE_VOICE_SMOKE_LOG": str(log_path),
             "KRISPOINT_OFFLINE_VOICE_SMOKE_STOP": str(stop_path),
             "MEDASR_DEVICE": "cpu",
             "NO_PROXY": "127.0.0.1,localhost",
@@ -74,7 +84,7 @@ async def verify(args):
             text=True,
         )
         try:
-            url = await asyncio.to_thread(wait_for_app_endpoint, result_path, process)
+            url = await asyncio.to_thread(wait_for_app_endpoint, result_path, log_path, process)
             token = url.split("token=", 1)[1]
             websocket = await websockets.connect(url, open_timeout=5)
             await receive_type(websocket, "connected", timeout=5)

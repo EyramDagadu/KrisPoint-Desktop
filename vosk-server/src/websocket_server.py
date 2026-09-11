@@ -47,6 +47,7 @@ class SpeechWebSocketServer:
     def preload_model(self):
         """Preload faster-whisper model on server startup (runs once, shared by all clients)"""
         if os.getenv("ASR_ENGINE", "medasr").lower() == "medasr":
+            print("Loading bundled MedASR model...", flush=True)
             engine = MedASRStreamEngine(
                 medical_vocab=self.config.get_medical_vocabulary(),
                 voice_commands=self.config.get_all_commands())
