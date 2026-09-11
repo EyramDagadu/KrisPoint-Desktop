@@ -285,7 +285,7 @@ impl VoiceServerState {
         self.update_status(false, "Loading MedASR model...", 50);
 
         self.update_status(false, "Initializing local speech recognition...", 70);
-        for _ in 0..120 {
+        for _ in 0..600 {
             {
                 let mut process_guard = self.process.lock().unwrap();
                 if let Some(child) = process_guard.as_mut() {
@@ -327,7 +327,7 @@ impl VoiceServerState {
         let _ = self.stop();
         let output = process_log_tail(&log_path);
         let error_msg =
-            format!("Voice server did not become ready within two minutes. Voice output:\n{output}");
+            format!("Voice server did not become ready within ten minutes. Voice output:\n{output}");
         self.update_status(false, &error_msg, 0);
         Err(error_msg)
     }

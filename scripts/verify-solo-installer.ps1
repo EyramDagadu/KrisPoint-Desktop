@@ -33,7 +33,14 @@ try {
     throw "Offline firewall rule was not enabled"
   }
   python scripts/verify-installed-voice.py --application $installed.FullName --audio training_data/audio/1/session_1766430738966_1urld97w9.wav
-  if ($LASTEXITCODE -ne 0) { throw "Offline MedASR transcription smoke test failed" }
+  if ($LASTEXITCODE -ne 0) {
+    Get-ChildItem $env:LOCALAPPDATA -Include "backend.log", "voice.log" -File -Recurse -ErrorAction SilentlyContinue |
+      ForEach-Object {
+        Write-Host "===== $($_.FullName) ====="
+        Get-Content $_.FullName -Tail 200
+      }
+    throw "Offline MedASR transcription smoke test failed"
+  }
 } finally {
   Remove-NetFirewallRule -DisplayName $firewallRule -ErrorAction SilentlyContinue
 }

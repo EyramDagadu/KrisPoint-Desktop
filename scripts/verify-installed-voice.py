@@ -26,13 +26,13 @@ async def receive_type(websocket, expected_type, timeout=180):
 
 
 def wait_for_app_endpoint(result_path, process):
-    for _ in range(1800):
+    for _ in range(9000):
         if process.poll() is not None:
             raise RuntimeError(f"KrisPoint exited during voice startup with {process.returncode}")
         if result_path.is_file():
             return json.loads(result_path.read_text())["url"]
         time.sleep(.1)
-    raise RuntimeError("KrisPoint did not start its voice runtime within three minutes")
+    raise RuntimeError("KrisPoint did not start its voice runtime within fifteen minutes")
 
 
 async def verify(args):

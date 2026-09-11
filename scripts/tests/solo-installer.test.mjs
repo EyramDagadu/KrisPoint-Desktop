@@ -24,6 +24,7 @@ test('Solo installer owns embedded backend and voice runtimes', async () => {
   assert.match(voice, /verify_slice/);
   assert.match(voice, /voice\.log/);
   assert.match(voice, /process_log_tail/);
+  assert.match(voice, /for _ in 0\.\.600/);
   assert.doesNotMatch(voice, /\.stderr\(Stdio::null\(\)\)/);
   assert.match(voice, /executable[\s\S]*\.parent\(\)[\s\S]*working_dir/);
   assert.match(voice, /Some\(voice_url\(port, &health_token\)\)/);
@@ -116,6 +117,7 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(smoke, /token=invalid/);
   assert.match(smoke, /hmac\.compare_digest/);
   assert.match(smoke, /message\.get\("type"\) == "transcription"/);
+  assert.match(smoke, /for _ in range\(9000\)/);
   assert.match(smoke, /"PATH": os\.path\.join\(os\.environ\.get\("SystemRoot", "\/usr"\), "System32"\)/);
   assert.match(smoke, /TRANSFORMERS_OFFLINE/);
   assert.match(smoke, /KRISPOINT_OFFLINE_VOICE_SMOKE_RESULT/);
