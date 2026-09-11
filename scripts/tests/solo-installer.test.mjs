@@ -73,13 +73,16 @@ test('backend packaging excludes local runtime and clinical data', async () => {
 });
 
 test('MedASR uses a released cross-platform PyTorch version', async () => {
-  const [requirements, engine] = await Promise.all([
+  const [requirements, engine, server] = await Promise.all([
     read('vosk-server/requirements.txt'),
-    read('vosk-server/src/medasr_stream_engine.py')
+    read('vosk-server/src/medasr_stream_engine.py'),
+    read('vosk-server/src/websocket_server.py')
   ]);
   assert.match(requirements, /^torch==2\.7\.1$/m);
   assert.match(engine, /_MEIPASS/);
   assert.match(engine, /local_files_only/);
+  assert.match(server, /configure_output_streams\(\)/);
+  assert.match(server, /reconfigure\(errors="backslashreplace"\)/);
 });
 
 test('Solo vendors OpenSSL for portable encrypted backup builds', async () => {

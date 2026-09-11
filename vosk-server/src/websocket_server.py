@@ -16,10 +16,23 @@ from config_loader import ConfigLoader
 import time
 import os
 import ssl
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 from urllib.parse import parse_qs, urlparse
 from parent_watchdog import start_parent_watchdog
+
+
+def configure_output_streams():
+    """Prevent Windows console encodings from crashing status/error logging."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure:
+            try:
+                reconfigure(errors="backslashreplace")
+            except (OSError, ValueError):
+                pass
+
 
 # Load environment variables from .env file in parent directory
 # Script runs from vosk-server/src/, but .env is in vosk-server/
@@ -396,6 +409,7 @@ class SpeechWebSocketServer:
                 await asyncio.sleep(3)
 
 def main():
+    configure_output_streams()
     restart_count = 0
     max_restarts = 10
     
@@ -444,5 +458,4 @@ def main():
     return 1
 
 if __name__ == "__main__":
-    import sys
     sys.exit(main())

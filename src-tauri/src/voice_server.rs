@@ -261,6 +261,7 @@ impl VoiceServerState {
             .env("KRISPOINT_PARENT_PID", std::process::id().to_string())
             .env("VOICE_HOST", "127.0.0.1")
             .env("VOICE_PORT", port.to_string())
+            .env("PYTHONIOENCODING", "utf-8:backslashreplace")
             .env("PYTHONUNBUFFERED", "1")
             .stdin(Stdio::null())
             .stdout(Stdio::from(voice_log))
