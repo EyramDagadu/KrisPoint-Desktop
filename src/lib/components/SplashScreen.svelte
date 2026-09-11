@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
+  import { isSoloEdition } from '$lib/config/edition';
 
   let show = true;
   let progress = 0;
@@ -47,7 +48,7 @@
       />
       
       <h1 class="app-name">KrisPoint</h1>
-      <p class="tagline">Hospital Radiology System</p>
+      <p class="tagline">{isSoloEdition ? 'Private Radiology Workstation' : 'Hospital Radiology System'}</p>
       
       <div class="loading-container">
         <div class="loading-bar">
