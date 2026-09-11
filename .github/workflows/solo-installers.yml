@@ -36,12 +36,6 @@ jobs:
       - name: Use public npm registry
         run: npm config set registry https://registry.npmjs.org/
       - run: npm ci
-      - if: runner.os == 'Windows'
-        name: Install Windows Tauri CLI binding
-        run: npm install --no-save --package-lock=false --ignore-scripts @tauri-apps/cli-win32-x64-msvc@2.8.4
-      - if: runner.os == 'macOS'
-        name: Install Apple Silicon Tauri CLI binding
-        run: npm install --no-save --package-lock=false --ignore-scripts @tauri-apps/cli-darwin-arm64@2.8.4
       - run: python -m pip install -r vosk-server/requirements.txt pyinstaller
       - run: python vosk-server/tests/test_parent_watchdog.py
       - run: npm run test:solo:installer
