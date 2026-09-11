@@ -1,7 +1,7 @@
 """
 WebSocket Server for Speech Recognition Engine
 Provides real-time speech recognition for KrisPoint via WebSocket
-Now powered by faster-whisper for GPU-accelerated medical dictation
+Supports MedASR and faster-whisper for medical dictation
 Supports WSS (Secure WebSocket) for HTTPS deployments
 """
 import asyncio
@@ -52,13 +52,13 @@ class SpeechWebSocketServer:
         self.model_device = "cpu"  # Track which device was used
         self.model_compute_type = "int8"  # Track compute type used
         
-        print(f"Speech Recognition WebSocket Server initialized (faster-whisper)")
+        print(f"Speech Recognition WebSocket Server initialized ({self.engine_name()})")
         print(f"Configuration loaded:")
         print(f"  - Medical vocabulary: {len(self.config.get_medical_vocabulary())} terms")
         print(f"  - Voice commands: {len(self.config.get_all_commands())} commands")
     
     def preload_model(self):
-        """Preload faster-whisper model on server startup (runs once, shared by all clients)"""
+        """Preload the configured recognition model once on server startup."""
         if os.getenv("ASR_ENGINE", "medasr").lower() == "medasr":
             print("Loading bundled MedASR model...", flush=True)
             engine = MedASRStreamEngine(
@@ -74,7 +74,7 @@ class SpeechWebSocketServer:
         
         model_path = os.getenv('WHISPER_MODEL_PATH', 'medium')  # Default to medium if not set
         
-        print(f"\n🚀 Preloading faster-whisper model from: {model_path}", flush=True)
+        print(f"\n🚀 Preloading {self.engine_name()} model from: {model_path}", flush=True)
         print("⏳ This will take 10-60 seconds depending on model size and GPU availability...", flush=True)
         
         start = time.time()
@@ -109,7 +109,11 @@ class SpeechWebSocketServer:
             print(f"✅ Model preloaded in {load_time:.1f}s on CPU", flush=True)
             print(f"💡 For GPU acceleration, ensure CUDA and cuDNN are installed", flush=True)
         
-        print(f"🎤 Clients can now dictate with instant model loading!\n", flush=True)
+        print(f"🎤 Clients can now dictate with instant {self.engine_name()} model loading!\n", flush=True)
+
+    def engine_name(self):
+        """Return the configured public engine name without renaming engine classes."""
+        return "MedASR" if os.getenv("ASR_ENGINE", "medasr").lower() == "medasr" else "faster-whisper"
     
     def create_engine_for_client(self):
         """Create a WhisperStreamEngine instance for a client (using preloaded model)"""
@@ -156,8 +160,7 @@ class SpeechWebSocketServer:
                 try:
                     # Check if message is binary audio data or JSON command
                     if isinstance(message, bytes):
-                        # Binary audio data (Int16 PCM) - feed directly to Vosk!
-                        # No conversion needed - Vosk accepts bytes directly
+                        # Binary audio data (Int16 PCM) - feed directly to the engine.
                         engine.feed_audio(message)
                         continue
                     
@@ -172,7 +175,7 @@ class SpeechWebSocketServer:
                                              hashlib.sha256).hexdigest()
                             await self.send_message(websocket, "health", {
                                 "service": "krispoint-voice",
-                                "engine": os.getenv("ASR_ENGINE", "medasr"),
+                                "engine": self.engine_name(),
                                 "proof": proof})
                         else:
                             await self.send_message(websocket, "error",
@@ -187,7 +190,7 @@ class SpeechWebSocketServer:
                         engine.start_processing()
                         await self.send_message(websocket, 'status', {
                             'message': 'Recording started',
-                            'model': 'faster-whisper',
+                            'model': self.engine_name(),
                             'device': engine.device
                         })
                     
@@ -317,7 +320,7 @@ class SpeechWebSocketServer:
             # Send welcome message
             metrics = engine.get_metrics()
             await self.send_message(websocket, 'connected', {
-                'message': 'faster-whisper Speech Recognition Engine ready',
+                'message': f'{self.engine_name()} Speech Recognition Engine ready',
                 'model_loaded': engine.model is not None,
                 'model_type': metrics['model_type'],
                 'device': metrics['device'],
@@ -352,7 +355,8 @@ class SpeechWebSocketServer:
             connection = request_headers.get("Connection", "")
             if connection and "upgrade" not in connection.lower():
                 # This is likely a health check or probe - return 200 OK silently
-                return (200, [("Content-Type", "text/plain")], b"faster-whisper Speech WebSocket Server OK\n")
+                message = f"{self.engine_name()} Speech WebSocket Server OK\n".encode()
+                return (200, [("Content-Type", "text/plain")], message)
         except (AttributeError, TypeError):
             # If we can't check headers properly, let WebSocket library handle it
             pass
@@ -382,7 +386,7 @@ class SpeechWebSocketServer:
         ssl_context = self.get_ssl_context()
         protocol = "wss" if ssl_context else "ws"
         
-        print(f"Starting faster-whisper Speech Recognition WebSocket server on {self.host}:{self.port}")
+        print(f"Starting {self.engine_name()} Speech Recognition WebSocket server on {self.host}:{self.port}")
         
         while True:  # Auto-recovery loop
             try:

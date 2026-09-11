@@ -1,4 +1,4 @@
-// Whisper Streaming Speech Recognition Service for Medical Applications
+// Streaming Speech Recognition Service for Medical Applications
 import { browser } from '$app/environment';
 import { voiceTrainingDataService } from './VoiceTrainingDataService';
 
@@ -52,7 +52,7 @@ export class WhisperVoiceService {
         this.source = null;
         this.scriptProcessor = null;
 
-        // Configuration - Dynamic WebSocket URL for Replit environment
+        // Configuration - Tauri publishes its authenticated URL at runtime.
         this.serverUrl = this.getWebSocketUrl();
         this.sampleRate = 16000;
         this.confidenceThreshold = 0.6;
@@ -86,28 +86,15 @@ export class WhisperVoiceService {
             return window.__KRISPOINT_VOICE_URL__;
         }
 
-        // Connect to voice server - supports both local and LAN access
-        // Uses WSS (secure) when page is loaded over HTTPS
-        // Uses WS (insecure) when page is loaded over HTTP
-        
+        // Hospital browser traffic stays same-origin so Vite can proxy it to
+        // the private voice process without exposing its client token.
         if (browser && typeof window !== 'undefined') {
-            const hostname = window.location.hostname;
             const isSecure = window.location.protocol === 'https:';
-            
-            // If accessing via IP or non-localhost, use that hostname for voice server
-            // Otherwise use localhost for local development
-            const voiceHost = (hostname === 'localhost' || hostname === '127.0.0.1') 
-                ? 'localhost' 
-                : hostname;
-            
-            // Use wss:// for HTTPS pages, ws:// for HTTP pages
             const protocol = isSecure ? 'wss' : 'ws';
-            const voiceUrl = `${protocol}://${voiceHost}:8000`;
-            console.log(`🖥️ Connecting to voice server: ${voiceUrl} (${isSecure ? 'secure' : 'insecure'})`);
-            return voiceUrl;
+            return `${protocol}://${window.location.host}/voice`;
         }
         
-        return 'ws://localhost:8000';
+        return 'ws://localhost:5000/voice';
     }
 
     checkBrowserSupport() {
@@ -177,7 +164,20 @@ export class WhisperVoiceService {
 
     async resolveServerUrl(): Promise<string> {
         if (!browser || !(window as any).__TAURI_INTERNALS__) {
-            return this.getWebSocketUrl();
+            const response = await fetch('/api/voice/ticket', {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json' }
+            });
+            if (!response.ok) {
+                throw new Error('Unable to obtain voice connection ticket');
+            }
+            const body = await response.json() as { ticket?: string };
+            if (!body.ticket) {
+                throw new Error('Voice connection ticket was not issued');
+            }
+            const url = new URL(this.getWebSocketUrl());
+            url.searchParams.set('ticket', body.ticket);
+            return url.toString();
         }
         const { invoke } = await import('@tauri-apps/api/core');
         for (let attempt = 0; attempt < 120; attempt += 1) {

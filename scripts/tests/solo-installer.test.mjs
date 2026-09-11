@@ -148,3 +148,19 @@ test('license server hostnames are normalized to HTTPS', async () => {
   assert.match(licenseStore, /normalizeServerUrl\(storedServerUrl\)/);
   assert.match(licenseStore, /const cleanUrl = normalizeServerUrl\(url\)/);
 });
+
+test('Hospital browser voice uses same-origin proxy while Solo keeps published URL', async () => {
+  const [service, config, voiceServer] = await Promise.all([
+    read('src/lib/services/WhisperVoiceService.ts'),
+    read('vite.config.js'),
+    read('src-tauri/src/voice_server.rs')
+  ]);
+  assert.match(service, /window\.location\.host\}\/voice/);
+  assert.match(service, /__KRISPOINT_VOICE_URL__/);
+  assert.match(config, /target: ['"]ws:\/\/127\.0\.0\.1:8000['"]/);
+  assert.match(config, /VOICE_CLIENT_TOKEN/);
+  assert.match(config, /VITE_KRISPOINT_EDITION !== ['"]solo['"]/);
+  assert.match(config, /verifyVoiceTicket\(ticket\) \? voiceClientToken/);
+  assert.match(config, /encodeURIComponent\(token/);
+  assert.match(voiceServer, /Some\(voice_url\(port, &health_token\)\)/);
+});
