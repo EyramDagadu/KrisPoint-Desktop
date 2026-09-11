@@ -24,11 +24,19 @@ test('Solo installer owns embedded backend and voice runtimes', async () => {
 });
 
 test('release bundles target Windows and macOS installers', async () => {
-  const config = JSON.parse(await read('src-tauri/tauri.conf.json'));
+  const [configSource, workflow] = await Promise.all([
+    read('src-tauri/tauri.conf.json'),
+    read('.github/workflows/solo-installers.yml')
+  ]);
+  const config = JSON.parse(configSource);
   assert.equal(config.bundle.targets, 'all');
   assert.equal(config.bundle.windows.nsis.installMode, 'currentUser');
   assert.equal(config.bundle.macOS.hardenedRuntime, true);
   assert.equal(config.bundle.macOS.signingIdentity, '-');
+  assert.match(workflow, /artifact: windows-x64\s+bundle: msi/);
+  assert.match(workflow, /artifact: macos-apple-silicon\s+bundle: dmg/);
+  assert.match(workflow, /npm run build:solo:installer -- --bundles \$\{\{ matrix\.bundle \}\}/);
+  assert.doesNotMatch(workflow, /bundle\/nsis/);
 });
 
 test('packaged Solo does not invoke system Node, Python, or PostgreSQL', async () => {
