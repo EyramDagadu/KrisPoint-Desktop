@@ -1,0 +1,27 @@
+{
+  "description": "De-identified Ghanaian radiology benchmark. Add only recordings with human-verified transcripts.",
+  "command_vocabulary": [
+    "new paragraph",
+    "new line",
+    "findings section",
+    "impression section",
+    "technique section",
+    "delete that",
+    "correct that"
+  ],
+  "samples": [
+    {
+      "audio": "../attached_assets/0_real_rad_0777_asiedua_1788995018040.wav",
+      "transcript": "Ill defined opacity present",
+      "speaker_locale": "Ghanaian English",
+      "speaker_locale_verified": true,
+      "specialty": "radiology",
+      "deidentified": true,
+      "medical_terms": [
+        "ill defined",
+        "opacity"
+      ],
+      "commands": []
+    }
+  ]
+}

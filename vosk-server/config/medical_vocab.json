@@ -1,0 +1,27 @@
+{
+  "enabled": true,
+  "version": "1.0",
+  "description": "Medical terminology for radiology dictation - extracted from 1.4M line corpus",
+  "terms": [
+    "demonstrates", "examination", "mass", "unremarkable", "lesion", "disc", "spinal",
+    "compression", "attenuation", "lesions", "degenerative", "facet", "bilaterally",
+    "cerebral", "demonstrated", "stenosis", "fracture", "foramina", "bulge", "vertebral",
+    "fractures", "heterogeneously", "contrast", "opacification", "calcifications",
+    "subcentimeter", "ventricles", "ventricle", "effusion", "signal", "cord", "masses",
+    "spondylosis", "osteophytes", "nodules", "intracranial", "infarct", "arthrosis",
+    "intervertebral", "surrounding", "significant", "parenchyma", "enhancement",
+    "haemorrhage", "thecal", "recommended", "sulci", "hypodensities", "periventricular",
+    "indentation", "foraminal", "complementary", "ipsilateral", "respectively", "oedema",
+    "infarcts", "mediastinal", "lymphadenopathy", "hyperintense", "infiltration",
+    "atherosclerotic", "flair", "calcification", "involvement", "subcutaneous", "nodule",
+    "hypodensity", "predominantly", "edema", "hemorrhage", "diffusion", "collections",
+    "herniation", "restricted", "cardiomegaly", "sequelae", "extraaxial", "meninges",
+    "opacities", "ischaemic", "pedicle", "paraspinal", "emphysema", "lucency",
+    "sacroiliac", "kyphosis", "articular", "scoliosis", "subarachnoid", "thrombosis",
+    "consolidation", "vertebrae", "pneumothorax", "laminectomy", "enhancing", "lucencies",
+    "enlarged", "infarcted", "thrombus", "hematoma", "aneurysm", "sclerosis"
+  ],
+  "usage": "initial_prompt",
+  "max_prompt_length": 244,
+  "notes": "Terms loaded into Whisper initial_prompt for zero post-processing latency"
+}

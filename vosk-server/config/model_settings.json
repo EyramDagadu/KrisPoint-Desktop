@@ -1,0 +1,41 @@
+{
+  "model": {
+    "size": "base",
+    "available_sizes": ["tiny", "base", "small"],
+    "language": "en",
+    "compute_type": "int8",
+    "device": "cpu",
+    "num_workers": 1
+  },
+  "streaming": {
+    "chunk_length_s": 5.0,
+    "stride_length_s": 2.0,
+    "vad_enabled": true,
+    "vad_threshold": 0.5,
+    "min_speech_duration_ms": 250,
+    "min_silence_duration_ms": 500
+  },
+  "transcription": {
+    "beam_size": 5,
+    "best_of": 5,
+    "temperature": 0.0,
+    "condition_on_previous_text": true,
+    "initial_prompt_enabled": true,
+    "no_speech_threshold": 0.6
+  },
+  "performance": {
+    "target_latency_ms": 3300,
+    "max_memory_mb": 200,
+    "enable_parallel_command_detection": true
+  },
+  "offline": {
+    "model_path": "models/",
+    "download_required": false,
+    "bundle_with_app": true
+  },
+  "notes": {
+    "base_model": "~200MB RAM, suitable for 8GB systems",
+    "latency": "3.3s average (acceptable for medical dictation)",
+    "accuracy": "PowerScribe-level with medical vocabulary"
+  }
+}

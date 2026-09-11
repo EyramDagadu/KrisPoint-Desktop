@@ -1,0 +1,39 @@
+/* Global CSS Reset & Variables */
+:root {
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-2: #273449;
+  --color-background-secondary: #0f172a;
+  --color-border: #475569;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --border-radius: 8px;
+  
+  /* Typography scale based on font size setting */
+  --base-font-size: 16px; /* Default, overridden by SettingsService */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  
+  font-size: var(--base-font-size);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  overflow: hidden;
+}

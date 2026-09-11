@@ -1,0 +1,111 @@
+# MEDICAL VOCABULARY FOR WHISPER
+
+## Top Medical Terms:
+- demonstrates
+- examination
+- mass
+- unremarkable
+- lesion
+- disc
+- spinal
+- compression
+- attenuation
+- lesions
+- degenerative
+- facet
+- bilaterally
+- cerebral
+- demonstrated
+- stenosis
+- fracture
+- foramina
+- bulge
+- vertebral
+- fractures
+- heterogeneously
+- contrast
+- opacification
+- calcifications
+- subcentimeter
+- ventricles
+- ventricle
+- effusion
+- signal
+- cord
+- masses
+- spondylosis
+- osteophytes
+- nodules
+- intracranial
+- infarct
+- arthrosis
+- intervertebral
+- surrounding
+- significant
+- parenchyma
+- enhancement
+- haemorrhage
+- thecal
+- recommended
+- sulci
+- hypodensities
+- periventricular
+- indentation
+- foraminal
+- complementary
+- ipsilateral
+- respectively
+- oedema
+- infarcts
+- mediastinal
+- lymphadenopathy
+- hyperintense
+- infiltration
+- atherosclerotic
+- flair
+- calcification
+- involvement
+- subcutaneous
+- nodule
+- hypodensity
+- predominantly
+- edema
+- hemorrhage
+- diffusion
+- collections
+- hydrocephalus
+- hyperostosis
+- cerebellar
+- distributed
+- heterogeneous
+- hypointense
+- atelectasis
+- displacement
+- abnormalities
+- symmetrical
+- heterogenous
+- degeneration
+- intrapulmonary
+- hydronephrosis
+- discs
+- opacity
+- haemorrhagic
+- endometrial
+- consolidation
+- radiologist
+- configuration
+- destruction
+- architectural
+- perilesional
+- administration
+- circumscribed
+- obstruction
+- restricted
+
+## Common Phrases:
+- neural foramina
+- disc bulge
+- spinal canal stenosis
+- no acute intracranial hemorrhage
+- compression fracture
+- within normal limits

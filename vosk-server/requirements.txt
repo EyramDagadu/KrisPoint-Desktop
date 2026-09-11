@@ -1,0 +1,6 @@
+faster-whisper==1.2.0
+websockets==15.0.1
+numpy==2.3.3
+python-dotenv==1.1.1
+torch==2.7.1
+transformers @ https://github.com/huggingface/transformers/archive/65dc261512cbdb1ee72b88ae5b222f2605aad8e5.zip

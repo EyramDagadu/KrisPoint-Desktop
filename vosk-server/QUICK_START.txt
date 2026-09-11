@@ -1,0 +1,28 @@
+KRISPOINT MEDASR VOICE SERVER - WINDOWS QUICK START
+===================================================
+
+FIRST-TIME SETUP
+
+1. Install 64-bit Python 3.11 and select "Add Python to PATH".
+2. Accept the MedASR terms:
+   https://huggingface.co/google/medasr
+3. Create a read-only Hugging Face token.
+4. From the KrisPoint folder, run setup-voice-server.bat.
+5. Open vosk-server\.env and add:
+   HF_TOKEN=hf_replace_with_your_read_only_token
+6. Run vosk-server\START_VOICE_SERVER.bat.
+
+Only the computer hosting the voice server needs Hugging Face access.
+Normal KrisPoint users do not need Hugging Face accounts.
+
+DAILY USE
+
+1. Run vosk-server\START_VOICE_SERVER.bat.
+2. Keep the voice-server window open.
+3. Start KrisPoint and dictate normally.
+
+The first start downloads approximately 421 MB. Later starts use the cached
+model and can normally run offline.
+
+For detailed LAN and troubleshooting instructions, read:
+vosk-server\LOCAL_SERVER_SETUP.md

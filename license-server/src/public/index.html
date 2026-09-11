@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KrisPoint - Purchase License</title>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+    .header { text-align: center; margin-bottom: 60px; }
+    .header h1 { font-size: 3rem; margin-bottom: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .header p { color: #a0aec0; font-size: 1.2rem; }
+    .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 60px; }
+    .plan {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .plan:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    .plan.popular { border: 2px solid #667eea; position: relative; }
+    .plan.popular::before {
+      content: 'Best Value';
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 5px 20px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;
+    }
+    .plan h2 { font-size: 1.5rem; margin-bottom: 10px; }
+    .plan .price { font-size: 3rem; font-weight: bold; margin: 20px 0; }
+    .plan .price span { font-size: 1rem; color: #a0aec0; }
+    .plan .interval { color: #a0aec0; margin-bottom: 30px; }
+    .plan ul { list-style: none; margin-bottom: 30px; text-align: left; }
+    .plan li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px; }
+    .plan li::before { content: '✓'; color: #48bb78; font-weight: bold; }
+    .btn {
+      display: inline-block; width: 100%; padding: 15px 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; border: none; border-radius: 10px; font-size: 1.1rem;
+      cursor: pointer; transition: opacity 0.3s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .features { margin-top: 60px; text-align: center; }
+    .features h2 { font-size: 2rem; margin-bottom: 40px; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+    .feature {
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px; padding: 30px;
+    }
+    .feature h3 { margin-bottom: 10px; color: #667eea; }
+    .feature p { color: #a0aec0; }
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: #1a1a2e; border-radius: 20px; padding: 40px;
+      max-width: 500px; width: 90%; text-align: center;
+    }
+    .modal-content h2 { margin-bottom: 20px; }
+    .modal-content input {
+      width: 100%; padding: 15px; margin: 10px 0;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px; color: white; font-size: 1rem;
+    }
+    .modal-content input::placeholder { color: #a0aec0; }
+    .close-btn {
+      position: absolute; top: 20px; right: 20px;
+      background: none; border: none; color: white; font-size: 2rem; cursor: pointer;
+    }
+    .success-page, .failed-page { text-align: center; padding: 100px 20px; }
+    .success-page h1 { color: #48bb78; }
+    .failed-page h1 { color: #f56565; }
+    .license-key-display {
+      background: rgba(255,255,255,0.1);
+      padding: 20px; border-radius: 10px; margin: 20px 0;
+      font-family: monospace; font-size: 1.5rem; letter-spacing: 2px;
+    }
+    .footer { text-align: center; margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); color: #a0aec0; }
+    .admin-link { color: #667eea; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container" id="app">
+    <div id="main-page">
+      <header class="header">
+        <h1>KrisPoint Premium</h1>
+        <p>Unlock the full potential of your radiology reporting</p>
+      </header>
+
+      <div class="plans" id="plans-container">
+        <div class="plan">
+          <h2>Loading plans...</h2>
+        </div>
+      </div>
+
+      <section class="features">
+        <h2>Premium Features</h2>
+        <div class="features-grid">
+          <div class="feature">
+            <h3>Voice Dictation</h3>
+            <p>Medical-grade speech recognition with custom vocabulary for radiology terms</p>
+          </div>
+          <div class="feature">
+            <h3>AI Report Polish</h3>
+            <p>Automatically enhance and format your reports with AI assistance</p>
+          </div>
+          <div class="feature">
+            <h3>Inter-User Chat</h3>
+            <p>Collaborate with colleagues in real-time within the application</p>
+          </div>
+          <div class="feature">
+            <h3>Templates & Macros</h3>
+            <p>Access comprehensive system templates and create personal macros</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="renewal-section" id="renewal-section">
+        <h2>Already have a license?</h2>
+        <p style="color: #a0aec0; margin-bottom: 20px;">If your license has expired, simply purchase a new plan with the same email address. Your existing license key will be automatically renewed - no need for a new key.</p>
+      </section>
+
+      <footer class="footer">
+        <p>&copy; 2025 KrisPoint. All rights reserved.</p>
+        <p><a href="/admin" class="admin-link">Admin Dashboard</a></p>
+      </footer>
+    </div>
+
+    <div id="success-page" class="success-page" style="display: none;">
+      <h1>Payment Successful!</h1>
+      <p id="success-subtitle">Thank you for your purchase!</p>
+      <div class="license-key-display" id="license-key-display" style="display: none;"></div>
+      <p id="success-instructions" style="display: none;"></p>
+      <button class="btn" style="max-width: 300px; margin-top: 20px;" onclick="window.location.href=basePath || '/'">Back to Home</button>
+    </div>
+
+    <div id="failed-page" class="failed-page" style="display: none;">
+      <h1>Payment Failed</h1>
+      <p id="error-message">Something went wrong with your payment. Please try again.</p>
+      <button class="btn" style="max-width: 300px; margin-top: 20px;" onclick="window.location.href='/'">Try Again</button>
+    </div>
+  </div>
+
+  <div class="modal" id="checkout-modal">
+    <div class="modal-content" style="position: relative;">
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+      <h2>Complete Your Purchase</h2>
+      <p id="selected-plan-name" style="color: #a0aec0; margin-bottom: 20px;"></p>
+      <input type="text" id="customer-name" placeholder="Your Name">
+      <input type="email" id="customer-email" placeholder="Email Address" required>
+      <input type="text" id="customer-org" placeholder="Organization (optional)">
+      <p id="renewal-hint" style="display: none; color: #f59e0b; font-size: 0.85rem; margin: 10px 0;">Use the same email address from your original purchase to extend your existing license.</p>
+      <button class="btn" id="pay-btn" onclick="initiatePayment()">Pay Now</button>
+    </div>
+  </div>
+
+  <script>
+    let config = {};
+    let selectedPlan = null;
+    let renewalLicenseKey = null;
+
+    const basePath = (() => {
+      const path = window.location.pathname;
+      if (path.includes('/license-server')) {
+        return path.substring(0, path.indexOf('/license-server') + '/license-server'.length);
+      }
+      return '';
+    })();
+
+    async function init() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const reference = urlParams.get('reference');
+      renewalLicenseKey = urlParams.get('license_key') || null;
+      
+      const localPath = window.location.pathname.replace(basePath, '') || '/';
+      
+      if (localPath === '/payment/success' && reference) {
+        await showSuccessPage(reference);
+        return;
+      }
+      
+      if (localPath === '/payment/failed') {
+        showFailedPage(urlParams.get('error'));
+        return;
+      }
+
+      try {
+        const configRes = await fetch(`${basePath}/api/config`);
+        config = await configRes.json();
+
+        const plansRes = await fetch(`${basePath}/api/paystack/plans`);
+        const plans = await plansRes.json();
+        renderPlans(plans);
+
+        if (renewalLicenseKey) {
+          const renewalSection = document.getElementById('renewal-section');
+          if (renewalSection) {
+            renewalSection.innerHTML = `
+              <div style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); border-radius: 12px; padding: 20px; text-align: center;">
+                <h2 style="color: #f59e0b;">Renewing License: ${renewalLicenseKey}</h2>
+                <p style="color: #a0aec0;">Select a plan below and pay with your original email. Your existing license key will be extended automatically.</p>
+              </div>`;
+          }
+        }
+      } catch (err) {
+        console.error('Init error:', err);
+      }
+    }
+
+    function renderPlans(plans) {
+      const container = document.getElementById('plans-container');
+      container.innerHTML = plans.map((plan, index) => `
+        <div class="plan ${index === 1 ? 'popular' : ''}">
+          <h2>${plan.name}</h2>
+          <div class="price">GH₵${(plan.price_cedis / 100).toFixed(2)} <span>/${plan.interval}</span></div>
+          <p class="interval">${plan.description || ''}</p>
+          <ul>
+            ${(plan.features || []).map(f => `<li>${formatFeature(f)}</li>`).join('')}
+          </ul>
+          <button class="btn" onclick="selectPlan(${plan.id}, '${plan.name}', ${plan.price_cedis})">
+            Get Started
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function formatFeature(feature) {
+      const names = {
+        voice: 'Voice Dictation',
+        ai_polish: 'AI Report Polish',
+        chat: 'Inter-User Chat',
+        templates: 'System Templates',
+        macros: 'Personal Macros'
+      };
+      return names[feature] || feature;
+    }
+
+    function selectPlan(id, name, price) {
+      selectedPlan = { id, name, price };
+      document.getElementById('selected-plan-name').textContent = renewalLicenseKey 
+        ? `Renew: ${name} - GH₵${(price / 100).toFixed(2)}`
+        : `${name} - GH₵${(price / 100).toFixed(2)}`;
+      if (renewalLicenseKey) {
+        document.getElementById('renewal-hint').style.display = 'block';
+      }
+      document.getElementById('checkout-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('checkout-modal').classList.remove('active');
+    }
+
+    async function initiatePayment() {
+      const email = document.getElementById('customer-email').value;
+      const name = document.getElementById('customer-name').value;
+      const org = document.getElementById('customer-org').value;
+
+      if (!email) {
+        alert('Please enter your email address');
+        return;
+      }
+
+      const btn = document.getElementById('pay-btn');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+
+      try {
+        const payload = {
+            email,
+            planId: selectedPlan.id,
+            customerName: name,
+            organization: org
+        };
+        if (renewalLicenseKey) {
+          payload.licenseKey = renewalLicenseKey;
+        }
+
+        const res = await fetch(`${basePath}/api/paystack/initialize`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          window.location.href = data.authorizationUrl;
+        } else {
+          alert(data.error || 'Failed to initialize payment');
+          btn.disabled = false;
+          btn.textContent = 'Pay Now';
+        }
+      } catch (err) {
+        console.error('Payment error:', err);
+        alert('Payment initialization failed. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Pay Now';
+      }
+    }
+
+    async function showSuccessPage(reference) {
+      document.getElementById('main-page').style.display = 'none';
+      document.getElementById('success-page').style.display = 'block';
+
+      try {
+        const res = await fetch(`${basePath}/api/paystack/verify/${reference}`);
+        const data = await res.json();
+
+        if (data.success && data.licenseKey) {
+          document.getElementById('success-subtitle').textContent = 'Thank you for your purchase! Here is your license key:';
+          document.getElementById('license-key-display').textContent = data.licenseKey;
+          document.getElementById('license-key-display').style.display = 'block';
+          document.getElementById('license-key-display').style.cursor = 'pointer';
+          document.getElementById('license-key-display').title = 'Click to copy';
+          document.getElementById('license-key-display').onclick = function() {
+            navigator.clipboard.writeText(data.licenseKey).then(() => {
+              const el = document.getElementById('license-key-display');
+              const original = el.textContent;
+              el.textContent = 'Copied!';
+              setTimeout(() => { el.textContent = original; }, 1500);
+            });
+          };
+          document.getElementById('success-instructions').textContent = 'Copy this key and enter it in KrisPoint Settings → License to activate your premium features.';
+          document.getElementById('success-instructions').style.display = 'block';
+        } else {
+          document.getElementById('success-subtitle').textContent = 'Thank you for your purchase! Your license key will be sent to your email shortly.';
+        }
+      } catch (err) {
+        document.getElementById('success-subtitle').textContent = 'Thank you for your purchase! Your license key will be sent to your email shortly.';
+      }
+    }
+
+    function showFailedPage(error) {
+      document.getElementById('main-page').style.display = 'none';
+      document.getElementById('failed-page').style.display = 'block';
+
+      if (error) {
+        const messages = {
+          no_reference: 'No payment reference found',
+          payment_failed: 'Your payment was not successful',
+          verification_failed: 'Could not verify your payment'
+        };
+        document.getElementById('error-message').textContent = messages[error] || error;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

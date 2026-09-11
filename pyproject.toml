@@ -1,0 +1,14 @@
+[project]
+name = "repl-nix-workspace"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "faster-whisper>=1.2.0",
+    "numpy>=2.3.3",
+    "python-dotenv>=1.1.1",
+    "streamlit>=1.50.0",
+    "torch==2.7.1",
+    "transformers @ https://github.com/huggingface/transformers/archive/65dc261512cbdb1ee72b88ae5b222f2605aad8e5.zip",
+    "websockets>=15.0.1",
+]

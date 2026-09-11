@@ -1,0 +1,28 @@
+{
+  "status": "unscored-operational-smoke-test",
+  "run_date": "2026-09-09",
+  "audio": "audio/1/session_1766430738966_1urld97w9.wav",
+  "audio_sha256": "409490cab2fe098e5f763de7db4ac7af5296d44dfa64435d4d2891adc6c0c7e4",
+  "platform": "Replit Linux CPU environment",
+  "python": "3.11",
+  "uv_lock_sha256": "0757703581730b54bfc00cb5c88bf97878fcaddd068e8a9d920574f8f9c57d7d",
+  "results": {
+    "medasr": {
+      "model": "google/medasr",
+      "model_revision": "ae1e4845b4b07479735d93e1e591e566435b7104",
+      "text": "No abnormal areas of increased intake.",
+      "latency_ms": 1972.3,
+      "peak_ram_mb": 790.2
+    },
+    "faster-whisper": {
+      "model": "medium",
+      "model_revision": "08e178d48790749d25932bbc082711ddcfdfbc4f",
+      "device": "cpu",
+      "compute_type": "int8",
+      "text": "no abnormal areas of increased intake.",
+      "latency_ms": 5149.8,
+      "peak_ram_mb": 2151.5
+    }
+  },
+  "warning": "The audio has no verified transcript, locale, specialty, medical-term annotations, or command annotations. These measurements cannot be used as accuracy evidence."
+}
