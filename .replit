@@ -23,6 +23,10 @@ args = "SvelteKit Dev Server"
 task = "workflow.run"
 args = "License Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Solo Browser Test"
+
 [[workflows.workflow]]
 name = "SvelteKit Dev Server"
 author = "agent"
@@ -47,6 +51,18 @@ waitForPort = 3001
 [workflows.workflow.metadata]
 outputType = "console"
 
+[[workflows.workflow]]
+name = "Solo Browser Test"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mkdir -p .cache/solo-preview && VITE_KRISPOINT_EDITION=solo KRISPOINT_SOLO_DB_PATH=\"$PWD/.cache/solo-preview/krispoint.sqlite\" SOLO_ENCRYPTION_KEY=\"${SESSION_SECRET}-solo-preview-encryption\" SOLO_AUDIT_KEY=\"${SESSION_SECRET}-solo-preview-audit\" npm run dev -- --host 0.0.0.0 --port 5173 --strictPort"
+waitForPort = 5173
+
+[workflows.workflow.metadata]
+outputType = "console"
+
 [[ports]]
 localPort = 3001
 externalPort = 3001
@@ -54,6 +70,10 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 5173
+externalPort = 5173
 
 [[ports]]
 localPort = 8000

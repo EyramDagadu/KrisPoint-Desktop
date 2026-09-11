@@ -10,7 +10,20 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: true,
     watch: {
-      ignored: ['**/.cache/**', '**/.pythonlibs/**', '**/__pycache__/**'],
+      ignored: [
+        '**/.agents/**',
+        '**/.cache/**',
+        '**/.git/**',
+        '**/.local/**',
+        '**/.pythonlibs/**',
+        '**/.svelte-kit/**',
+        '**/build/**',
+        '**/dist/**',
+        '**/solo-runtime/**',
+        '**/src-tauri/target/**',
+        '**/voice-runtime/**',
+        '**/__pycache__/**'
+      ],
     },
     headers: {
       'Access-Control-Allow-Origin': '*',
