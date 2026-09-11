@@ -1,6 +1,7 @@
 use hmac::{Hmac, Mac};
 use rand::RngCore;
 use sha2::Sha256;
+use std::fs::OpenOptions;
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -205,7 +206,11 @@ impl VoiceServerState {
         ].into_iter().find(|path| path.exists());
 
         let (program, args, working_dir) = if let Some(executable) = bundled_executable {
-            (executable, Vec::<String>::new(), resource_dir.clone())
+            let working_dir = executable
+                .parent()
+                .ok_or_else(|| "Packaged MedASR runtime directory was not found".to_string())?
+                .to_path_buf();
+            (executable, Vec::<String>::new(), working_dir)
         } else if cfg!(debug_assertions) {
             let server_dir = self.try_workspace_path()?;
             let python = if cfg!(windows) { "py" } else { "python3.11" };
@@ -228,8 +233,23 @@ impl VoiceServerState {
             .iter()
             .map(|byte| format!("{:02x}", byte))
             .collect::<String>();
+        let data_dir = app_handle
+            .path()
+            .app_data_dir()
+            .map_err(|e| format!("Cannot determine Solo data directory: {e}"))?;
+        std::fs::create_dir_all(&data_dir)
+            .map_err(|e| format!("Cannot create Solo data directory: {e}"))?;
+        let log_path = data_dir.join("voice.log");
+        let voice_log = OpenOptions::new()
+            .create(true)
+            .truncate(true)
+            .write(true)
+            .open(&log_path)
+            .map_err(|e| format!("Cannot create MedASR log: {e}"))?;
+        let voice_error_log = voice_log
+            .try_clone()
+            .map_err(|e| format!("Cannot open MedASR error log: {e}"))?;
 
-        // Start the server process with visible console window (working version)
         let mut command = Command::new(&program);
         command
             .args(&args)
@@ -240,8 +260,8 @@ impl VoiceServerState {
             .env("VOICE_HOST", "127.0.0.1")
             .env("VOICE_PORT", port.to_string())
             .stdin(Stdio::null())
-            .stdout(Stdio::null())
-            .stderr(Stdio::null());
+            .stdout(Stdio::from(voice_log))
+            .stderr(Stdio::from(voice_error_log));
         #[cfg(windows)]
         command.creation_flags(0x08000000);
         let child = command
@@ -273,9 +293,9 @@ impl VoiceServerState {
                         Ok(Some(status)) => {
                             process_guard.take();
                             drop(process_guard);
+                            let output = process_log_tail(&log_path);
                             let error_msg = format!(
-                                "Voice server exited during startup with status: {}",
-                                status
+                                "Voice server exited during startup with status: {status}. Voice output:\n{output}"
                             );
                             self.update_status(false, &error_msg, 0);
                             return Err(error_msg);
@@ -305,7 +325,9 @@ impl VoiceServerState {
         }
 
         let _ = self.stop();
-        let error_msg = "Voice server did not become ready within two minutes".to_string();
+        let output = process_log_tail(&log_path);
+        let error_msg =
+            format!("Voice server did not become ready within two minutes. Voice output:\n{output}");
         self.update_status(false, &error_msg, 0);
         Err(error_msg)
     }
@@ -336,6 +358,18 @@ impl VoiceServerState {
     pub fn get_status(&self) -> ServerStatus {
         self.refresh_process_state();
         self.status.lock().unwrap().clone()
+    }
+}
+
+fn process_log_tail(path: &std::path::Path) -> String {
+    const LIMIT: usize = 8 * 1024;
+    match std::fs::read(path) {
+        Ok(bytes) if !bytes.is_empty() => {
+            let start = bytes.len().saturating_sub(LIMIT);
+            String::from_utf8_lossy(&bytes[start..]).trim().to_string()
+        }
+        Ok(_) => "(voice server produced no output)".to_string(),
+        Err(error) => format!("(unable to read voice log: {error})"),
     }
 }
 

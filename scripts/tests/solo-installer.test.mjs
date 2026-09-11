@@ -22,6 +22,10 @@ test('Solo installer owns embedded backend and voice runtimes', async () => {
   assert.match(voice, /VOICE_HEALTH_TOKEN/);
   assert.match(voice, /VOICE_CLIENT_TOKEN/);
   assert.match(voice, /verify_slice/);
+  assert.match(voice, /voice\.log/);
+  assert.match(voice, /process_log_tail/);
+  assert.doesNotMatch(voice, /\.stderr\(Stdio::null\(\)\)/);
+  assert.match(voice, /executable[\s\S]*\.parent\(\)[\s\S]*working_dir/);
   assert.match(voice, /Some\(voice_url\(port, &health_token\)\)/);
   assert.match(backend, /KRISPOINT_PARENT_PID/);
   assert.match(voice, /KRISPOINT_PARENT_PID/);
