@@ -13,6 +13,9 @@ test('Solo installer owns embedded backend and voice runtimes', async () => {
   assert.match(config, /solo-runtime/);
   assert.match(config, /voice-runtime/);
   assert.match(backend, /Command::new\(runtime\)/);
+  assert.match(backend, /backend\.log/);
+  assert.match(backend, /backend_log_tail/);
+  assert.doesNotMatch(backend, /\.stderr\(Stdio::null\(\)\)/);
   assert.match(backend, /process\.kill\(\)/);
   assert.match(voice, /TcpListener::bind\(\("127\.0\.0\.1", 0\)\)/);
   assert.match(voice, /VOICE_HEALTH_TOKEN/);
@@ -39,6 +42,7 @@ test('release bundles target Windows and macOS installers', async () => {
   assert.match(workflow, /artifact: windows-x64\s+bundle: msi/);
   assert.match(workflow, /artifact: macos-apple-silicon\s+bundle: dmg/);
   assert.match(workflow, /npm run build:solo:installer -- --bundles \$\{\{ matrix\.bundle \}\}/);
+  assert.match(workflow, /if: always\(\)\s+uses: actions\/upload-artifact@v4/);
   assert.doesNotMatch(workflow, /bundle\/nsis/);
 });
 

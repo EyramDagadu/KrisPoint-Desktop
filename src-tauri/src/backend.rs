@@ -4,6 +4,7 @@
 //! local node process.  Keeping this process owned by Tauri means it cannot be
 //! left running after the desktop application exits.
 use rand::RngCore;
+use std::fs::OpenOptions;
 use std::net::TcpListener;
 use std::process::{Child, Command, Stdio};
 use std::sync::Mutex;
@@ -49,6 +50,16 @@ impl BackendState {
         let port = listener.local_addr().map_err(|e| e.to_string())?.port();
         drop(listener);
         let (runtime, entry) = backend_entry(app)?;
+        let log_path = data_dir.join("backend.log");
+        let backend_log = OpenOptions::new()
+            .create(true)
+            .truncate(true)
+            .write(true)
+            .open(&log_path)
+            .map_err(|e| format!("Cannot create Solo backend log: {e}"))?;
+        let backend_error_log = backend_log
+            .try_clone()
+            .map_err(|e| format!("Cannot open Solo backend error log: {e}"))?;
 
         let mut command = Command::new(runtime);
         command.arg(&entry);
@@ -69,14 +80,14 @@ impl BackendState {
             .env("KRISPOINT_APP_ORIGIN", format!("http://127.0.0.1:{port}"))
             .env("KRISPOINT_PARENT_PID", std::process::id().to_string())
             .stdin(Stdio::null())
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
+            .stdout(Stdio::from(backend_log))
+            .stderr(Stdio::from(backend_error_log))
             .spawn()
             .map_err(|e| format!("Unable to start packaged KrisPoint backend: {e}"))?;
 
         *child = Some(process);
         drop(child);
-        wait_until_ready(self, port, &launch_secret)?;
+        wait_until_ready(self, port, &launch_secret, &log_path)?;
         Ok((port, launch_secret))
     }
 
@@ -133,7 +144,12 @@ fn backend_entry(app: &AppHandle) -> Result<(std::path::PathBuf, std::path::Path
     Err("Packaged Solo backend runtime was not found".to_string())
 }
 
-fn wait_until_ready(state: &BackendState, port: u16, launch_secret: &str) -> Result<(), String> {
+fn wait_until_ready(
+    state: &BackendState,
+    port: u16,
+    launch_secret: &str,
+    log_path: &std::path::Path,
+) -> Result<(), String> {
     let client = reqwest::blocking::Client::new();
     for _ in 0..120 {
         let ready = client
@@ -146,17 +162,33 @@ fn wait_until_ready(state: &BackendState, port: u16, launch_secret: &str) -> Res
             return Ok(());
         }
         if let Ok(mut guard) = state.0.lock() {
-            if let Some(process) = guard.as_mut() {
-                if process.try_wait().ok().flatten().is_some() {
-                    guard.take();
-                    return Err("KrisPoint backend exited during startup".to_string());
-                }
+            let exit_status = guard
+                .as_mut()
+                .and_then(|process| process.try_wait().ok().flatten());
+            if let Some(status) = exit_status {
+                guard.take();
+                let output = backend_log_tail(log_path);
+                return Err(format!(
+                    "KrisPoint backend exited during startup ({status}). Backend output:\n{output}"
+                ));
             }
         }
         thread::sleep(Duration::from_millis(250));
     }
     let _ = state.stop();
     Err("KrisPoint backend did not become ready within 30 seconds".to_string())
+}
+
+fn backend_log_tail(path: &std::path::Path) -> String {
+    const LIMIT: usize = 8 * 1024;
+    match std::fs::read(path) {
+        Ok(bytes) if !bytes.is_empty() => {
+            let start = bytes.len().saturating_sub(LIMIT);
+            String::from_utf8_lossy(&bytes[start..]).trim().to_string()
+        }
+        Ok(_) => "(backend produced no output)".to_string(),
+        Err(error) => format!("(unable to read backend log: {error})"),
+    }
 }
 
 pub(crate) fn read_credential(account: &str) -> Result<String, String> {
