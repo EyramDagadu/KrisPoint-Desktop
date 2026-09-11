@@ -59,6 +59,11 @@ test('MedASR uses a released cross-platform PyTorch version', async () => {
   assert.match(engine, /local_files_only/);
 });
 
+test('Solo vendors OpenSSL for portable encrypted backup builds', async () => {
+  const manifest = await read('src-tauri/Cargo.toml');
+  assert.match(manifest, /openssl\s*=\s*\{\s*version\s*=\s*"0\.10",\s*features\s*=\s*\["vendored"\]\s*\}/);
+});
+
 test('voice watchdog uses a non-destructive Windows process handle probe', async () => {
   const watchdog = await read('vosk-server/src/parent_watchdog.py');
   assert.match(watchdog, /OpenProcess/);

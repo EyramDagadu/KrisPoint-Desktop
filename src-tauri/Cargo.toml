@@ -36,7 +36,7 @@ argon2 = "0.5"
 rusqlite = { version = "0.32", features = ["backup", "bundled"] }
 tempfile = "3"
 rfd = "0.15"
-openssl = "0.10"
+openssl = { version = "0.10", features = ["vendored"] }
 bcrypt = "0.17"
 
 [target.'cfg(windows)'.dependencies]
