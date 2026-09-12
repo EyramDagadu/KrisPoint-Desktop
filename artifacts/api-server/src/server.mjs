@@ -175,7 +175,19 @@ export const groqProviderAdapter = {
           }),
           signal: controller.signal
         });
-        if (!response.ok) throw new Error('AI provider request failed');
+        if (!response.ok) {
+          const providerMessage = response.status === 401 || response.status === 403
+            ? 'AI provider credential was rejected; no changes were made'
+            : response.status === 404
+              ? 'AI provider model is unavailable; no changes were made'
+              : response.status === 429
+                ? 'AI provider rate limit exceeded; no changes were made'
+                : 'AI provider request failed; no changes were made';
+          throw Object.assign(new Error(providerMessage), {
+            status: response.status === 429 ? 429 : 503,
+            publicMessage: providerMessage
+          });
+        }
         const result = JSON.parse(await readResponse(response, MAX_JSON_BYTES));
         const content = result?.choices?.[0]?.message?.content;
         if (typeof content !== 'string') throw new Error('AI returned no structured response');
@@ -424,11 +436,11 @@ export function createGatewayServer(options = {}) {
           error: typeof error?.message === 'string' ? error.message.slice(0, 160) : 'Unknown error'
         });
       }
-      const message = status === 429 ? error.message :
+      const message = error?.publicMessage || (status === 429 ? error.message :
         status === 403 ? error.message : status === 504 ? 'AI polish timed out; no changes were made' :
           unavailableStage === 'license_authority'
             ? 'License verification is temporarily unavailable; no changes were made'
-            : 'AI provider is temporarily unavailable; no changes were made';
+            : 'AI provider is temporarily unavailable; no changes were made');
       return jsonResponse(response, status, { success: false, error: message });
     }
   });
