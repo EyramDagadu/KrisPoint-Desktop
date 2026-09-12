@@ -24,10 +24,6 @@ args = "KrisPoint License Server"
 task = "workflow.run"
 args = "KrisPoint MedASR"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "KrisPoint AI Gateway"
-
 [[workflows.workflow]]
 name = "KrisPoint License Server"
 author = "agent"
@@ -50,18 +46,6 @@ outputType = "console"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd vosk-server/src && ASR_ENGINE=medasr VOICE_HOST=127.0.0.1 VOICE_PORT=8000 VOICE_CLIENT_TOKEN=\"$SESSION_SECRET-hospital-voice\" uv run python websocket_server.py"
-
-[[workflows.workflow]]
-name = "KrisPoint AI Gateway"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "KRISPOINT_LICENSE_PUBLIC_KEY=\"$(cat license-server/keys/public.key)\" KRISPOINT_LICENSE_SERVER_URL=http://127.0.0.1:3001 HOST=0.0.0.0 PORT=8099 pnpm --filter @workspace/ai-gateway run start"
-waitForPort = 8099
 
 [agent]
 stack = "PNPM_WORKSPACE"
@@ -87,3 +71,15 @@ externalPort = 80
 localPort = 8000
 externalPort = 8000
 exposeLocalhost = true
+
+[userenv]
+
+[userenv.production]
+AI_PROVIDER = "groq"
+KRISPOINT_LICENSE_PUBLIC_KEY = "82+D9jo1T2onbxyCFYYKPkecDJTVDXphIK/36oJo4Kk="
+KRISPOINT_LICENSE_SERVER_URL = "https://license.krispoint.com.gh"
+
+[userenv.development]
+AI_PROVIDER = "groq"
+KRISPOINT_LICENSE_PUBLIC_KEY = "82+D9jo1T2onbxyCFYYKPkecDJTVDXphIK/36oJo4Kk="
+KRISPOINT_LICENSE_SERVER_URL = "https://license.krispoint.com.gh"

@@ -8,5 +8,5 @@ authoritative rollout path for the active-template identity migration.
 It uses the same `DATABASE_URL` PostgreSQL convention as `src/lib/server/db.ts`,
 runs both statements in one transaction, and uses PostgreSQL
 `ADD COLUMN IF NOT EXISTS` so retries are safe. The root Hospital startup
-wrapper invokes it before accepting requests. The standalone `ai-gateway`
+wrapper invokes it before accepting requests. The standalone KrisPoint AI gateway
 does not import or execute this script.

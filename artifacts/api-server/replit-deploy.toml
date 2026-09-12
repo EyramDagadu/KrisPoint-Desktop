@@ -1,4 +1,4 @@
-# Use this file when deploying ai-gateway as the Replit project root.
+# Use this file when deploying the KrisPoint AI gateway as the Replit project root.
 # It is intentionally separate from the repository's application .replit.
 modules = ["nodejs-20"]
 

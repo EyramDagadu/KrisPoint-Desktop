@@ -84,14 +84,3 @@ test('Hospital development entrypoints migrate before npm run dev', async () => 
     );
   }
 });
-
-test('displaced scaffold API artifact keeps its declared route and health check aligned', async () => {
-  const read = path => readFile(new URL(`../../${path}`, import.meta.url), 'utf8');
-  const [appSource, artifactManifest] = await Promise.all([
-    read('artifacts/api-server/src/app.ts'),
-    read('artifacts/api-server/.replit-artifact/artifact.toml')
-  ]);
-  assert.match(appSource, /app\.use\("\/__scaffold-api", router\)/);
-  assert.match(artifactManifest, /paths = \["\/__scaffold-api"\]/);
-  assert.match(artifactManifest, /path = "\/__scaffold-api\/healthz"/);
-});

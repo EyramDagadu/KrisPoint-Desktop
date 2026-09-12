@@ -36,7 +36,6 @@ minimumReleaseAgeExclude:
 
 packages:
   - artifacts/*
-  - ai-gateway
   - license-server
   - lib/*
   - lib/integrations/*

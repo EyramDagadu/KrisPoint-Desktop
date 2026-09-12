@@ -4,7 +4,7 @@ Hospital multi-user radiology reporting and Solo desktop reporting, with shared 
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/ai-gateway run start` — run the KrisPoint AI gateway
 - `pnpm run dev:hospital` — run the Hospital app with its safe additive migration
 - `pnpm test:deployment` — validate the Windows Hospital deployment contract
 - `pnpm run typecheck` — full typecheck across all packages

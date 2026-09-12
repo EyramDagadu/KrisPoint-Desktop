@@ -15,7 +15,7 @@
     "build:solo": "node scripts/run-solo.mjs build && node scripts/package-solo-backend.mjs && node scripts/package-solo-voice.mjs",
     "build:solo:installer": "tauri build",
     "test:solo:installer": "node --test scripts/tests/solo-installer.test.mjs",
-    "test:ai": "node --test scripts/tests/ai-polish.test.mjs && pnpm --dir ai-gateway test",
+    "test:ai": "node --test scripts/tests/ai-polish.test.mjs && pnpm --dir artifacts/api-server test",
     "test:migration": "node --test scripts/tests/migration.test.mjs",
     "test:voice": "node --test scripts/tests/voice-ticket.test.mjs && python3 -m unittest discover -s vosk-server/tests -p 'test_*.py'",
     "test:deployment": "node --test scripts/tests/hospital-deploy-contract.test.mjs && node --experimental-strip-types --test artifacts/krispoint/src/lib/server/validateEnvironment.test.ts",

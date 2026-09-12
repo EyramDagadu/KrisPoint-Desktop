@@ -1,4 +1,4 @@
-import { checkClinicalSafety, checkImpressionSafety } from '../../../../../ai-gateway/src/safety.mjs';
+import { checkClinicalSafety, checkImpressionSafety } from '../../../../api-server/src/safety.mjs';
 export { checkClinicalSafety, checkImpressionSafety };
 
 export interface PolishInput {

@@ -11,7 +11,7 @@ import {
   MAX_TEMPLATE_BYTES
 } from '$lib/server/aiPolish';
 import { verifyAiLicense } from '$lib/server/aiLicense';
-import { findExplicitIdentifiersInRequest } from '../../../../../../../ai-gateway/src/policy.mjs';
+import { findExplicitIdentifiersInRequest } from '../../../../../../api-server/src/policy.mjs';
 import { ByoPolishProvider, resolveByoConfig } from '$lib/server/aiByo';
 
 const managedProvider = new GroqPolishProvider();
