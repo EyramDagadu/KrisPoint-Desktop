@@ -12,7 +12,7 @@ paths = [ "/" ]
 localPort = 25037
 
 [services.development]
-run = 'pnpm --filter @workspace/krispoint run db:migrate:hospital && VITE_KRISPOINT_EDITION=hospital VOICE_CLIENT_TOKEN="$SESSION_SECRET-hospital-voice" pnpm --filter @workspace/krispoint run dev'
+run = 'VITE_KRISPOINT_EDITION=solo DATABASE_URL="sqlite:///tmp/krispoint-solo-preview.db" KRISPOINT_SOLO_DB_PATH="/tmp/krispoint-solo-preview.db" SOLO_ENCRYPTION_KEY="$SESSION_SECRET-solo-encryption" SOLO_AUDIT_KEY="$SESSION_SECRET-solo-audit" KRISPOINT_AI_GATEWAY_URL="https://ai.krispoint.com.gh" KRISPOINT_REMOTE_AI_ENABLED="true" pnpm --filter @workspace/krispoint run dev'
 
 [services.production.build]
 args = [ "pnpm", "--filter", "@workspace/krispoint", "run", "build" ]
