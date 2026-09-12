@@ -23,6 +23,10 @@ args = "SvelteKit Dev Server"
 task = "workflow.run"
 args = "License Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Hospital MedASR Voice Server"
+
 
 [[workflows.workflow]]
 name = "SvelteKit Dev Server"
@@ -48,6 +52,17 @@ waitForPort = 3001
 [workflows.workflow.metadata]
 outputType = "console"
 
+[[workflows.workflow]]
+name = "Hospital MedASR Voice Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd vosk-server/src && ASR_ENGINE=medasr VOICE_HOST=127.0.0.1 VOICE_PORT=8000 VOICE_CLIENT_TOKEN=\"${SESSION_SECRET}-hospital-voice\" python3 websocket_server.py"
+
 [[ports]]
 localPort = 3001
 externalPort = 3001
@@ -56,9 +71,6 @@ externalPort = 3001
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 8000
-externalPort = 8000
 
 [deployment]
 deploymentTarget = "autoscale"
