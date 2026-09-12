@@ -69,11 +69,15 @@ Write-Host ""
 
 Require-Command "node" "Install Node.js 20 or later from https://nodejs.org/."
 Require-Command "npm" "Install Node.js 20 or later from https://nodejs.org/."
+Require-Command "corepack" "Install the standard Node.js 20 distribution, which includes Corepack."
 
 $nodeMajor = [int]((& node -p "process.versions.node.split('.')[0]").Trim())
 if ($nodeMajor -lt 20) {
     Stop-Setup "Node.js 20 or later is required. Installed version: $(& node --version)"
 }
+Run-Checked "Enabling pnpm..." { corepack enable }
+Run-Checked "Activating pnpm 10.26.1..." { corepack prepare pnpm@10.26.1 --activate }
+Require-Command "pnpm" "Corepack could not activate pnpm 10.26.1."
 
 $psql = Find-PostgresTool "psql"
 $createdb = Find-PostgresTool "createdb"
@@ -82,7 +86,7 @@ if (Test-Path $EnvironmentPath) {
     Write-Host "An existing .env file was found."
     Write-Host "Its database credentials and encryption key will be preserved."
     Write-Host "To protect existing encrypted patient data, this installer never replaces them."
-    Run-Checked "Installing application dependencies..." { npm ci --ignore-scripts --no-audit --no-fund }
+    Run-Checked "Installing application dependencies..." { pnpm install --frozen-lockfile --ignore-scripts }
     Run-Checked "Initializing or updating database tables..." { npm run db:push }
     Write-Host ""
     Write-Host "Existing KrisPoint installation verified successfully." -ForegroundColor Green
@@ -147,7 +151,7 @@ NODE_ENV=development
 
 $env:DATABASE_URL = $databaseUrl
 $env:ENCRYPTION_KEY = $encryptionKey
-Run-Checked "Installing application dependencies..." { npm ci --ignore-scripts --no-audit --no-fund }
+Run-Checked "Installing application dependencies..." { pnpm install --frozen-lockfile --ignore-scripts }
 Run-Checked "Creating or updating KrisPoint database tables..." { npm run db:push }
 
 $installVoice = Read-Host "Install local MedASR voice recognition on this computer? [y/N]"

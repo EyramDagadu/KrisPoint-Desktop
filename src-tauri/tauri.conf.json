@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "identifier": "com.krispoint.radiology",
   "build": {
-    "frontendDist": "../build",
+    "frontendDist": "../artifacts/krispoint/build",
     "devUrl": "http://localhost:5000",
     "beforeDevCommand": "npm run dev:solo",
     "beforeBuildCommand": "npm run build:solo"
@@ -40,7 +40,7 @@
       "icons/icon.ico"
     ],
     "resources": [
-      "../build",
+      "../artifacts/krispoint/build",
       "../voice-runtime/**/*",
       "../solo-runtime/**/*"
     ],

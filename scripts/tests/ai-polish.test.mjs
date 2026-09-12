@@ -7,13 +7,14 @@ import test from 'node:test';
 import { pathToFileURL } from 'node:url';
 
 const root = resolve(import.meta.dirname, '../..');
-const read = (path) => readFileSync(resolve(root, path), 'utf8');
+const appPath = (path) => path.startsWith('src/') ? `artifacts/krispoint/${path}` : path;
+const read = (path) => readFileSync(resolve(root, appPath(path)), 'utf8');
 
 async function loadAiPolishModule() {
   const directory = mkdtempSync(join(tmpdir(), 'krispoint-ai-polish-'));
   const output = join(directory, 'ai-polish.mjs');
   execFileSync(resolve(root, 'node_modules/.bin/esbuild'), [
-    resolve(root, 'src/lib/server/aiPolish.ts'),
+    resolve(root, 'artifacts/krispoint/src/lib/server/aiPolish.ts'),
     '--bundle',
     '--platform=node',
     '--format=esm',
@@ -27,7 +28,7 @@ async function loadByoModule() {
   const directory = mkdtempSync(join(tmpdir(), 'krispoint-ai-byo-'));
   const output = join(directory, 'ai-byo.mjs');
   execFileSync(resolve(root, 'node_modules/.bin/esbuild'), [
-    resolve(root, 'src/lib/server/aiByo.ts'),
+    resolve(root, 'artifacts/krispoint/src/lib/server/aiByo.ts'),
     '--bundle',
     '--platform=node',
     '--format=esm',

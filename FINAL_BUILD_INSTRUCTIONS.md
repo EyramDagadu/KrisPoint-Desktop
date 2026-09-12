@@ -47,7 +47,7 @@ DESTINATION: C:\KrisPoint-Server\KrisPoint-Desktop-1\
 cd C:\KrisPoint-Server\KrisPoint-Desktop-1
 
 # Install dependencies (if needed)
-npm install
+pnpm install --frozen-lockfile
 
 # Build desktop installers
 npm run tauri build

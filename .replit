@@ -1,11 +1,12 @@
-modules = ["python-3.11", "nodejs-20", "rust", "python3", "postgresql-16"]
-[agent]
-expertMode = true
-integrations = ["javascript_object_storage:1.0.0", "javascript_database:1.0.0"]
+modules = ["nodejs-24", "python-3.11", "rust-stable"]
 
-[nix]
-channel = "stable-25_05"
-packages = ["portaudio", "webkitgtk_4_1", "imagemagick", "zlib"]
+[deployment]
+router = "application"
+deploymentTarget = "autoscale"
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
 
 [workflows]
 runButton = "Project"
@@ -17,43 +18,30 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "SvelteKit Dev Server"
+args = "KrisPoint License Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "License Server"
+args = "KrisPoint MedASR"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Hospital MedASR Voice Server"
-
-
-[[workflows.workflow]]
-name = "SvelteKit Dev Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "webview"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run db:migrate:hospital && VITE_KRISPOINT_EDITION=hospital VOICE_CLIENT_TOKEN=\"${SESSION_SECRET}-hospital-voice\" npm run dev -- --host 0.0.0.0 --port 5000 --strictPort"
-waitForPort = 5000
+args = "KrisPoint AI Gateway"
 
 [[workflows.workflow]]
-name = "License Server"
+name = "KrisPoint License Server"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd license-server && node src/index.js"
+args = "LICENSE_SERVER_PORT=3001 pnpm --filter @workspace/license-server run start"
 waitForPort = 3001
 
 [workflows.workflow.metadata]
 outputType = "console"
 
 [[workflows.workflow]]
-name = "Hospital MedASR Voice Server"
+name = "KrisPoint MedASR"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -61,43 +49,28 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd vosk-server/src && ASR_ENGINE=medasr VOICE_HOST=127.0.0.1 VOICE_PORT=8000 VOICE_CLIENT_TOKEN=\"${SESSION_SECRET}-hospital-voice\" python3 websocket_server.py"
+args = "cd vosk-server/src && ASR_ENGINE=medasr VOICE_HOST=127.0.0.1 VOICE_PORT=8000 VOICE_CLIENT_TOKEN=\"$SESSION_SECRET-hospital-voice\" uv run python websocket_server.py"
 
-[[ports]]
-localPort = 3001
-externalPort = 3001
+[[workflows.workflow]]
+name = "KrisPoint AI Gateway"
+author = "agent"
 
-[[ports]]
-localPort = 5000
-externalPort = 80
+[workflows.workflow.metadata]
+outputType = "console"
 
-[[ports]]
-localPort = 8000
-externalPort = 8000
-exposeLocalhost = true
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "KRISPOINT_LICENSE_PUBLIC_KEY=\"$(cat license-server/keys/public.key)\" KRISPOINT_LICENSE_SERVER_URL=http://127.0.0.1:3001 HOST=0.0.0.0 PORT=8099 pnpm --filter @workspace/ai-gateway run start"
+waitForPort = 8099
 
-
-[deployment]
-deploymentTarget = "autoscale"
-run = ["node", "license-server/src/index.js"]
-build = ["bash", "-c", "cd license-server && npm install"]
-
-[userenv]
-
-[userenv.shared]
-PAYSTACK_TEST_PUBLIC_KEY = "pk_test_9226a181ec19516e13d14073c67aeba39abbcd6e"
-LICENSE_SERVER_PORT = "3001"
-SMTP_HOST = "smtp-relay.brevo.com"
-SMTP_PORT = "587"
-SMTP_SECURE = "false"
-EMAIL_FROM = "KrisPoint Licensing <info@krispoint.com.gh>"
-
-[userenv.development]
-LICENSE_SERVER_URL = "https://4779a892-71b2-4d30-9818-4270a8f176f1-00-2qjklbtzcv091.janeway.replit.dev/license-server"
-
-[userenv.production]
-LICENSE_SERVER_URL = "https://license.krispoint.com.gh"
+[agent]
+stack = "PNPM_WORKSPACE"
+expertMode = true
 
 [postMerge]
 path = "scripts/post-merge.sh"
-timeoutMs = 300000
+timeoutMs = 20000
+
+[nix]
+channel = "stable-25_05"
+packages = ["pkg-config", "glib", "gtk3", "webkitgtk_4_1", "portaudio", "zlib"]

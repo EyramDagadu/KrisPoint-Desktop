@@ -1,17 +1,23 @@
 // HTTPS Server Wrapper for KrisPoint Medical
 // This enables secure connections for voice dictation on remote computers
 
-import { handler } from './build/handler.js';
+import { handler } from './artifacts/krispoint/build/handler.js';
 import { run as runHospitalDatabaseMigration } from './scripts/migrate-active-template-identity.mjs';
 import https from 'https';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { attachAuthenticatedVoiceProxy } from './scripts/voice-websocket-proxy.mjs';
 
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || '0.0.0.0';
 const SSL_DIR = './ssl';
+const voiceClientToken = process.env.VOICE_CLIENT_TOKEN;
+
+if (process.env.VITE_KRISPOINT_EDITION !== 'solo' && !voiceClientToken) {
+    throw new Error('VOICE_CLIENT_TOKEN is required for the Hospital /voice production proxy');
+}
 
 // server-https.js is the root Hospital production wrapper. Run the small,
 // retry-safe PostgreSQL rollout before opening the listener. Solo packaging
@@ -47,6 +53,11 @@ if (hasSSL) {
     };
 
     const httpsServer = https.createServer(options, handler);
+    attachAuthenticatedVoiceProxy(httpsServer, {
+        clientToken: voiceClientToken,
+        backendHost: process.env.VOICE_HOST,
+        backendPort: process.env.VOICE_PORT
+    });
     
     httpsServer.listen(PORT, HOST, () => {
         console.log(`\n🔒 KrisPoint running with HTTPS`);
@@ -72,6 +83,11 @@ if (hasSSL) {
 } else {
     // HTTP fallback mode
     const httpServer = http.createServer(handler);
+    attachAuthenticatedVoiceProxy(httpServer, {
+        clientToken: voiceClientToken,
+        backendHost: process.env.VOICE_HOST,
+        backendPort: process.env.VOICE_PORT
+    });
     
     httpServer.listen(PORT, HOST, () => {
         console.log(`\n⚠️  KrisPoint running with HTTP (no SSL certificates found)`);

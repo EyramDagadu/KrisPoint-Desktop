@@ -30,12 +30,13 @@ test('active-template PostgreSQL migration upgrades an old reports schema and is
 
 test('Hospital production entrypoints migrate before serving and Solo remains excluded', async () => {
   const read = path => readFile(new URL(`../../${path}`, import.meta.url), 'utf8');
-  const [rootStart, launcher, webOnly, wrapper, packageSource] = await Promise.all([
+  const [rootStart, launcher, webOnly, wrapper, packageSource, artifactManifest] = await Promise.all([
     read('start.bat'),
     read('scripts/start-krispoint.bat'),
     read('scripts/start-web-only.bat'),
     read('server-https.js'),
-    read('package.json')
+    read('package.json'),
+    read('artifacts/krispoint/.replit-artifact/artifact.toml')
   ]);
 
   for (const source of [rootStart, launcher, webOnly]) {
@@ -45,25 +46,31 @@ test('Hospital production entrypoints migrate before serving and Solo remains ex
     const migration = source.indexOf('call npm run db:migrate:hospital');
     const server = source.indexOf('node server-https.js') >= 0
       ? source.indexOf('node server-https.js')
-      : source.indexOf('node build\\index.js');
+      : source.indexOf('node artifacts\\krispoint\\build\\index.js');
     assert.ok(migration >= 0 && server > migration);
   }
   assert.match(wrapper, /runHospitalDatabaseMigration/);
   assert.match(wrapper, /VITE_KRISPOINT_EDITION !== 'solo'/);
   assert.match(packageSource, /"db:migrate:hospital":\s*"node scripts\/migrate-active-template-identity\.mjs"/);
+  assert.match(artifactManifest, /db:migrate:hospital/);
+  assert.ok(
+    artifactManifest.indexOf('db:migrate:hospital') < artifactManifest.indexOf('server-https.js'),
+    'Artifact production migration must precede the Hospital production server'
+  );
 });
 
 test('Hospital development entrypoints migrate before npm run dev', async () => {
   const read = path => readFile(new URL(`../../${path}`, import.meta.url), 'utf8');
-  const [replit, rootDev, scriptDev] = await Promise.all([
-    read('.replit'),
+  const [packageSource, rootDev, scriptDev] = await Promise.all([
+    read('package.json'),
     read('Start-KrisPoint-Dev.bat'),
     read('scripts/start-krispoint-dev.bat')
   ]);
 
-  assert.match(replit, /npm run db:migrate:hospital && VITE_KRISPOINT_EDITION=hospital/);
+  assert.match(packageSource, /pnpm --filter @workspace\/krispoint run db:migrate:hospital && VITE_KRISPOINT_EDITION=hospital/);
+  const hospitalDevCommand = JSON.parse(packageSource).scripts['dev:hospital'];
   assert.ok(
-    replit.indexOf('db:migrate:hospital') < replit.indexOf('npm run dev'),
+    hospitalDevCommand.indexOf('db:migrate:hospital') < hospitalDevCommand.indexOf('run dev'),
     'Replit migration must precede the SvelteKit dev server'
   );
 
@@ -76,4 +83,15 @@ test('Hospital development entrypoints migrate before npm run dev', async () => 
       'Batch migration must precede npm run dev'
     );
   }
+});
+
+test('displaced scaffold API artifact keeps its declared route and health check aligned', async () => {
+  const read = path => readFile(new URL(`../../${path}`, import.meta.url), 'utf8');
+  const [appSource, artifactManifest] = await Promise.all([
+    read('artifacts/api-server/src/app.ts'),
+    read('artifacts/api-server/.replit-artifact/artifact.toml')
+  ]);
+  assert.match(appSource, /app\.use\("\/__scaffold-api", router\)/);
+  assert.match(artifactManifest, /paths = \["\/__scaffold-api"\]/);
+  assert.match(artifactManifest, /path = "\/__scaffold-api\/healthz"/);
 });

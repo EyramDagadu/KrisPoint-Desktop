@@ -14,7 +14,7 @@ This guide will help you build a professional Windows installer for KrisPoint wi
 Before building, make sure you have:
 - ✅ Voice server tested and working
 - ✅ Windows PC with Node.js installed
-- ✅ All npm packages installed (`npm install` completed successfully)
+- ✅ All workspace packages installed (`pnpm install --frozen-lockfile` completed successfully)
 - ✅ Tauri development tested (`npm run tauri dev` works)
 
 ---

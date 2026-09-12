@@ -45,7 +45,7 @@ Download all your KrisPoint project files to your Windows PC.
 ### Step 2: Install Dependencies
 Open PowerShell in your project folder and run:
 ```powershell
-npm install
+pnpm install --frozen-lockfile
 ```
 
 ### Step 3: Build the Desktop Application

@@ -16,9 +16,9 @@ or background services.
 ### Core Solo
 
 ```sh
-npm ci
-npm run test:solo:installer
-npm run build:solo:installer
+pnpm install --frozen-lockfile
+pnpm run test:solo:installer
+pnpm run build:solo:installer
 ```
 
 The core installer runs all Solo features except local voice dictation.
@@ -32,14 +32,14 @@ and provide a read-only `HF_TOKEN` through the build environment. The token is
 used only to download model files and is not written into the installer.
 
 ```sh
-INCLUDE_MEDASR=1 npm run build:solo:installer
+INCLUDE_MEDASR=1 pnpm run build:solo:installer
 ```
 
 On PowerShell:
 
 ```powershell
 $env:INCLUDE_MEDASR = "1"
-npm run build:solo:installer
+pnpm run build:solo:installer
 ```
 
 The build packages the Python application, dependencies, and model as a native

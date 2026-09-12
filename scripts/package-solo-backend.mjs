@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = new URL('..', import.meta.url);
+const root = new URL('../artifacts/krispoint/', import.meta.url);
 const output = new URL('../solo-runtime/', import.meta.url);
 
 await rm(output, { recursive: true, force: true });
@@ -12,7 +12,7 @@ await mkdir(output, { recursive: true });
 await new Promise((resolve, reject) => {
   const ncc = spawn(
     process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['ncc', 'build', 'build/index.js', '-o', 'solo-runtime'],
+    ['ncc', 'build', 'build/index.js', '-o', '../../solo-runtime'],
     {
       cwd: root,
       stdio: 'inherit',
@@ -32,8 +32,8 @@ for (const runtimeData of ['audio', 'uploads', 'data', 'backups']) {
 
 // Adapter-node serves these directories at runtime. ncc bundles JavaScript
 // dependencies, while client/prerendered remain ordinary static resources.
-await cp(new URL('../build/client/', import.meta.url), new URL('./client/', output), { recursive: true });
-await cp(new URL('../build/prerendered/', import.meta.url), new URL('./prerendered/', output), { recursive: true });
+await cp(new URL('../artifacts/krispoint/build/client/', import.meta.url), new URL('./client/', output), { recursive: true });
+await cp(new URL('../artifacts/krispoint/build/prerendered/', import.meta.url), new URL('./prerendered/', output), { recursive: true });
 
 const runtimeName = process.platform === 'win32' ? 'node.exe' : 'node';
 const runtimePath = join(fileURLToPath(output), runtimeName);

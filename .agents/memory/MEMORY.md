@@ -1,5 +1,5 @@
-- [License server deployment quirks](license-server-deployment.md) — BASE_URL, migrations, and dependency install must all be handled explicitly for production
-- [Edition licensing authority](edition-licensing-authority.md) — Hospital and Solo editions must share the existing licensing and activation system rather than fork or bypass it
-- [Solo installer CI portability](solo-installer-ci-portability.md) — Windows and Apple Silicon builds need platform-aware packaging, signing, and native dependency choices
-- [Hospital voice gateway](hospital-voice-gateway.md) — Browser voice must use authenticated same-origin WSS while MedASR remains private on loopback
-- [MedASR endpoint detection](medasr-endpoint-detection.md) — Both editions segment dictation by calibrated natural pauses, not fixed time windows
+- [Edition licensing authority](edition-licensing-authority.md) — Hospital and Solo must share the existing signed licensing and activation authority.
+- [License authority deployment](license-authority-deployment.md) — keep the license service independently publishable at its established custom domain.
+- [Solo installer portability](solo-installer-portability.md) — preserve platform-aware packaging, native dependencies, and functional installer smoke tests.
+- [Hospital voice gateway](hospital-voice-gateway.md) — browser voice uses authenticated same-origin WebSockets while MedASR remains private on loopback.
+- [MedASR endpoint detection](medasr-endpoint-detection.md) — both editions segment dictation by calibrated natural pauses, not fixed windows.

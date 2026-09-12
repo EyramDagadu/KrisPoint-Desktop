@@ -5,16 +5,16 @@ echo ========================================
 echo.
 
 echo Installing dependencies...
-call npm install
+call pnpm install --frozen-lockfile
 if %ERRORLEVEL% NEQ 0 (
-    echo ERROR: npm install failed
+    echo ERROR: pnpm install failed
     pause
     exit /b 1
 )
 
 echo.
 echo Building for production...
-call npm run build
+call pnpm run build:hospital
 if %ERRORLEVEL% NEQ 0 (
     echo ERROR: Build failed
     pause
@@ -25,9 +25,9 @@ echo.
 echo ========================================
 echo Build completed successfully!
 echo.
-echo Output folder: build/
+echo Output folder: artifacts/krispoint/build/
 echo.
 echo To run the production server:
-echo   node build/index.js
+echo   node artifacts/krispoint/build/index.js
 echo ========================================
 pause

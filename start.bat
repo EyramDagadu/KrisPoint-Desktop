@@ -8,7 +8,7 @@ echo.
 set "SCRIPT_DIR=%~dp0"
 cd /d "%SCRIPT_DIR%"
 
-if not exist "build\index.js" (
+if not exist "artifacts\krispoint\build\index.js" (
     echo ERROR: Build folder not found!
     echo Please run build.bat first.
     pause
@@ -88,4 +88,4 @@ echo.
 
 set NODE_ENV=production
 set PORT=5000
-node build\index.js
+node artifacts\krispoint\build\index.js

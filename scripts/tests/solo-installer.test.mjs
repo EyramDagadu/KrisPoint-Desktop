@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-const read = path => readFile(new URL(`../../${path}`, import.meta.url), 'utf8');
+const appPath = path => /^(src\/|vite\.config\.js$)/.test(path)
+  ? `artifacts/krispoint/${path}`
+  : path;
+const read = path => readFile(new URL(`../../${appPath(path)}`, import.meta.url), 'utf8');
 
 test('Solo installer owns embedded backend and voice runtimes', async () => {
   const [config, backend, voice] = await Promise.all([
@@ -49,9 +52,28 @@ test('release bundles target Windows and macOS installers', async () => {
   assert.equal(packageJson.scripts['build:solo:installer'], 'tauri build');
   assert.match(workflow, /artifact: windows-x64\s+bundle: msi/);
   assert.match(workflow, /artifact: macos-apple-silicon\s+bundle: dmg/);
-  assert.match(workflow, /npm run build:solo:installer -- --bundles \$\{\{ matrix\.bundle \}\}/);
+  assert.match(workflow, /pnpm run build:solo:installer -- --bundles \$\{\{ matrix\.bundle \}\}/);
+  assert.ok(
+    workflow.indexOf('pnpm/action-setup@v4') < workflow.indexOf('cache: pnpm'),
+    'CI must install pnpm before setup-node initializes the pnpm cache'
+  );
   assert.match(workflow, /if: always\(\)\s+uses: actions\/upload-artifact@v4/);
   assert.doesNotMatch(workflow, /bundle\/nsis/);
+});
+
+test('guided setup activates pinned pnpm before installing workspace dependencies', async () => {
+  const [mac, windows] = await Promise.all([
+    read('scripts/setup-local-macos.sh'),
+    read('scripts/setup-local-windows.ps1')
+  ]);
+  for (const source of [mac, windows]) {
+    assert.match(source, /corepack prepare pnpm@10\.26\.1 --activate/);
+    assert.ok(
+      source.indexOf('corepack prepare pnpm@10.26.1 --activate') <
+        source.indexOf('pnpm install --frozen-lockfile'),
+      'Guided setup must provision pnpm before first use'
+    );
+  }
 });
 
 test('packaged Solo does not invoke system Node, Python, or PostgreSQL', async () => {

@@ -1,0 +1,37 @@
+kind = "web"
+previewPath = "/"
+title = "KrisPoint"
+description = "KrisPoint Hospital clinical reporting and dictation application, preserving the existing product interface, workflows, licensing, voice transcription, and AI-assisted report polishing."
+version = "1.0.0"
+id = "artifacts/krispoint"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25037
+
+[services.development]
+run = 'pnpm --filter @workspace/krispoint run db:migrate:hospital && VITE_KRISPOINT_EDITION=hospital VOICE_CLIENT_TOKEN="$SESSION_SECRET-hospital-voice" pnpm --filter @workspace/krispoint run dev'
+
+[services.production.build]
+args = [ "pnpm", "--filter", "@workspace/krispoint", "run", "build" ]
+
+[services.production.build.env]
+NODE_ENV = "production"
+VITE_KRISPOINT_EDITION = "hospital"
+
+[services.production.run]
+args = [ "sh", "-c", ": \"${SESSION_SECRET:?SESSION_SECRET is required}\"; export VOICE_CLIENT_TOKEN=\"${SESSION_SECRET}-hospital-voice\"; pnpm run db:migrate:hospital && exec node server-https.js" ]
+
+[services.production.run.env]
+PORT = "25037"
+NODE_ENV = "production"
+VITE_KRISPOINT_EDITION = "hospital"
+
+[services.production.health.startup]
+path = "/"
+
+[services.env]
+PORT = "25037"
+BASE_PATH = "/"

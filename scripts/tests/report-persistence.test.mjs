@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 
 const root = resolve(import.meta.dirname, '../..');
-const read = (path) => readFileSync(resolve(root, path), 'utf8');
+const read = (path) => readFileSync(resolve(root, 'artifacts/krispoint', path), 'utf8');
 
 test('report schemas retain exact active template identity', () => {
   for (const path of ['shared/schema.ts', 'shared/sqlite-schema.ts']) {

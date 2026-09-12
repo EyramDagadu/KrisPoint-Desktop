@@ -114,7 +114,7 @@ If the guided installer cannot be used:
 4. Run:
 
    ```bash
-   npm ci
+   pnpm install --frozen-lockfile
    npm run db:push
    npm run dev
    ```

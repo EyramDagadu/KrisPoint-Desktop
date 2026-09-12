@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { issueVoiceTicket, verifyVoiceTicket, VOICE_TICKET_TTL_SECONDS } from '../../src/lib/server/voiceTicket.js';
+import { issueVoiceTicket, verifyVoiceTicket, VOICE_TICKET_TTL_SECONDS } from '../../artifacts/krispoint/src/lib/server/voiceTicket.js';
 
 const key = 'test-only-voice-signing-key';
 

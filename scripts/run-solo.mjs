@@ -6,9 +6,9 @@ if (!script) {
   process.exit(1);
 }
 
-const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const building = script === 'build';
-const child = spawn(npm, ['run', script, ...(args.length ? ['--', ...args] : [])], {
+const child = spawn(pnpm, ['--filter', '@workspace/krispoint', 'run', script, ...(args.length ? ['--', ...args] : [])], {
   env: {
     ...process.env,
     VITE_KRISPOINT_EDITION: process.env.VITE_KRISPOINT_EDITION || 'solo',

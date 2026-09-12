@@ -1,5 +1,5 @@
 {
-  "name": "krispoint-license-server",
+  "name": "@workspace/license-server",
   "version": "1.0.0",
   "description": "Self-hosted license server for KrisPoint with Paystack integration",
   "main": "src/index.js",
@@ -11,7 +11,7 @@
   "keywords": ["krispoint", "license", "paystack"],
   "license": "MIT",
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",

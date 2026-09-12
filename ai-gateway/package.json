@@ -1,5 +1,5 @@
 {
-  "name": "@krispoint/ai-gateway",
+  "name": "@workspace/ai-gateway",
   "version": "1.0.0",
   "private": true,
   "description": "KrisPoint server-side AI polishing gateway",

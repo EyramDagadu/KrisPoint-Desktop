@@ -49,6 +49,7 @@ fi
 
 require_command node "Install Node.js 20 or later, for example with: brew install node@20"
 require_command npm "Install Node.js 20 or later, for example with: brew install node@20"
+require_command corepack "Install the standard Node.js 20 distribution, which includes Corepack."
 require_command psql "Install PostgreSQL 15 or later, for example with: brew install postgresql@15"
 require_command createdb "Install PostgreSQL command-line tools and add them to PATH."
 
@@ -56,12 +57,15 @@ NODE_MAJOR="$(node -p "process.versions.node.split('.')[0]")"
 if [ "$NODE_MAJOR" -lt 20 ]; then
   fail "Node.js 20 or later is required. Installed version: $(node --version)"
 fi
+corepack enable
+corepack prepare pnpm@10.26.1 --activate
+require_command pnpm "Corepack could not activate pnpm 10.26.1."
 
 if [ -f "$ENV_PATH" ]; then
   printf '%s\n' "An existing .env file was found."
   printf '%s\n' "Its database credentials and encryption key will be preserved."
   printf '%s\n' "To protect existing encrypted patient data, this installer never replaces them."
-  npm ci --ignore-scripts --no-audit --no-fund
+  pnpm install --frozen-lockfile --ignore-scripts
   npm run db:push
   printf '\nExisting KrisPoint installation verified successfully.\n'
   printf 'Run setup-voice-server.bat or configure voice manually if needed.\n'
@@ -111,7 +115,7 @@ EOF
 chmod 600 "$ENV_PATH"
 
 export DATABASE_URL ENCRYPTION_KEY
-npm ci --ignore-scripts --no-audit --no-fund
+pnpm install --frozen-lockfile --ignore-scripts
 npm run db:push
 
 read -r -p "Install local MedASR voice recognition on this computer? [y/N]: " install_voice
