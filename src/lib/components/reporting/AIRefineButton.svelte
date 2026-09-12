@@ -1,373 +1,236 @@
 <script>
-  import { ollamaService } from '../../services/OllamaService.js';
-  import { toastSuccess, toastError, toastInfo } from '../../utils/toast.js';
-  import Tooltip from '$lib/components/ui/Tooltip.svelte';
-  
+  // @ts-nocheck
+  import { onDestroy } from 'svelte';
+  import { hasFeature } from '../../stores/licenseStore.js';
+  import { toastError } from '../../utils/toast.js';
+  import { polishReport } from './aiPolishService.js';
+  import { aiPolishDraft } from './aiPolishDraftStore.js';
+  import { reportActions } from '../../stores/reportStore.js';
+
   export let reportContent = '';
   export let indication = '';
+  export let modality = '';
+  export let bodyRegion = '';
+  export let readOnly = false;
+
   export let onReportGenerated = null;
-
-  let isProcessing = false;
-  let streamedContent = '';
   let showModal = false;
+  let loading = false;
+  let templatesLoading = false;
+  let templates = [];
+  let selectedTemplate = null;
+  let originalContent = '';
+  let proposedContent = '';
+  let warnings = [];
+  let safetyMessage = '';
+  let blocked = false;
+  let errorMessage = '';
+  let requestController;
 
-  async function handleAIRefine() {
-    console.log('🎯 AI Refine button clicked');
-    
+  const fallbackTemplate = () => ({
+    id: null,
+    identity: `fallback:${String(modality || 'general').toLowerCase()}:${String(bodyRegion || 'unspecified').toLowerCase()}`,
+    name: `${modality || 'General'} · ${bodyRegion || 'General'} standard`,
+    modality,
+    bodyRegion,
+    isFallback: true
+  });
+
+  function normalize(value) {
+    return String(value || '').trim().toLowerCase();
+  }
+
+  function matches(template) {
+    const currentModality = normalize(modality);
+    const currentRegion = normalize(bodyRegion);
+    const templateModality = normalize(template.modality || template.category);
+    const templateRegion = normalize(template.bodyRegion);
+    const modalityMatch = !templateModality || templateModality === currentModality ||
+      templateModality.includes(currentModality) || currentModality.includes(templateModality);
+    const regionMatch = !templateRegion || templateRegion === currentRegion ||
+      templateRegion.includes(currentRegion) || currentRegion.includes(templateRegion);
+    return modalityMatch && regionMatch;
+  }
+
+  async function openPolish() {
+    if (readOnly || !hasFeature('ai_polish')) return;
     if (!reportContent.trim()) {
-      toastError('Please add some content first');
+      toastError('Add report content before polishing');
       return;
     }
-
-    console.log('📋 Report content length:', reportContent.length);
-
-    // Check if Ollama is available
-    console.log('🔍 Checking Ollama availability...');
-    const available = await ollamaService.checkAvailability();
-    console.log('✅ Ollama available:', available);
-    
-    if (!available) {
-      toastError('Ollama is not running. Start Ollama and ensure mistral:7b model is loaded.');
-      return;
-    }
-
-    isProcessing = true;
-    streamedContent = '';
-    showModal = true; // Show modal immediately for streaming
-    console.log('✨ Modal opened, starting AI processing...');
-
+    showModal = true;
+    originalContent = reportContent;
+    proposedContent = '';
+    warnings = [];
+    safetyMessage = '';
+    blocked = false;
+    errorMessage = '';
+    templatesLoading = true;
     try {
-      toastInfo('🤖 AI processing your report...');
-
-      // Call smart refine with streaming callback
-      console.log('🚀 Calling smartRefine...');
-      const result = await ollamaService.smartRefine(
-        reportContent,
-        indication,
-        'General', // templateType
-        {}, // patientInfo
-        (chunk) => {
-          // Real-time streaming update - force Svelte reactivity
-          console.log('📝 Streaming chunk received, length:', chunk.length);
-          streamedContent = chunk;
-        }
-      );
-
-      console.log('🎉 smartRefine completed, result length:', result?.length);
-
-      if (result && result.trim()) {
-        streamedContent = result;
-        toastSuccess('✅ Report refined successfully!');
-      } else {
-        toastError('No output from AI. Please try again.');
-      }
+      const response = await fetch('/api/templates?scope=system', { credentials: 'include' });
+      const payload = await response.json().catch(() => ({}));
+      templates = (payload.templates || []).filter(matches);
     } catch (error) {
-      console.error('❌ AI Refine error:', error);
-      toastError(`Error: ${error.message}`);
+      templates = [];
     } finally {
-      isProcessing = false;
-      console.log('🏁 AI processing finished');
+      templatesLoading = false;
     }
+    selectedTemplate = templates[0] || fallbackTemplate();
+    aiPolishDraft.set({ selectedTemplate, originalContent, proposedContent: '', blocked: false, warnings: [] });
+  }
+
+  function selectTemplate(event) {
+    const identity = event.currentTarget.value;
+    selectedTemplate = [...templates, fallbackTemplate()].find(
+      template => String(template.id ?? template.identity) === identity
+    ) || fallbackTemplate();
+    proposedContent = '';
+    warnings = [];
+    blocked = false;
+    errorMessage = '';
+    aiPolishDraft.set({ selectedTemplate, originalContent, proposedContent: '', blocked: false, warnings: [] });
+  }
+
+  async function runPolish() {
+    if (!selectedTemplate || loading) return;
+    loading = true;
+    errorMessage = '';
+    requestController = new AbortController();
+    try {
+      const result = await polishReport({
+        content: originalContent,
+        indication,
+        modality,
+        bodyRegion,
+        template: selectedTemplate,
+        signal: requestController.signal
+      });
+      proposedContent = result.proposedContent;
+      warnings = result.warnings;
+      safetyMessage = result.safetyMessage;
+      blocked = result.blocked;
+      aiPolishDraft.set({ selectedTemplate, originalContent, proposedContent, blocked, warnings });
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        errorMessage = error.message;
+        warnings = error.warnings || [];
+        blocked = Boolean(error.blocked);
+      }
+    } finally {
+      loading = false;
+      requestController = null;
+    }
+  }
+
+  function cancelRequest() {
+    requestController?.abort();
+    loading = false;
   }
 
   function closeModal() {
+    cancelRequest();
     showModal = false;
-    streamedContent = '';
+    proposedContent = '';
+    aiPolishDraft.set({ selectedTemplate: null, originalContent: '', proposedContent: '', blocked: false, warnings: [] });
   }
 
-  function acceptContent() {
-    if (onReportGenerated) onReportGenerated(streamedContent);
+  function acceptProposal() {
+    if (loading || blocked || !proposedContent.trim() || readOnly) return;
+    reportActions.setActiveTemplate(selectedTemplate);
+    if (onReportGenerated) onReportGenerated(proposedContent);
     closeModal();
   }
+
+  onDestroy(() => requestController?.abort());
 </script>
 
-<div class="ai-refine-button">
-  <Tooltip text="Generate or polish report with AI" position="bottom">
-    <button
-      on:click={handleAIRefine}
-      disabled={isProcessing || !reportContent.trim()}
-      class:processing={isProcessing}
-    >
-      {#if isProcessing}
-        <span class="spinner"></span>
-      {:else}
-        ✨
-      {/if}
-    </button>
-  </Tooltip>
-</div>
+<button class="polish-trigger" on:click={openPolish} disabled={readOnly || !reportContent.trim() || !hasFeature('ai_polish')} aria-label="Polish report">
+  <span class="trigger-mark" aria-hidden="true">AI</span>
+  <span>Polish</span>
+</button>
 
 {#if showModal}
-  <div class="ai-result-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>AI Generated Content</h3>
-        <button class="close-btn" on:click={closeModal}>×</button>
-      </div>
+  <div class="modal-backdrop" role="presentation" on:click|self={closeModal}>
+    <div class="polish-modal" role="dialog" aria-modal="true" aria-labelledby="polish-title" tabindex="-1">
+      <header class="modal-header">
+        <div>
+          <p class="eyebrow">Clinical drafting aid</p>
+          <h2 id="polish-title">Review report polish</h2>
+        </div>
+        <button class="icon-button" on:click={closeModal} aria-label="Close polish review">×</button>
+      </header>
+
       <div class="modal-body">
-        {#if isProcessing && !streamedContent}
-          <div class="loading-state">
-            <div class="spinner-large"></div>
-            <h4>🤖 AI Processing Your Report</h4>
-            <p>Analyzing content and generating professional medical report...</p>
-            <p class="time-estimate">⏱️ This typically takes 20-30 seconds</p>
-            <div class="progress-bar">
-              <div class="progress-fill"></div>
-            </div>
+        <div class="template-row">
+          <label for="polish-template">Template</label>
+          {#if templatesLoading}
+            <div class="skeleton" aria-label="Loading templates"></div>
+          {:else}
+            <select id="polish-template" value={String(selectedTemplate?.id ?? selectedTemplate?.identity ?? '')} on:change={selectTemplate}>
+              {#each templates as template}
+                <option value={String(template.id)}>{template.name}</option>
+              {/each}
+              <option value={fallbackTemplate().identity}>{fallbackTemplate().name}</option>
+            </select>
+          {/if}
+        </div>
+        <p class="template-note">Selected template is retained with this draft. Only the report author accepts changes.</p>
+
+        {#if warnings.length || safetyMessage || errorMessage}
+          <div class:blocked class="safety-panel" role="alert">
+            <strong>{blocked ? 'Polish blocked' : 'Safety review'}</strong>
+            {#if safetyMessage}<p>{safetyMessage}</p>{/if}
+            {#if errorMessage}<p>{errorMessage}</p>{/if}
+            {#each warnings as warning}<p>{typeof warning === 'string' ? warning : warning.message || warning.code}</p>{/each}
           </div>
+        {/if}
+        <div class="responsibility-note">
+          <strong>Clinical responsibility remains with the reporting clinician.</strong>
+          Verify every proposed statement against the images and clinical context before accepting.
+        </div>
+
+        {#if loading && !proposedContent}
+          <div class="loading-card"><div class="skeleton line"></div><div class="skeleton line short"></div><p>Preparing a proposed revision…</p></div>
         {:else}
-          <pre>{streamedContent || 'Waiting for response...'}</pre>
+          <div class="review-grid">
+            <article><h3>Original</h3><div class="report-copy">{originalContent}</div></article>
+            <article class:empty={!proposedContent}><h3>Proposed</h3><div class="report-copy">{proposedContent || 'Run polish to review a proposed revision.'}</div></article>
+          </div>
         {/if}
       </div>
-      <div class="modal-footer">
-        <button 
-          class="btn-accept"
-          on:click={acceptContent}
-          disabled={isProcessing || !streamedContent}
-        >
-          Accept
-        </button>
-        <button 
-          class="btn-cancel"
-          on:click={closeModal}
-        >
-          Cancel
-        </button>
-      </div>
+
+      <footer class="modal-footer">
+        {#if loading}
+          <button class="button quiet" on:click={cancelRequest}>Cancel request</button>
+        {:else if !proposedContent}
+          <button class="button quiet" on:click={closeModal}>Cancel</button>
+          <button class="button primary" on:click={runPolish} disabled={!selectedTemplate}>Prepare proposal</button>
+        {:else}
+          <button class="button quiet" on:click={closeModal}>Reject</button>
+          <button class="button primary" on:click={acceptProposal} disabled={blocked}>Accept proposal</button>
+        {/if}
+      </footer>
     </div>
   </div>
 {/if}
 
 <style>
-  .ai-refine-button {
-    display: inline-block;
-    margin: 0;
-    padding: 0;
-  }
-
-  button {
-    padding: 2px 4px;
-    margin: 0;
-    background: none;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    transition: all 0.2s ease;
-    opacity: 0.7;
-  }
-
-  button:hover:not(:disabled) {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-
-  button:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  button.processing {
-    opacity: 1;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top: 2px solid white;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .ai-result-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-  }
-
-  .modal-content {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 800px;
-    width: 100%;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .modal-header {
-    padding: 20px;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .modal-header h3 {
-    margin: 0;
-    color: #1e293b;
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 28px;
-    cursor: pointer;
-    color: #64748b;
-    padding: 0;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .close-btn:hover {
-    color: #1e293b;
-  }
-
-  .modal-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-  }
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 40px;
-    gap: 20px;
-    min-height: 300px;
-  }
-
-  .loading-state h4 {
-    margin: 0;
-    color: #1e293b;
-    font-size: 1.3rem;
-    font-weight: 600;
-  }
-
-  .loading-state p {
-    color: #64748b;
-    font-size: 0.95rem;
-    margin: 0;
-    text-align: center;
-  }
-
-  .time-estimate {
-    color: #10b981;
-    font-weight: 500;
-    font-size: 0.9rem;
-  }
-
-  .spinner-large {
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(16, 185, 129, 0.2);
-    border-top: 4px solid #10b981;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  .progress-bar {
-    width: 100%;
-    max-width: 400px;
-    height: 6px;
-    background: #e2e8f0;
-    border-radius: 3px;
-    overflow: hidden;
-    margin-top: 10px;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #10b981, #059669);
-    border-radius: 3px;
-    animation: progress 30s ease-in-out forwards;
-  }
-
-  @keyframes progress {
-    from {
-      width: 0%;
-    }
-    to {
-      width: 90%;
-    }
-  }
-
-  pre {
-    background: #f8fafc;
-    padding: 16px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: #1e293b;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    margin: 0;
-  }
-
-  .modal-footer {
-    padding: 20px;
-    border-top: 1px solid #e2e8f0;
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-  }
-
-  .btn-accept {
-    background: #10b981;
-    padding: 10px 20px;
-    border-radius: 6px;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
-  }
-
-  .btn-accept:hover {
-    background: #059669;
-    transform: translateY(-1px);
-  }
-
-  .btn-cancel {
-    background: #ef4444;
-    padding: 10px 20px;
-    border-radius: 6px;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
-  }
-
-  .btn-cancel:hover {
-    background: #dc2626;
-    transform: translateY(-1px);
-  }
+  .polish-trigger { display:flex; align-items:center; gap:6px; border:1px solid rgba(156,178,193,.35); background:rgba(25,48,64,.72); color:#e8f1f3; border-radius:4px; padding:5px 9px; font:600 11px/1.1 ui-sans-serif,system-ui,sans-serif; letter-spacing:.03em; cursor:pointer; }
+  .polish-trigger:hover:not(:disabled), .polish-trigger:focus-visible { background:#2c5963; outline:2px solid #9cd3cb; outline-offset:2px; }
+  .polish-trigger:disabled { opacity:.4; cursor:not-allowed; }
+  .trigger-mark { font:700 10px/1 ui-monospace,monospace; color:#9cd3cb; border:1px solid currentColor; padding:2px 3px; border-radius:2px; }
+  .modal-backdrop { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:16px; background:rgba(18,32,40,.68); }
+  .polish-modal { width:min(920px,100%); max-height:min(780px,94dvh); display:flex; flex-direction:column; overflow:hidden; border:1px solid #cbdadd; border-radius:10px; background:#f4f7f6; color:#17313b; box-shadow:0 24px 70px rgba(18,40,49,.28); }
+  .modal-header,.modal-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 20px; background:#fbfcfb; border-bottom:1px solid #d8e2e2; }
+  .modal-footer { justify-content:flex-end; border-top:1px solid #d8e2e2; border-bottom:0; }
+  .eyebrow { margin:0 0 3px; color:#52757a; font:700 10px/1 ui-monospace,monospace; letter-spacing:.12em; text-transform:uppercase; }
+  h2,h3,p { margin-top:0; } h2 { margin-bottom:0; font:650 20px/1.2 ui-sans-serif,system-ui,sans-serif; } h3 { margin-bottom:9px; font:700 11px/1 ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase; color:#52757a; }
+  .icon-button { border:0; background:none; font-size:25px; color:#52757a; cursor:pointer; }
+  .modal-body { overflow:auto; padding:20px; } .template-row { display:flex; align-items:center; gap:12px; } label { font:700 11px ui-monospace,monospace; text-transform:uppercase; color:#52757a; } select { flex:1; max-width:500px; padding:9px 10px; border:1px solid #bdcecf; border-radius:5px; background:#fff; color:#17313b; font:500 13px ui-sans-serif,system-ui,sans-serif; }
+  .template-note { margin:8px 0 16px 68px; color:#6a8185; font-size:12px; } .responsibility-note { margin:0 0 18px; padding:11px 13px; border-left:3px solid #d09a45; background:#fff8eb; color:#5b4932; font-size:12px; line-height:1.45; } .responsibility-note strong { display:block; margin-bottom:2px; }
+  .review-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; } .review-grid article { min-width:0; padding:14px; border:1px solid #d4dfdf; border-radius:7px; background:#fff; } .review-grid article.empty { background:#f0f4f3; } .report-copy { min-height:170px; max-height:310px; overflow:auto; white-space:pre-wrap; font:13px/1.65 ui-sans-serif,system-ui,sans-serif; color:#263f47; }
+  .safety-panel { margin:0 0 14px; padding:11px 13px; border:1px solid #dfbb77; border-radius:6px; background:#fff8e8; color:#674d25; font-size:12px; } .safety-panel.blocked { border-color:#c98787; background:#fff0f0; color:#713b3b; } .safety-panel p { margin:5px 0 0; }
+  .button { padding:9px 14px; border-radius:5px; font:700 12px ui-sans-serif,system-ui,sans-serif; cursor:pointer; } .button.quiet { border:1px solid #bdcecf; background:#fff; color:#365860; } .button.primary { border:1px solid #285b62; background:#285b62; color:#fff; } .button:disabled { opacity:.45; cursor:not-allowed; }
+  .loading-card { padding:26px 12px; text-align:center; color:#668086; } .skeleton { height:36px; border-radius:4px; background:linear-gradient(90deg,#dce6e5,#f4f7f6,#dce6e5); background-size:200% 100%; animation:shimmer 1.4s ease-in-out infinite; } .skeleton.line { width:100%; margin:8px 0; } .skeleton.short { width:62%; } @keyframes shimmer { from {background-position:200% 0} to {background-position:-200% 0} }
+  @media (max-width:640px) { .modal-backdrop { padding:0; align-items:end; } .polish-modal { max-height:94dvh; border-radius:10px 10px 0 0; } .modal-header,.modal-footer,.modal-body { padding:14px; } .template-row { align-items:flex-start; flex-direction:column; gap:7px; } select { width:100%; max-width:none; } .template-note { margin-left:0; } .review-grid { grid-template-columns:1fr; } .review-grid article { min-height:150px; } .modal-footer { flex-wrap:wrap; } .button { flex:1; } }
 </style>

@@ -84,6 +84,8 @@ export const patientData = createPatientDataStore();
 // Report data store - simplified to single content field
 const initialReportData = {
   content: '', // Single text field for all report content
+  activeTemplateId: null,
+  activeTemplateName: null,
   reportId: null, // Track the ID of the current report to prevent duplicates
   databaseReportId: null, // Track the database ID when loaded from worklist
   lastModified: null,
@@ -266,6 +268,16 @@ export const reportActions = {
       content,
       lastModified: new Date().toISOString(),
       isDirty: true
+    }));
+  },
+
+  setActiveTemplate(template) {
+    reportData.update(data => ({
+      ...data,
+      activeTemplateId: template?.id ?? null,
+      activeTemplateName: template?.name ?? null,
+      isDirty: true,
+      lastModified: new Date().toISOString()
     }));
   },
 

@@ -675,13 +675,16 @@
           <AIRefineButton 
             reportContent={$reportData.content}
             indication={$patientData.indication}
+            modality={$patientData.examType}
+            bodyRegion={$patientData.examSubtype}
+            {readOnly}
             onReportGenerated={handleAIContentInsert}
           />
         {:else}
           <Tooltip text="AI Polish requires Premium license">
             <button class="tool-btn ai-locked" disabled>
-              <span class="lock-icon">🔒</span>
-              ✨ AI
+              <span class="lock-icon">Locked</span>
+              AI Polish
             </button>
           </Tooltip>
         {/if}
