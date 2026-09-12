@@ -165,9 +165,10 @@
       aiPolishDraft.set({ selectedTemplate, originalContent, proposedContent, blocked, warnings });
     } catch (error) {
       if (error.name !== 'AbortError') {
-        errorMessage = error.message;
+        errorMessage = error.message || 'Polish request could not be completed';
         warnings = error.warnings || [];
         blocked = Boolean(error.blocked);
+        toastError(errorMessage);
       }
     } finally {
       loading = false;
