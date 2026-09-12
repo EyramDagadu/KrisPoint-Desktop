@@ -1,5 +1,7 @@
 import { createPublicKey, verify as verifySignature } from 'node:crypto';
 import { createServer } from 'node:http';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { findExplicitIdentifiersInRequest } from './policy.mjs';
 import { checkClinicalSafety, checkImpressionSafety } from './safety.mjs';
 
@@ -421,9 +423,15 @@ export function createGatewayServer(options = {}) {
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   const host = process.env.HOST || '127.0.0.1';
   const port = Number(process.env.PORT || 8787);
   const server = createGatewayServer();
-  server.listen(port, host);
+  server.on('error', (error) => {
+    console.error(`KrisPoint AI gateway failed to start: ${error.message}`);
+    process.exitCode = 1;
+  });
+  server.listen(port, host, () => {
+    console.log(`KrisPoint AI gateway listening on ${host}:${port}`);
+  });
 }

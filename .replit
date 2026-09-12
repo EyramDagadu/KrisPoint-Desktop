@@ -69,8 +69,21 @@ expertMode = true
 
 [postMerge]
 path = "scripts/post-merge.sh"
-timeoutMs = 20000
+timeoutMs = 180000
 
 [nix]
 channel = "stable-25_05"
 packages = ["pkg-config", "glib", "gtk3", "webkitgtk_4_1", "portaudio", "zlib"]
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 8000
+externalPort = 8000
+exposeLocalhost = true

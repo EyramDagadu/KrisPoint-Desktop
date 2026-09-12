@@ -3,3 +3,4 @@
 - [Solo installer portability](solo-installer-portability.md) — preserve platform-aware packaging, native dependencies, and functional installer smoke tests.
 - [Hospital voice gateway](hospital-voice-gateway.md) — browser voice uses authenticated same-origin WebSockets while MedASR remains private on loopback.
 - [MedASR endpoint detection](medasr-endpoint-detection.md) — both editions segment dictation by calibrated natural pauses, not fixed windows.
+- [Hosted AI gateway boundary](hosted-ai-gateway-boundary.md) — Solo uses a stable gateway URL; provider secrets and report processing stay outside licensing.
