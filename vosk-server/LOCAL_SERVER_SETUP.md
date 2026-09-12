@@ -32,6 +32,9 @@ Regular KrisPoint users do not need Hugging Face accounts.
    HF_TOKEN=hf_replace_with_your_read_only_token
    VOICE_HOST=127.0.0.1
    VOICE_PORT=8000
+   # Optional MedASR endpointing (safe defaults shown):
+   MEDASR_VAD_SILENCE_SECONDS=1.5
+   MEDASR_VAD_MAX_UTTERANCE_SECONDS=30
    ```
 
    The `.env` file is excluded from Git. Do not share or commit it.

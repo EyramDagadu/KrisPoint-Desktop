@@ -163,4 +163,24 @@ test('Hospital browser voice uses same-origin proxy while Solo keeps published U
   assert.match(config, /verifyVoiceTicket\(ticket\) \? voiceClientToken/);
   assert.match(config, /encodeURIComponent\(token/);
   assert.match(voiceServer, /Some\(voice_url\(port, &health_token\)\)/);
+  assert.match(service, /createScriptProcessor\(2048, 1, 1\)/);
+  assert.doesNotMatch(service, /createScriptProcessor\(8192, 1, 1\)/);
+});
+
+test('Solo and Hospital MedASR share pause-triggered endpoint detection', async () => {
+  const [engine, voicePackaging] = await Promise.all([
+    read('vosk-server/src/medasr_stream_engine.py'),
+    read('scripts/package-solo-voice.mjs')
+  ]);
+  assert.match(engine, /MEDASR_VAD_SILENCE_SECONDS/);
+  assert.match(engine, /def _flush_for_stop/);
+  assert.match(engine, /_silence_samples >= self\.sample_rate \* self\.vad_silence_seconds/);
+  assert.doesNotMatch(engine, /self\.sample_rate \* 3/);
+  assert.match(voicePackaging, /vosk-server['"], ['"]src/);
+});
+
+test('voice stop cleanup does not block the asyncio event loop', async () => {
+  const server = await read('vosk-server/src/websocket_server.py');
+  assert.match(server, /asyncio\.wait_for\(asyncio\.to_thread\(engine\.stop_processing\)/);
+  assert.match(server, /Timed out stopping/);
 });

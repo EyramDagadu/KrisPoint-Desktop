@@ -2,3 +2,4 @@
 - [Edition licensing authority](edition-licensing-authority.md) — Hospital and Solo editions must share the existing licensing and activation system rather than fork or bypass it
 - [Solo installer CI portability](solo-installer-ci-portability.md) — Windows and Apple Silicon builds need platform-aware packaging, signing, and native dependency choices
 - [Hospital voice gateway](hospital-voice-gateway.md) — Browser voice must use authenticated same-origin WSS while MedASR remains private on loopback
+- [MedASR endpoint detection](medasr-endpoint-detection.md) — Both editions segment dictation by calibrated natural pauses, not fixed time windows

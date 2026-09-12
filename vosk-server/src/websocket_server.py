@@ -152,6 +152,28 @@ class SpeechWebSocketServer:
             await websocket.send(json.dumps(message))
         except:
             pass
+
+    async def stop_engine(self, engine):
+        """Stop inference without blocking the event loop or other clients."""
+        timeout = 10.0
+        try:
+            timeout = min(30.0, max(1.0, float(
+                os.getenv("MEDASR_STOP_TIMEOUT_SECONDS", "10"))))
+        except (TypeError, ValueError):
+            pass
+        try:
+            await asyncio.wait_for(asyncio.to_thread(engine.stop_processing),
+                                   timeout=timeout)
+            # Worker-thread callbacks are scheduled onto this loop.  Yield
+            # briefly so a final transcription can be sent before
+            # status=stopped.  This is bounded and does not hold a client
+            # lock, so other websocket clients continue to run.
+            await asyncio.sleep(0.05)
+            return True, None
+        except asyncio.TimeoutError:
+            return False, f"Timed out stopping {self.engine_name()} engine"
+        except Exception as exc:
+            return False, str(exc)
     
     async def handle_audio_stream(self, websocket, engine):
         """Handle incoming audio chunks from browser"""
@@ -196,9 +218,14 @@ class SpeechWebSocketServer:
                     
                     elif data['type'] == 'stop':
                         # Stop audio processing
-                        engine.stop_processing()
+                        stopped, error = await self.stop_engine(engine)
+                        if error:
+                            await self.send_message(websocket, 'error', {
+                                'message': error
+                            })
                         await self.send_message(websocket, 'status', {
-                            'message': 'Recording stopped'
+                            'message': 'Recording stopped' if stopped
+                            else 'Recording stop requested'
                         })
                     
                     elif data['type'] == 'reload_config':
@@ -237,8 +264,14 @@ class SpeechWebSocketServer:
             print("Client disconnected")
         finally:
             # Clean up engine
-            if engine.is_recording:
-                engine.stop_processing()
+            # A timed-out Stop leaves its worker finalizing in the background;
+            # cleanup must join that worker too, otherwise a disconnected
+            # client can leave lifecycle state owned by a dead websocket.
+            if (engine.is_recording or
+                    getattr(engine, "processing_thread", None) is not None):
+                stopped, error = await self.stop_engine(engine)
+                if error:
+                    print(f"Engine cleanup warning: {error}")
             if websocket in self.clients:
                 del self.clients[websocket]
     
@@ -342,7 +375,9 @@ class SpeechWebSocketServer:
                 del self.clients[websocket]
             if engine and engine.is_recording:
                 try:
-                    engine.stop_processing()
+                    stopped, error = await self.stop_engine(engine)
+                    if error:
+                        print(f"Engine cleanup warning: {error}")
                 except Exception:
                     pass
             print(f"Client {websocket.remote_address} disconnected and cleaned up")

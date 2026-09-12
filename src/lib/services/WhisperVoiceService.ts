@@ -464,9 +464,10 @@ export class WhisperVoiceService {
                 sampleRate: this.sampleRate
             });
 
-            // Create audio processing node - larger buffers, send less frequently for lower latency
-            // Counter-intuitively, larger buffers = fewer sends = less overhead = lower total latency
-            this.scriptProcessor = this.audioContext.createScriptProcessor(8192, 1, 1);
+            // ScriptProcessor is only the legacy fallback (AudioWorklet remains
+            // preferred).  2048 samples is about 128 ms at 16 kHz and keeps
+            // endpoint detection responsive on browsers without worklets.
+            this.scriptProcessor = this.audioContext.createScriptProcessor(2048, 1, 1);
             
             let audioBuffer: Int16Array[] = [];
             let lastSendTime = Date.now();
