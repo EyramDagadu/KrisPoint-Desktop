@@ -415,9 +415,20 @@ export function createGatewayServer(options = {}) {
         (error?.message?.includes('rate limit') || error?.message?.includes('concurrency limit') ? 429 :
           error?.message?.includes('License') || error?.message?.includes('license') ? 403 :
             error?.name === 'AbortError' ? 504 : 503);
+      const unavailableStage = status === 503
+        ? (error?.message === 'License authority unavailable' ? 'license_authority' : 'provider')
+        : null;
+      if (unavailableStage) {
+        console.error('AI request dependency unavailable', {
+          stage: unavailableStage,
+          error: typeof error?.message === 'string' ? error.message.slice(0, 160) : 'Unknown error'
+        });
+      }
       const message = status === 429 ? error.message :
         status === 403 ? error.message : status === 504 ? 'AI polish timed out; no changes were made' :
-          'AI polish is temporarily unavailable; no changes were made';
+          unavailableStage === 'license_authority'
+            ? 'License verification is temporarily unavailable; no changes were made'
+            : 'AI provider is temporarily unavailable; no changes were made';
       return jsonResponse(response, status, { success: false, error: message });
     }
   });
