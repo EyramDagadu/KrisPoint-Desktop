@@ -26,9 +26,26 @@ function response(data: unknown, status = 200) {
 }
 
 function sameOrigin(request: Request, origin: string): boolean {
-  const expected = process.env.KRISPOINT_APP_ORIGIN || origin;
-  return request.headers.get('origin') === expected &&
-    request.headers.get('sec-fetch-site') !== 'cross-site';
+  const fetchSite = request.headers.get('sec-fetch-site');
+  if (fetchSite === 'cross-site') return false;
+
+  const requestOrigin = request.headers.get('origin');
+  if (!requestOrigin) return false;
+
+  const configuredOrigin = process.env.KRISPOINT_APP_ORIGIN;
+  if (configuredOrigin) return requestOrigin === configuredOrigin;
+  if (requestOrigin === origin) return true;
+
+  const forwardedHost = request.headers.get('x-forwarded-host')?.split(',')[0]?.trim();
+  const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
+  if (forwardedHost && forwardedProto &&
+      requestOrigin === `${forwardedProto}://${forwardedHost}`) {
+    return true;
+  }
+
+  // Browsers set this header and do not let page scripts forge it. This keeps
+  // CSRF protection intact when a trusted reverse proxy rewrites host details.
+  return fetchSite === 'same-origin';
 }
 
 function serverProviderReady(): boolean {
