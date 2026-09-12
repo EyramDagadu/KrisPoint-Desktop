@@ -97,6 +97,15 @@ async function proxyToHostedGateway(request: Request, body: Uint8Array): Promise
     } catch {
       throw new Error('Hosted AI gateway returned invalid JSON');
     }
+    if (!gatewayResponse.ok) {
+      const gatewayError = payload && typeof payload === 'object' && 'error' in payload
+        ? String((payload as { error?: unknown }).error || 'Unknown gateway error')
+        : 'Unknown gateway error';
+      console.warn('Hosted AI gateway rejected request', {
+        status: gatewayResponse.status,
+        error: gatewayError
+      });
+    }
     return response(payload, gatewayResponse.status);
   } finally {
     clearTimeout(timer);
