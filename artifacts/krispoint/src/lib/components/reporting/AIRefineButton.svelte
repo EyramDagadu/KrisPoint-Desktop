@@ -84,7 +84,7 @@
   function matches(template) {
     const currentModality = normalize(modality);
     const currentRegion = normalize(bodyRegion);
-    const templateModality = normalize(template.modality || template.category);
+    const templateModality = normalize(template.modality);
     const templateRegion = normalize(template.bodyRegion);
     const modalityMatch = !templateModality || templateModality === currentModality ||
       templateModality.includes(currentModality) || currentModality.includes(templateModality);
@@ -119,11 +119,9 @@
       );
       const payload = await response.json().catch(() => ({}));
       const loadedTemplates = payload.templates || [];
-      templates = isSoloEdition
-        ? loadedTemplates
-        : loadedTemplates.filter(template =>
-            matches(template) || sameTemplate(template, activeTemplateId, activeTemplateName)
-          );
+      templates = loadedTemplates.filter(template =>
+        matches(template) || sameTemplate(template, activeTemplateId, activeTemplateName)
+      );
     } catch (error) {
       templates = [];
     } finally {

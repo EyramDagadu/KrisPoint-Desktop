@@ -3,8 +3,8 @@ name: Solo template and macro collections
 description: Edition-specific collection behavior for templates, macros, and AI drafting.
 ---
 
-Solo must present templates and macros as unified owner collections. Do not expose system-versus-personal tabs, scope selectors, or creation labels in Solo. AI drafting must offer the unified template collection rather than hiding templates by Hospital scope or report metadata.
+Solo must present templates and macros as unified owner collections. Do not expose system-versus-personal tabs, scope selectors, or creation labels in Solo. AI drafting must select from the unified accessible template pool, then filter by the report modality and body part. Template category must not be treated as modality.
 
-**Why:** Solo has one private workspace owner, so Hospital-style shared and personal pools add confusion and caused valid owner-created templates to disappear from AI Polish.
+**Why:** Solo has one private workspace owner, so Hospital-style shared and personal pools add confusion. Modality and body-part filtering remains necessary to keep AI drafting clinically relevant.
 
-**How to apply:** Keep Hospital authorization and system/personal behavior intact. Any template or macro management, quick-insert, voice, or AI selector added to Solo should load the current owner's unified accessible collection.
+**How to apply:** Keep Hospital authorization and system/personal behavior intact. Solo management and quick-insert surfaces load the unified accessible collection; AI selectors additionally apply modality and body-part matching.
