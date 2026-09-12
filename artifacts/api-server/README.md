@@ -14,7 +14,7 @@ Required production settings:
 * `GROQ_API_KEY` — server-only Groq credential.
 
 `AI_PROVIDER` currently supports only `groq` (the default) and
-`GROQ_MODEL` defaults to `llama-3.3-70b-versatile`. An unsupported provider
+`GROQ_MODEL` defaults to `openai/gpt-oss-120b`. An unsupported provider
 fails closed. `HOST`, `PORT`, `GATEWAY_ALLOWED_ORIGINS`,
 `AI_MAX_CONCURRENT`, and `AI_RATE_LIMIT` may be set by the deployment.
 `POST /v1/polish` accepts `action=polish|impression`; both return the same

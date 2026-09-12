@@ -268,7 +268,7 @@ export function createGatewayServer(options = {}) {
     licenseServerUrl: (options.licenseServerUrl || process.env.KRISPOINT_LICENSE_SERVER_URL || '').replace(/\/+$/, ''),
     groqApiKey: options.groqApiKey ?? process.env.GROQ_API_KEY,
     provider: options.provider || process.env.AI_PROVIDER || 'groq',
-    model: options.model || options.groqModel || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+    model: options.model || options.groqModel || process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
     providerAdapters: Object.fromEntries(
       Object.entries(configuredAdapters).map(([name, adapter]) => [name, normalizeAdapter(adapter)])
     ),
