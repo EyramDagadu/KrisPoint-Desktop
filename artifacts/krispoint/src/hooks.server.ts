@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import type { Handle } from '@sveltejs/kit';
-import { logEnvironmentStatus } from '$lib/server/validateEnvironment';
+import { DEFAULT_LICENSE_SERVER_URL, logEnvironmentStatus } from '$lib/server/validateEnvironment';
 import { ensurePermissionsSync, seedDatabase, validateSystemTemplatesAndMacros } from '$lib/server/seed';
 
 logEnvironmentStatus();
@@ -40,7 +40,10 @@ validateSystemTemplatesAndMacros().then(result => {
   console.error('Template validation error:', err);
 });
 
-const LICENSE_SERVER_URL = 'http://localhost:3001';
+// Development may use the local license service. Production must use the
+// configured public HTTPS service; environment validation rejects localhost.
+const LICENSE_SERVER_URL = process.env.LICENSE_SERVER_URL ||
+  (process.env.NODE_ENV === 'production' ? DEFAULT_LICENSE_SERVER_URL : 'http://localhost:3001');
 
 export const handle: Handle = async ({ event, resolve }) => {
   const launchSecret = process.env.KRISPOINT_LAUNCH_SECRET;
@@ -76,7 +79,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     try {
       const headers: Record<string, string> = {
-        'host': 'localhost:3001',
+        'host': new URL(LICENSE_SERVER_URL).host,
       };
       const contentType = event.request.headers.get('content-type');
       if (contentType) headers['content-type'] = contentType;

@@ -12,7 +12,8 @@ import { attachAuthenticatedVoiceProxy } from './scripts/voice-websocket-proxy.m
 
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || '0.0.0.0';
-const SSL_DIR = './ssl';
+const certPath = process.env.SSL_CERT_PATH || path.join(process.cwd(), 'ssl', 'cert.pem');
+const keyPath = process.env.SSL_KEY_PATH || path.join(process.cwd(), 'ssl', 'key.pem');
 const voiceClientToken = process.env.VOICE_CLIENT_TOKEN;
 
 if (process.env.VITE_KRISPOINT_EDITION !== 'solo' && !voiceClientToken) {
@@ -40,10 +41,11 @@ function getLocalIP() {
 }
 
 // Check if SSL certificates exist
-const certPath = path.join(SSL_DIR, 'cert.pem');
-const keyPath = path.join(SSL_DIR, 'key.pem');
-
 const hasSSL = fs.existsSync(certPath) && fs.existsSync(keyPath);
+
+if (process.env.REQUIRE_HTTPS === 'true' && !hasSSL) {
+    throw new Error(`REQUIRE_HTTPS=true but SSL certificate files were not found at ${certPath} and ${keyPath}`);
+}
 
 if (hasSSL) {
     // HTTPS mode
@@ -67,17 +69,20 @@ if (hasSSL) {
         console.log(`   (Accept the certificate warning on first visit)\n`);
     });
 
-    // Also start HTTP redirect server on port 80 if available
-    try {
+    // The redirect is opt-in because port 80 is commonly owned by IIS or
+    // another reverse proxy on Windows servers. A redirect failure must never
+    // terminate the primary HTTPS/voice service.
+    if (process.env.ENABLE_HTTP_REDIRECT === 'true') {
         const httpRedirect = http.createServer((req, res) => {
             const host = req.headers.host?.split(':')[0] || 'localhost';
             res.writeHead(301, { Location: `https://${host}:${PORT}${req.url}` });
             res.end();
         });
+        httpRedirect.on('error', (error) => {
+            console.warn(`HTTP→HTTPS redirect unavailable on port 80: ${error.message}`);
+        });
         httpRedirect.listen(80, HOST);
         console.log(`   HTTP→HTTPS redirect active on port 80`);
-    } catch (e) {
-        // Port 80 might require admin rights, ignore
     }
 
 } else {

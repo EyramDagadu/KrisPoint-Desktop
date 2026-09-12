@@ -1,15 +1,19 @@
-# [Project name]
+# KrisPoint
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Hospital multi-user radiology reporting and Solo desktop reporting, with shared signed licensing.
 
 ## Run & Operate
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm run dev:hospital` — run the Hospital app with its safe additive migration
+- `pnpm test:deployment` — validate the Windows Hospital deployment contract
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Hospital production env: `DATABASE_URL`, `ENCRYPTION_KEY`, `VOICE_CLIENT_TOKEN`,
+  `LICENSE_SERVER_URL=https://license.krispoint.com.gh`, `HOST`, and `PORT`
+- Windows local-server procedure: `HOSPITAL_DEPLOYMENT.md`
 
 ## Stack
 
@@ -26,7 +30,10 @@ _Populate as you build — short repo map plus pointers to the source-of-truth f
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Hospital uses PostgreSQL and the adapter-node production server.
+- Windows releases are immutable Git checkouts selected by an atomic `current.txt` pointer.
+- Hospital licensing always uses the existing public licensing authority; never start a local copy.
+- Production secrets and TLS files stay outside Git under machine-local administrator-controlled paths.
 
 ## Product
 
@@ -38,7 +45,9 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Back up PostgreSQL before schema changes.
+- Run `server-https.js` in Hospital production; launching the adapter entrypoint directly bypasses the authenticated voice proxy.
+- Use `pnpm install --frozen-lockfile`; the repository rejects npm/yarn installs.
 
 ## Pointers
 

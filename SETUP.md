@@ -142,7 +142,12 @@ created the read-only token.
 
 ## Production notes
 
-For a hospital deployment:
+For the supported Windows-first Hospital deployment lifecycle, see
+[HOSPITAL_DEPLOYMENT.md](HOSPITAL_DEPLOYMENT.md). It provides versioned
+releases, transactional migrations, `pg_dump` backups, service restart
+handling, and rollback instructions.
+
+Regardless of platform:
 
 - Use HTTPS and secure WebSockets (`wss://`)
 - Restrict database and voice-server ports to trusted networks

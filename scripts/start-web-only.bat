@@ -1,6 +1,7 @@
 @echo off
 title KrisPoint Web Server
-cd /d "c:\KrisPoint-Server\KrisPoint-Teaching-Hospital-Whisper"
+REM Resolve the checkout dynamically; never assume a developer's old C: path.
+cd /d "%~dp0.."
 if exist ".env" (
     for /f "usebackq tokens=1,* delims==" %%a in (".env") do (
         if not "%%a"=="" if not "%%a:~0,1%"=="#" (
