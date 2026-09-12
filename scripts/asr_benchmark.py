@@ -262,7 +262,7 @@ def evaluate(
             }
         )
     validate_manifest(samples, command_vocabulary)
-    lock_path = ROOT / "uv.lock"
+    lock_path = ROOT / "vosk-server" / "uv.lock"
     results: dict = {
         "manifest": str(manifest_path),
         "provenance": {

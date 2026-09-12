@@ -2,7 +2,7 @@ modules = ["nodejs-24", "python-3.11", "rust-stable"]
 
 [packager]
 language = "nodejs"
-ignoredPaths = ["pyproject.toml", "uv.lock", "vosk-server", ".cache", ".pythonlibs", "src-tauri/target"]
+ignoredPaths = ["vosk-server", ".cache", ".pythonlibs", "src-tauri/target"]
 
 [packager.features]
 guessImports = false

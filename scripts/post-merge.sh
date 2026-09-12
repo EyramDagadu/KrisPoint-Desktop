@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 pnpm install --frozen-lockfile
-uv sync --frozen
+uv sync --frozen --directory vosk-server
