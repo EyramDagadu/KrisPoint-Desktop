@@ -898,6 +898,11 @@ export class EnhancedVoiceService {
     }
     
     insertDatabaseTemplate(dbTemplate) {
+        // Voice template loads are report template selections too; persist the
+        // immutable ID and exact name with the draft rather than only inserting
+        // rendered HTML.
+        reportActions.setActiveTemplate(dbTemplate);
+
         // Database templates store content directly
         const content = dbTemplate.content || '';
         

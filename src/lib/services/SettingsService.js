@@ -33,6 +33,8 @@ class SettingsService {
       },
       reports: {
         defaultTemplate: 'blank',
+        lastUsedTemplateId: null,
+        lastUsedTemplateName: null,
         exportQuality: 'high'
       },
       interface: {
@@ -56,7 +58,11 @@ class SettingsService {
         shareUsageStats: false
       },
       ai: {
-        enabled: false,
+        // Hosted is the default provider.  Provider credentials are never a
+        // client setting; only this non-secret mode and local Ollama details
+        // are persisted in browser storage.
+        enabled: true,
+        providerMode: 'hosted', // hosted | disabled | ollama | byo
         ollamaUrl: 'http://localhost:11434',
         ollamaModel: 'mistral:7b',
         autoGenerateImpressions: false
@@ -71,7 +77,10 @@ class SettingsService {
       const saved = userStorageService.getItem('krispoint-settings');
       if (saved) {
         const parsed = JSON.parse(saved);
-        this.settings = { ...this.settings, ...parsed };
+        this.settings = { ...this.settings, ...parsed, ai: this.sanitizeAiSettings(parsed.ai) };
+        // Rewrite legacy settings immediately so credentials from an older
+        // client build are removed from browser storage as well.
+        userStorageService.setItem('krispoint-settings', JSON.stringify(this.settings));
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
@@ -82,7 +91,13 @@ class SettingsService {
     if (!browser) return;
 
     try {
-      this.settings = { ...this.settings, ...newSettings };
+      const nextSettings = { ...this.settings, ...newSettings };
+      // Never persist provider keys/tokens, even when importing legacy
+      // settings or when a caller passes an arbitrary ai object.
+      this.settings = {
+        ...nextSettings,
+        ai: this.sanitizeAiSettings(nextSettings.ai)
+      };
       
       // Always enforce encryption for medical data compliance (not optional)
       if (this.settings.privacy) {
@@ -104,6 +119,28 @@ class SettingsService {
       console.error('Failed to save settings:', error);
       return false;
     }
+  }
+
+  /**
+   * Keep provider configuration deliberately allow-listed. In particular,
+   * provider keys, bearer tokens, secrets and arbitrary credential fields must
+   * never reach localStorage through settings import/save.
+   */
+  sanitizeAiSettings(ai) {
+    const defaults = this.getDefaultSettings().ai;
+    const source = ai && typeof ai === 'object' ? ai : {};
+    const providerMode = ['hosted', 'disabled', 'ollama', 'byo'].includes(source.providerMode)
+      ? source.providerMode
+      : defaults.providerMode;
+    return {
+      enabled: providerMode !== 'disabled',
+      providerMode,
+      ollamaUrl: typeof source.ollamaUrl === 'string' ? source.ollamaUrl : defaults.ollamaUrl,
+      ollamaModel: typeof source.ollamaModel === 'string'
+        ? source.ollamaModel
+        : (typeof source.model === 'string' ? source.model : defaults.ollamaModel),
+      autoGenerateImpressions: Boolean(source.autoGenerateImpressions)
+    };
   }
 
   async applySettingsToServices() {
@@ -259,7 +296,10 @@ class SettingsService {
   }
 
   exportSettings() {
-    return JSON.stringify(this.settings, null, 2);
+    return JSON.stringify({
+      ...this.settings,
+      ai: this.sanitizeAiSettings(this.settings.ai)
+    }, null, 2);
   }
 
   importSettings(settingsJson) {

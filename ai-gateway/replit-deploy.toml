@@ -1,0 +1,14 @@
+# Use this file when deploying ai-gateway as the Replit project root.
+# It is intentionally separate from the repository's application .replit.
+modules = ["nodejs-20"]
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["npm", "install"]
+run = ["bash", "-c", "HOST=0.0.0.0 PORT=\"${PORT}\" node src/server.mjs"]
+
+[userenv.production]
+AI_PROVIDER = "groq"
+KRISPOINT_LICENSE_PUBLIC_KEY = ""
+KRISPOINT_LICENSE_SERVER_URL = ""
+GROQ_API_KEY = ""

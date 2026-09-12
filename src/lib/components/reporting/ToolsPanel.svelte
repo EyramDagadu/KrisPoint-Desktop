@@ -168,6 +168,10 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
 
   function insertTemplate(template) {
     try {
+      // Keep the exact selected template attached to the draft, including
+      // personal/system template IDs and the display name at selection time.
+      reportActions.setActiveTemplate(template);
+
       // Template content is stored as HTML in the database
       let htmlContent = template.content || '';
       

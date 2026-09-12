@@ -1,8 +1,13 @@
+import { checkClinicalSafety, checkImpressionSafety } from '../../../ai-gateway/src/safety.mjs';
+export { checkClinicalSafety, checkImpressionSafety };
+
 export interface PolishInput {
   report: string;
   template?: string;
   modality?: string;
   bodyRegion?: string;
+  indication?: string;
+  action?: 'polish' | 'impression';
 }
 
 export interface PolishProvider {
@@ -27,113 +32,16 @@ including all measurements and units, laterality, negation, anatomy, dates, cert
 and recommendations. Do not turn an uncertainty into a diagnosis. Do not add a diagnosis, comparison,
 technique, or impression not present in the source. The template is style guidance only and is not a source
 of clinical facts. If a safe edit is not possible, return the source text unchanged.`;
+const IMPRESSION_PROMPT = `You are a radiologist drafting only the IMPRESSION from the supplied report facts.
+Return JSON with exactly this shape: {"polishedText":"string","changes":["string"]}.
+Write a concise impression using only facts explicitly present in the report and indication.
+Never invent, infer, or add a diagnosis, recommendation, comparison, or certainty. Preserve every
+measurement, unit, laterality, negation, anatomy, and degree of certainty that appears in the source.
+Do not repeat the full findings or technique. If a safe impression cannot be derived, return the
+source report unchanged.`;
 
 function jsonHeaders(): HeadersInit {
   return { 'content-type': 'application/json' };
-}
-
-function cleanText(value: string): string {
-  return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
-function sentences(value: string): string[] {
-  return cleanText(value).split(/(?<=[.!?])\s+|\n+/).map(s => s.trim()).filter(Boolean);
-}
-
-const STOP_WORDS = new Set(
-  'a an and are as at be by for from in is it of on or that the this to was were with without'.split(' ')
-);
-const EDITORIAL_WORDS = new Set(
-  'also demonstrated demonstrates evident identified noted present seen shows visualized appears there remains'.split(' ')
-);
-
-function contentWords(value: string): string[] {
-  return cleanText(value).toLowerCase().match(/[a-z0-9]+(?:['’-][a-z0-9]+)*/g)?.filter(
-    word => word.length > 1 && !STOP_WORDS.has(word)
-  ) ?? [];
-}
-
-function claimSignatures(value: string): string[] {
-  return cleanText(value)
-    .split(/[.;!?]+|\b(?:and|but|however)\b|\b(?:findings|impression|comparison|technique)\s*:/i)
-    .map(claim => claim.toLowerCase().match(/[a-z0-9]+(?:['’-][a-z0-9]+)*/g) ?? [])
-    .map(words => words.filter(word =>
-      word.length > 1 && !STOP_WORDS.has(word) && !EDITORIAL_WORDS.has(word)
-    ))
-    .filter(words => words.length > 0)
-    .map(words => words.sort().join('|'))
-    .sort();
-}
-
-function protectedFacts(value: string): string[] {
-  const text = cleanText(value).toLowerCase();
-  const facts = new Set<string>();
-  const add = (pattern: RegExp) => {
-    for (const match of text.matchAll(pattern)) facts.add(match[0].replace(/\s+/g, ' ').trim());
-  };
-  // Measurements include ranges and the unit, so changing either is unsafe.
-  add(/\b\d+(?:\.\d+)?(?:\s*[-–]\s*\d+(?:\.\d+)?)?\s*(?:mm|cm|m|mL|ml|cc|mg|g|kg|hz|khz|°c|degrees?)\b/gi);
-  add(/\b(?:right|left|bilateral|unilateral|midline|r|l)\b/gi);
-  add(/\b(?:no|not|without|negative|absent|denies|unremarkable|normal)\b/gi);
-  add(/\b(?:19|20)\d{2}[-/.]\d{1,2}[-/.]\d{1,2}\b|\b\d{1,2}[-/.]\d{1,2}[-/.](?:\d{2}|\d{4})\b/gi);
-  add(/\b(?:possible|possibly|probable|likely|unlikely|may represent|cannot exclude|suggestive of|consistent with|compatible with)\b/gi);
-  // Common anatomic terms are explicitly protected in addition to the
-  // sentence-preservation check (which protects less common anatomy too).
-  add(/\b(?:brain|lung|lungs|heart|liver|spleen|kidney|kidneys|aorta|artery|arteries|vein|veins|bone|bones|spine|cervical|thoracic|lumbar|abdomen|pelvis|chest|skull|sinus|sinuses|nodule|mass|lesion|fracture|effusion|pleural|pericardial|lymph node|thyroid|breast|prostate|uterus|ovary|colon|stomach|pancreas|adrenal|bladder|esophagus|trachea|bronchus|lobe|lobes|joint|tendon|ligament)\b/gi);
-  return [...facts];
-}
-
-export function checkClinicalSafety(source: string, candidate: string): ClinicalWarning[] {
-  const warnings: ClinicalWarning[] = [];
-  const sourceClaims = claimSignatures(source);
-  const candidateClaims = claimSignatures(candidate);
-  if (sourceClaims.length !== candidateClaims.length ||
-      sourceClaims.some((claim, index) => claim !== candidateClaims[index])) {
-    warnings.push({
-      code: 'CLINICAL_CLAIM_CHANGED',
-      message: 'A clinical claim was added, removed, or associated with different findings',
-      blocking: true
-    });
-  }
-  const sourceFacts = protectedFacts(source);
-  const candidateFacts = new Set(protectedFacts(candidate));
-  for (const fact of sourceFacts) {
-    if (!candidateFacts.has(fact)) {
-      warnings.push({
-        code: 'PROTECTED_FACT_CHANGED',
-        message: `Protected clinical fact was changed or omitted: "${fact}"`,
-        blocking: true
-      });
-    }
-  }
-
-  // A candidate must retain enough distinctive words from every source
-  // sentence. This catches dropped findings while permitting grammar edits.
-  const candidateWords = new Set(contentWords(candidate));
-  for (const sentence of sentences(source)) {
-    const words = [...new Set(contentWords(sentence))];
-    if (!words.length) continue;
-    const retained = words.filter(word => candidateWords.has(word)).length;
-    const minimum = Math.max(1, Math.ceil(words.length * 0.25));
-    if (retained < minimum) {
-      warnings.push({
-        code: 'SOURCE_SENTENCE_OMITTED',
-        message: 'A source finding or sentence was omitted from the proposed edit',
-        blocking: true
-      });
-    }
-  }
-
-  for (const fact of candidateFacts) {
-    if (!sourceFacts.includes(fact)) {
-      warnings.push({
-        code: 'UNSUPPORTED_FACT_ADDED',
-        message: `Unsupported clinical fact was added: "${fact}"`,
-        blocking: true
-      });
-    }
-  }
-  return warnings;
 }
 
 function parseStructuredOutput(value: unknown): string {
@@ -200,14 +108,16 @@ export class GroqPolishProvider implements PolishProvider {
           temperature: 0,
           response_format: { type: 'json_object' },
           messages: [
-            { role: 'system', content: PROMPT },
+            { role: 'system', content: input.action === 'impression' ? IMPRESSION_PROMPT : PROMPT },
             {
               role: 'user',
               content: JSON.stringify({
                 report: input.report,
                 template: input.template || '',
                 modality: input.modality || '',
-                bodyRegion: input.bodyRegion || ''
+                 bodyRegion: input.bodyRegion || '',
+                 indication: input.indication || '',
+                 action: input.action || 'polish'
               })
             }
           ]

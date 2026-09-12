@@ -211,11 +211,17 @@
     dispatch('contentChange', { section: 'content', content: html });
   }
 
-  function handleAIContentInsert(content) {
+  function handleAIContentInsert(content, action = 'polish') {
     if (editor && content && !readOnly) {
       const htmlContent = convertAITextToHTML(content);
-      editor.chain().focus().setContent(htmlContent).run();
-      reportActions.updateContent(htmlContent);
+      if (action === 'impression') {
+        const impressionHtml = `<p><strong>IMPRESSION:</strong></p>${htmlContent}`;
+        editor.chain().focus().insertContent(impressionHtml).run();
+        reportActions.updateContent(editor.getHTML());
+      } else {
+        editor.chain().focus().setContent(htmlContent).run();
+        reportActions.updateContent(htmlContent);
+      }
     }
   }
 
@@ -677,6 +683,8 @@
             indication={$patientData.indication}
             modality={$patientData.examType}
             bodyRegion={$patientData.examSubtype}
+            activeTemplateId={$reportData.activeTemplateId}
+            activeTemplateName={$reportData.activeTemplateName}
             {readOnly}
             onReportGenerated={handleAIContentInsert}
           />

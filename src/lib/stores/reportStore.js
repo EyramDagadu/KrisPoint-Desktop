@@ -352,6 +352,7 @@ export const reportActions = {
     
     // Set the report data
     reportData.set({
+      ...initialReportData,
       content: initialContent,
       reportId: null, // Reset report ID for new reports
       lastModified: new Date().toISOString(),
@@ -432,6 +433,8 @@ export const reportActions = {
           lastModified: dbReport.updatedAt || new Date().toISOString(),
           isDirty: false,
           status: dbReport.status || 'DRAFT',
+          activeTemplateId: dbReport.activeTemplateId ?? null,
+          activeTemplateName: dbReport.activeTemplateName ?? null,
           lastSaved: dbReport.updatedAt || null,
           finalizedAt: dbReport.status === 'SIGNED' ? dbReport.updatedAt : null,
           assignedSpecialistId: dbReport.assignedSpecialistId || null,
@@ -560,6 +563,8 @@ export const reportActions = {
         findings: parsedFields.findings,
         impressions: parsedFields.impressions,
         recommendations: parsedFields.recommendations,
+        activeTemplateId: currentReportData.activeTemplateId ?? null,
+        activeTemplateName: currentReportData.activeTemplateName ?? null,
         status: currentReportData.status === 'finalized' ? 'SIGNED' : 'DRAFT'
       };
       
@@ -660,6 +665,10 @@ export const reportActions = {
       if (currentPatientData.referringPhysician?.trim()) {
         updatePayload.referringPhysician = currentPatientData.referringPhysician;
       }
+      // Template metadata travels with every draft update.  It is separate
+      // from content so accepting/rejecting a proposal cannot lose it.
+      updatePayload.activeTemplateId = currentReportData.activeTemplateId ?? null;
+      updatePayload.activeTemplateName = currentReportData.activeTemplateName ?? null;
       
       // Use query param for Windows compatibility (SvelteKit [id] routing issue)
       const res = await fetch(`/api/reports?id=${currentReportData.databaseReportId}`, {

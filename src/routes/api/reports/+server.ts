@@ -76,6 +76,8 @@ export const GET: RequestHandler = async ({ request, url }) => {
           openedBy: schema.reports.openedBy,
           signedBy: schema.reports.signedBy,
           assignedSpecialistId: schema.reports.assignedSpecialistId,
+          activeTemplateId: schema.reports.activeTemplateId,
+          activeTemplateName: schema.reports.activeTemplateName,
           createdAt: schema.reports.createdAt,
           updatedAt: schema.reports.updatedAt,
           patientFirstName: schema.patients.firstName,
@@ -101,6 +103,8 @@ export const GET: RequestHandler = async ({ request, url }) => {
           openedBy: schema.reports.openedBy,
           signedBy: schema.reports.signedBy,
           assignedSpecialistId: schema.reports.assignedSpecialistId,
+          activeTemplateId: schema.reports.activeTemplateId,
+          activeTemplateName: schema.reports.activeTemplateName,
           createdAt: schema.reports.createdAt,
           updatedAt: schema.reports.updatedAt,
           patientFirstName: schema.patients.firstName,
@@ -214,7 +218,9 @@ export const GET: RequestHandler = async ({ request, url }) => {
         accessionNumber: report.accessionNumber || '',
         dateCreated: report.createdAt ? new Date(report.createdAt).toISOString() : '',
         lastModified: lastModifiedDate ? lastModifiedDate.toISOString() : '',
-        authors: authors.length > 0 ? authors : ['Unknown']
+        authors: authors.length > 0 ? authors : ['Unknown'],
+        activeTemplateId: report.activeTemplateId ?? null,
+        activeTemplateName: report.activeTemplateName ?? null
       };
     });
 
@@ -267,6 +273,8 @@ export const POST: RequestHandler = async ({ request, url }) => {
       findings,
       impressions,
       recommendations,
+      activeTemplateId,
+      activeTemplateName,
       status = 'DRAFT'
     } = data;
 
@@ -311,6 +319,8 @@ export const POST: RequestHandler = async ({ request, url }) => {
         findings: findings || null,
         impressions: impressions || null,
         recommendations: recommendations || null,
+        activeTemplateId: activeTemplateId ? parseInt(String(activeTemplateId)) : null,
+        activeTemplateName: typeof activeTemplateName === 'string' ? activeTemplateName : null,
         status,
         createdBy: session.user.id,
         openedBy: session.user.id,
@@ -354,7 +364,10 @@ export const POST: RequestHandler = async ({ request, url }) => {
       success: true, 
       report: {
         id: newReport.id,
-        patientId: newReport.patientId
+        patientId: newReport.patientId,
+        activeTemplateId: newReport.activeTemplateId ?? null,
+        activeTemplateName: newReport.activeTemplateName ?? null,
+        updatedAt: newReport.updatedAt
       }
     });
   } catch (error) {
@@ -419,7 +432,9 @@ async function handleSingleReportRequest(request: Request, id: number): Promise<
         patientGender: schema.patients.gender,
         patientDateOfBirth: schema.patients.dateOfBirth,
         patientAge: schema.reports.patientAge,
-        patientAgeUnit: schema.reports.patientAgeUnit
+        patientAgeUnit: schema.reports.patientAgeUnit,
+        activeTemplateId: schema.reports.activeTemplateId,
+        activeTemplateName: schema.reports.activeTemplateName
       })
       .from(schema.reports)
       .leftJoin(schema.patients, eq(schema.reports.patientId, schema.patients.id))
@@ -678,7 +693,7 @@ export const PUT: RequestHandler = async ({ request, url }) => {
     }
 
     const data = await request.json();
-    const { content, findings, impressions, recommendations, technique, comparison, indication, status, age, ageUnit, bodyRegion, modality, referringPhysician, ifMatchVersion } = data;
+    const { content, findings, impressions, recommendations, technique, comparison, indication, status, age, ageUnit, bodyRegion, modality, referringPhysician, activeTemplateId, activeTemplateName, ifMatchVersion } = data;
 
     // Optimistic concurrency control
     if (ifMatchVersion) {
@@ -725,6 +740,17 @@ export const PUT: RequestHandler = async ({ request, url }) => {
     if (bodyRegion !== undefined) updateData.bodyRegion = bodyRegion;
     if (modality !== undefined) updateData.modality = normalizeModality(modality);
     if (referringPhysician !== undefined) updateData.referringPhysician = referringPhysician;
+    // Template identity is draft metadata, not workflow state.  Accept null
+    // explicitly so clearing a template is intentional and non-destructive
+    // accepts/rejects never alter report content implicitly.
+    if (activeTemplateId !== undefined) {
+      updateData.activeTemplateId = activeTemplateId === null || activeTemplateId === ''
+        ? null
+        : parseInt(String(activeTemplateId));
+    }
+    if (activeTemplateName !== undefined) {
+      updateData.activeTemplateName = activeTemplateName === null ? null : String(activeTemplateName);
+    }
 
     const [updatedReport] = await db
       .update(schema.reports)

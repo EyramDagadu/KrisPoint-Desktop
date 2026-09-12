@@ -117,12 +117,8 @@ class OllamaService {
       
       // Try to get response body for debugging
       if (!response.ok) {
-        try {
-          const errorBody = await response.text();
-          console.error('❌ Error response body:', errorBody);
-        } catch (e) {
-          console.error('❌ Could not read error body');
-        }
+        // Do not log provider response bodies: they may contain report text.
+        try { await response.text(); } catch { /* ignore unreadable body */ }
       }
       
       this.isAvailable = response.ok || response.status === 200;
@@ -137,7 +133,6 @@ class OllamaService {
     } catch (error) {
       console.error('❌ Ollama availability check failed:', {
         message: error.message,
-        error: error
       });
       this.isAvailable = false;
       return false;
@@ -427,7 +422,6 @@ CRITICAL: Respond with ONLY the impression text. No labels, no extra text. Start
               const json = JSON.parse(line);
               if (json.response) {
                 fullResponse += json.response;
-                console.log('🔄 Streaming token:', json.response);
                 
                 // Call onChunk for EVERY token to show real-time streaming
                 if (onChunk) {
@@ -435,7 +429,7 @@ CRITICAL: Respond with ONLY the impression text. No labels, no extra text. Start
                 }
               }
             } catch (e) {
-              console.warn('JSON parse error:', e.message, 'Line:', line);
+              console.warn('JSON parse error:', e.message);
             }
           }
         }
@@ -460,8 +454,7 @@ CRITICAL: Respond with ONLY the impression text. No labels, no extra text. Start
       console.error('❌ Ollama API error:', {
         message: error.message,
         stack: error.stack,
-        name: error.name,
-        error: error
+        name: error.name
       });
       throw error;
     }

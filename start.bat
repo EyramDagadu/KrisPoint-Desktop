@@ -52,6 +52,20 @@ if exist ".env" (
     )
 )
 
+:: Apply the Hospital PostgreSQL rollout before starting the web server.
+:: Solo uses SQLite and must not run the PostgreSQL migration.
+if /I not "%VITE_KRISPOINT_EDITION%"=="solo" (
+    echo Applying Hospital database migration...
+    call npm run db:migrate:hospital
+    if errorlevel 1 (
+        echo ERROR: Hospital database migration failed. Web server not started.
+        pause
+        exit /b 1
+    )
+) else (
+    echo Solo edition detected - skipping Hospital PostgreSQL migration.
+)
+
 :: Start main web server
 echo [3/3] Starting KrisPoint web server on port 5000...
 echo.

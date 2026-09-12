@@ -16,6 +16,16 @@ set "KRISPOINT=%CD%"
 echo KrisPoint folder: %KRISPOINT%
 echo.
 
+REM Load non-secret startup configuration, including the edition selector.
+REM Secrets remain in the process environment and are never printed.
+if exist "%KRISPOINT%\.env" (
+    for /f "usebackq tokens=1,* delims==" %%a in ("%KRISPOINT%\.env") do (
+        if not "%%a"=="" if not "%%a:~0,1%"=="#" (
+            set "%%a=%%b"
+        )
+    )
+)
+
 REM Configure environment
 set OLLAMA_HOST=0.0.0.0
 set OLLAMA_ORIGINS=*
@@ -34,6 +44,19 @@ echo [2/3] Starting Voice Recognition Server...
 start "Voice Server" cmd /c "cd /d "%KRISPOINT%\vosk-server" && START_VOICE_SERVER.bat"
 timeout /t 2 /nobreak >nul
 echo       Voice server started on port 8000
+
+echo.
+if /I not "%VITE_KRISPOINT_EDITION%"=="solo" (
+    echo Applying Hospital database migration...
+    call npm run db:migrate:hospital
+    if errorlevel 1 (
+        echo ERROR: Hospital database migration failed. Web server not started.
+        pause
+        exit /b 1
+    )
+) else (
+    echo Solo edition detected - skipping Hospital PostgreSQL migration.
+)
 
 echo.
 echo [3/3] Starting KrisPoint Web Server...

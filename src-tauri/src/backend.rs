@@ -81,6 +81,10 @@ impl BackendState {
             .env("AUDIT_SECRET", &audit_key)
             .env("KRISPOINT_LAUNCH_SECRET", &launch_secret)
             .env("KRISPOINT_APP_ORIGIN", format!("http://127.0.0.1:{port}"))
+            // Solo never receives a provider key. AI requests are sent by the
+            // authenticated SvelteKit server to the hosted gateway.
+            .env("KRISPOINT_AI_GATEWAY_URL", "https://ai.krispoint.com.gh")
+            .env("KRISPOINT_REMOTE_AI_ENABLED", "true")
             .env("KRISPOINT_PARENT_PID", std::process::id().to_string())
             .stdin(Stdio::null())
             .stdout(Stdio::from(backend_log))

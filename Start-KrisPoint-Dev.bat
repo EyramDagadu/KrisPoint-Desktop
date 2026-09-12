@@ -36,6 +36,26 @@ if not exist ".env" (
 )
 echo   .env file found
 
+REM Load the edition selector and database configuration without echoing values.
+for /f "usebackq tokens=1,* delims==" %%a in (".env") do (
+    if not "%%a"=="" if not "%%a:~0,1%"=="#" (
+        set "%%a=%%b"
+    )
+)
+
+REM Hospital development uses PostgreSQL; Solo development uses SQLite.
+if /I not "%VITE_KRISPOINT_EDITION%"=="solo" (
+    echo Applying Hospital database migration...
+    call npm run db:migrate:hospital
+    if errorlevel 1 (
+        echo ERROR: Hospital database migration failed. Development server not started.
+        pause
+        exit /b 1
+    )
+) else (
+    echo Solo edition detected - skipping Hospital PostgreSQL migration.
+)
+
 REM Clear Vite cache to prevent chunk errors on Windows
 if exist "node_modules\.vite" (
     echo   Clearing Vite cache in node_modules...

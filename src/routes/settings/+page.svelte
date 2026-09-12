@@ -44,8 +44,9 @@
         contributeTrainingData: false
       },
       ai: {
+        providerMode: 'hosted',
         ollamaUrl: 'http://localhost:11434',
-        model: 'mistral:7b',
+        ollamaModel: 'mistral:7b',
         enabled: true
       },
       reports: {
@@ -109,6 +110,7 @@
 
   onMount(async () => {
     await loadSettingsService();
+    await fetchHostedGatewayStatus();
     await checkSecurityQuestion();
     await fetchOrganizationInstitution();
     
@@ -482,18 +484,50 @@
   // AI Configuration
   let testingConnection = false;
   let connectionStatus = '';
+  let hostedGatewayStatus = 'unknown';
+  let hostedGatewayMessage = '';
+
+  // Hosted AI is reached through the authenticated gateway. The browser only
+  // receives readiness metadata; provider credentials remain server-side.
+  async function fetchHostedGatewayStatus() {
+    try {
+      const response = await fetch('/api/ai/status', { credentials: 'include' });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        hostedGatewayStatus = 'not-ready';
+        hostedGatewayMessage = payload.error || 'Hosted AI is not ready';
+        return;
+      }
+      hostedGatewayStatus = payload.ready === true || payload.status === 'ready'
+        ? 'ready'
+        : 'not-ready';
+      hostedGatewayMessage = payload.message || (hostedGatewayStatus === 'ready'
+        ? 'Hosted AI gateway ready'
+        : 'Hosted AI gateway is not ready');
+    } catch (error) {
+      hostedGatewayStatus = 'not-ready';
+      hostedGatewayMessage = 'Hosted AI status is unavailable';
+    }
+  }
+
+  function handleProviderModeChange() {
+    handleSettingChange();
+    if (settings.ai?.providerMode === 'hosted') {
+      fetchHostedGatewayStatus();
+    }
+  }
 
   async function testOllamaConnection() {
     testingConnection = true;
     connectionStatus = '';
     
     try {
-      ollamaService.setConfig(settings.ai.ollamaUrl, settings.ai.model);
+      ollamaService.setConfig(settings.ai.ollamaUrl, settings.ai.ollamaModel);
       const available = await ollamaService.checkAvailability();
       
       if (available) {
         connectionStatus = 'success';
-        toastSuccess(`✅ Connected to Ollama! Model: ${settings.ai.model}`);
+        toastSuccess(`✅ Connected to Ollama! Model: ${settings.ai.ollamaModel}`);
       } else {
         connectionStatus = 'error';
         toastError('❌ Cannot connect to Ollama. Make sure Ollama is running.');
@@ -509,7 +543,7 @@
 
   function applyAISettings() {
     if (settings.ai) {
-      ollamaService.setConfig(settings.ai.ollamaUrl, settings.ai.model);
+      ollamaService.setConfig(settings.ai.ollamaUrl, settings.ai.ollamaModel);
     }
   }
 
@@ -1132,8 +1166,40 @@
           <div class="settings-section">
             <h2>✨ AI Assistant Settings</h2>
             <p class="section-info">
-              Configure Ollama for AI-powered report generation and polishing. Ollama runs locally on your machine for complete privacy.
+              Choose how optional AI drafting assistance is provided. Reports,
+              dictation, templates, and ordinary reporting controls work without
+              selecting or configuring a provider.
             </p>
+
+            <div class="setting-group">
+              <label for="ai-provider-mode">Provider mode</label>
+              <select id="ai-provider-mode" bind:value={settings.ai.providerMode} on:change={handleProviderModeChange}>
+                <option value="hosted">Hosted (recommended)</option>
+                <option value="disabled">Disabled</option>
+                <option value="ollama">Private Ollama (advanced)</option>
+                <option value="byo">Bring your own provider (advanced)</option>
+              </select>
+            </div>
+
+             {#if settings.ai.providerMode === 'hosted'}
+               <div class="connection-status {hostedGatewayStatus === 'ready' ? 'success' : hostedGatewayStatus === 'not-ready' ? 'error' : ''}">
+                 {#if hostedGatewayStatus === 'ready'}✅{:else if hostedGatewayStatus === 'not-ready'}⚠️{:else}⏳{/if}
+                 {hostedGatewayMessage || 'Checking hosted AI gateway…'}
+               </div>
+               <p class="setting-description">
+                 Hosted readiness is checked through the authenticated gateway.
+                 Provider credentials are never sent to or stored by this browser.
+               </p>
+             {:else if settings.ai.providerMode === 'disabled'}
+               <div class="section-info"><p>AI assistance is disabled. No provider is contacted.</p></div>
+             {:else if settings.ai.providerMode === 'byo'}
+               <div class="section-info warning">
+                 <p><strong>Advanced option:</strong> BYO providers are managed by your deployment administrator. Do not enter provider API keys here; KrisPoint never stores provider keys in browser storage.</p>
+               </div>
+             {:else}
+              <div class="section-info">
+                 <p><strong>Private Ollama:</strong> Processing stays on the configured local Ollama service. Confirm its network and data handling settings before use.</p>
+               </div>
             
             <div class="setting-group">
               <label for="ollama-url">Ollama Server URL</label>
@@ -1154,13 +1220,13 @@
               <input 
                 id="ai-model"
                 type="text" 
-                bind:value={settings.ai.model}
+                bind:value={settings.ai.ollamaModel}
                 on:change={handleSettingChange}
                 placeholder="mistral:7b"
               />
               <p class="setting-description">
                 The Ollama model to use. Popular options: mistral:7b, llama3.1:8b, gemma2:9b
-                <br/>Make sure you've downloaded the model first: <code>ollama pull {settings.ai.model || 'mistral:7b'}</code>
+                <br/>Make sure you've downloaded the model first: <code>ollama pull {settings.ai.ollamaModel || 'mistral:7b'}</code>
               </p>
             </div>
             
@@ -1192,14 +1258,15 @@
               <h3>📖 Quick Start Guide</h3>
               <ol>
                 <li>Install Ollama from <a href="https://ollama.com" target="_blank" rel="noopener">ollama.com</a></li>
-                <li>Open terminal and run: <code>ollama pull {settings.ai.model || 'mistral:7b'}</code></li>
+                <li>Open terminal and run: <code>ollama pull {settings.ai.ollamaModel || 'mistral:7b'}</code></li>
                 <li>Start Ollama: <code>ollama serve</code></li>
                 <li>Click "Test Connection" above to verify</li>
                 <li>Use the ✨ button in the report editor to generate or polish reports!</li>
               </ol>
               
               <p><strong>Privacy Note:</strong> All AI processing happens locally on your computer. No data is sent to external servers.</p>
-            </div>
+             </div>
+             {/if}
           </div>
         {/if}
 

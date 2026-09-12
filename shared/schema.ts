@@ -199,6 +199,12 @@ export const reports = pgTable('reports', {
   findings: text('findings'),
   impressions: text('impressions'),
   recommendations: text('recommendations'),
+
+  // The exact template selected when this report draft was created/edited.
+  // Keep both the immutable database identity and the display name so old
+  // drafts remain explainable even when a template is renamed or removed.
+  activeTemplateId: integer('active_template_id'),
+  activeTemplateName: varchar('active_template_name', { length: 255 }),
   
   // Workflow
   status: varchar('status', { length: 50 }).default('DRAFT'), // DRAFT, SUBMITTED, SIGNED, AMENDED

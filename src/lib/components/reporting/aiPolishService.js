@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { get } from 'svelte/store';
 import { licenseState } from '../../stores/licenseStore.js';
+import { settingsService } from '../../services/SettingsService.js';
+import { ollamaService } from '../../services/OllamaService.js';
 
 function signedLicenceEnvelope() {
   const { license } = get(licenseState);
@@ -13,7 +15,76 @@ function signedLicenceEnvelope() {
   };
 }
 
-export async function polishReport({ content, indication, modality, bodyRegion, template, signal }) {
+class AiProviderError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.name = 'AiProviderError';
+    this.code = code;
+    this.blocked = true;
+  }
+}
+
+async function assertProviderReady(mode, signal) {
+  const response = await fetch(`/api/ai/status?mode=${encodeURIComponent(mode)}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+    signal
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || payload.ready !== true) {
+    throw new AiProviderError(
+      payload.message || 'The selected AI provider is not ready; no report data was transmitted',
+      'PROVIDER_NOT_READY'
+    );
+  }
+}
+
+async function runOllama({ action, content, indication, signal }) {
+  const ai = settingsService.settings?.ai || {};
+  ollamaService.setConfig(ai.ollamaUrl, ai.ollamaModel);
+  const available = await ollamaService.checkAvailability();
+  if (!available) {
+    throw new AiProviderError('Private Ollama is not available; no report data was transmitted', 'OLLAMA_NOT_READY');
+  }
+  if (signal?.aborted) throw new DOMException('The request was aborted', 'AbortError');
+  // OllamaService owns the local request and its constrained prompts. Never
+  // send a private Ollama request through the hosted API route.
+  const proposedContent = action === 'impression'
+    ? await ollamaService.generateImpression(indication || '', content)
+    : await ollamaService.polishReport(content);
+  return {
+    proposedContent,
+    blocked: false,
+    warnings: [],
+    safetyMessage: ''
+  };
+}
+
+export async function polishReport({
+  content,
+  indication,
+  modality,
+  bodyRegion,
+  template,
+  signal,
+  action = 'polish'
+}) {
+  const providerMode = settingsService.settings?.ai?.providerMode || 'hosted';
+  if (providerMode === 'disabled') {
+    throw new AiProviderError('AI is disabled in settings; no report data was transmitted', 'PROVIDER_DISABLED');
+  }
+  if (providerMode === 'ollama') {
+    return runOllama({ action, content, indication, signal });
+  }
+  if (providerMode === 'byo') {
+    // BYO is still server-managed. Readiness must be established before the
+    // report is placed in a request body.
+    await assertProviderReady('byo', signal);
+  } else if (providerMode !== 'hosted') {
+    throw new AiProviderError('Unknown AI provider; no report data was transmitted', 'PROVIDER_INVALID');
+  }
+
   const response = await fetch('/api/ai/polish', {
     method: 'POST',
     credentials: 'include',
@@ -24,6 +95,8 @@ export async function polishReport({ content, indication, modality, bodyRegion, 
       indication: indication || '',
       modality: modality || '',
       bodyRegion: bodyRegion || '',
+      action: action === 'impression' ? 'impression' : 'polish',
+      providerMode,
       template: template || null,
       templateId: template?.id || null,
       templateIdentity: template?.identity || null,

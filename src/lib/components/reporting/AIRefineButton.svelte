@@ -6,12 +6,15 @@
   import { polishReport } from './aiPolishService.js';
   import { aiPolishDraft } from './aiPolishDraftStore.js';
   import { reportActions } from '../../stores/reportStore.js';
+  import { settingsService } from '../../services/SettingsService.js';
 
   export let reportContent = '';
   export let indication = '';
   export let modality = '';
   export let bodyRegion = '';
   export let readOnly = false;
+  export let activeTemplateId = null;
+  export let activeTemplateName = null;
 
   export let onReportGenerated = null;
   let showModal = false;
@@ -26,6 +29,43 @@
   let blocked = false;
   let errorMessage = '';
   let requestController;
+  let proposalAction = 'polish';
+  let lastUsedTemplate = null;
+
+  function sameTemplate(template, id, name) {
+    return Boolean(template) && (
+      (id !== null && id !== undefined && String(template.id) === String(id)) ||
+      (name && String(template.name || '').trim() === String(name).trim())
+    );
+  }
+
+  function chooseTemplate(candidates) {
+    const active = candidates.find(template => sameTemplate(template, activeTemplateId, activeTemplateName));
+    if (active) return active;
+    const recent = candidates.find(template => sameTemplate(
+      template,
+      lastUsedTemplate?.id ?? settingsService.settings?.reports?.lastUsedTemplateId,
+      lastUsedTemplate?.name ?? settingsService.settings?.reports?.lastUsedTemplateName
+    ));
+    if (recent) return recent;
+    const configuredDefault = settingsDefaultTemplate();
+    const configured = candidates.find(template => sameTemplate(
+      template,
+      configuredDefault?.id,
+      configuredDefault?.name
+    ));
+    return configured || fallbackTemplate();
+  }
+
+  function settingsDefaultTemplate() {
+    // The configured default is intentionally read-only here. It is not
+    // committed to report state until a proposal is accepted.
+    const value = settingsService.settings?.reports?.defaultTemplate;
+    if (value && value !== 'blank') {
+      return typeof value === 'object' ? value : { id: value, name: value };
+    }
+    return null;
+  }
 
   const fallbackTemplate = () => ({
     id: null,
@@ -54,6 +94,10 @@
 
   async function openPolish() {
     if (readOnly || !hasFeature('ai_polish')) return;
+    if (settingsService.settings?.ai?.providerMode === 'disabled') {
+      toastError('AI is disabled in settings');
+      return;
+    }
     if (!reportContent.trim()) {
       toastError('Add report content before polishing');
       return;
@@ -61,6 +105,7 @@
     showModal = true;
     originalContent = reportContent;
     proposedContent = '';
+    proposalAction = 'polish';
     warnings = [];
     safetyMessage = '';
     blocked = false;
@@ -69,13 +114,15 @@
     try {
       const response = await fetch('/api/templates?scope=system', { credentials: 'include' });
       const payload = await response.json().catch(() => ({}));
-      templates = (payload.templates || []).filter(matches);
+      templates = (payload.templates || []).filter(template =>
+        matches(template) || sameTemplate(template, activeTemplateId, activeTemplateName)
+      );
     } catch (error) {
       templates = [];
     } finally {
       templatesLoading = false;
     }
-    selectedTemplate = templates[0] || fallbackTemplate();
+    selectedTemplate = chooseTemplate(templates);
     aiPolishDraft.set({ selectedTemplate, originalContent, proposedContent: '', blocked: false, warnings: [] });
   }
 
@@ -103,7 +150,8 @@
         modality,
         bodyRegion,
         template: selectedTemplate,
-        signal: requestController.signal
+        signal: requestController.signal,
+        action: proposalAction
       });
       proposedContent = result.proposedContent;
       warnings = result.warnings;
@@ -137,14 +185,22 @@
   function acceptProposal() {
     if (loading || blocked || !proposedContent.trim() || readOnly) return;
     reportActions.setActiveTemplate(selectedTemplate);
-    if (onReportGenerated) onReportGenerated(proposedContent);
+    lastUsedTemplate = selectedTemplate;
+    settingsService.saveSettings({
+      reports: {
+        ...settingsService.settings.reports,
+        lastUsedTemplateId: selectedTemplate?.id ?? null,
+        lastUsedTemplateName: selectedTemplate?.name ?? null
+      }
+    });
+    if (onReportGenerated) onReportGenerated(proposedContent, proposalAction);
     closeModal();
   }
 
   onDestroy(() => requestController?.abort());
 </script>
 
-<button class="polish-trigger" on:click={openPolish} disabled={readOnly || !reportContent.trim() || !hasFeature('ai_polish')} aria-label="Polish report">
+<button class="polish-trigger" on:click={openPolish} disabled={readOnly || !reportContent.trim() || !hasFeature('ai_polish') || settingsService.settings?.ai?.providerMode === 'disabled'} aria-label="Polish report">
   <span class="trigger-mark" aria-hidden="true">AI</span>
   <span>Polish</span>
 </button>
@@ -155,7 +211,7 @@
       <header class="modal-header">
         <div>
           <p class="eyebrow">Clinical drafting aid</p>
-          <h2 id="polish-title">Review report polish</h2>
+          <h2 id="polish-title">Review {proposalAction === 'impression' ? 'generated impression' : 'report polish'}</h2>
         </div>
         <button class="icon-button" on:click={closeModal} aria-label="Close polish review">×</button>
       </header>
@@ -204,7 +260,8 @@
           <button class="button quiet" on:click={cancelRequest}>Cancel request</button>
         {:else if !proposedContent}
           <button class="button quiet" on:click={closeModal}>Cancel</button>
-          <button class="button primary" on:click={runPolish} disabled={!selectedTemplate}>Prepare proposal</button>
+          <button class="button quiet" on:click={() => { proposalAction = 'impression'; runPolish(); }} disabled={!selectedTemplate}>Generate impression</button>
+          <button class="button primary" on:click={() => { proposalAction = 'polish'; runPolish(); }} disabled={!selectedTemplate}>Prepare polish proposal</button>
         {:else}
           <button class="button quiet" on:click={closeModal}>Reject</button>
           <button class="button primary" on:click={acceptProposal} disabled={blocked}>Accept proposal</button>

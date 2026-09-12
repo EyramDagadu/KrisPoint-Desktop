@@ -44,7 +44,7 @@ const initialize = () => {
     CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE, email TEXT, password TEXT NOT NULL, full_name TEXT NOT NULL, title TEXT, license_number TEXT, specialty TEXT, department TEXT, institution TEXT, designation TEXT, role_id INTEGER NOT NULL, signature_url TEXT, signature_name TEXT, security_question TEXT, security_answer TEXT, failed_login_attempts INTEGER DEFAULT 0, locked_until TEXT, last_login_at TEXT, last_password_change_at TEXT, must_change_password INTEGER DEFAULT 0, is_active INTEGER DEFAULT 1, is_verified INTEGER DEFAULT 0, deleted_at TEXT, created_by INTEGER, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
     CREATE TABLE IF NOT EXISTS sessions (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, session_token TEXT NOT NULL UNIQUE, refresh_token TEXT, ip_address TEXT, user_agent TEXT, device_info TEXT, expires_at TEXT NOT NULL, refresh_expires_at TEXT, is_valid INTEGER DEFAULT 1, revoked_at TEXT, revoked_reason TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
     CREATE TABLE IF NOT EXISTS patients (id INTEGER PRIMARY KEY AUTOINCREMENT, mrn TEXT NOT NULL, hashed_mrn TEXT, first_name TEXT NOT NULL, last_name TEXT NOT NULL, middle_name TEXT, date_of_birth TEXT, gender TEXT, phone TEXT, email TEXT, address TEXT, is_active INTEGER DEFAULT 1, created_by INTEGER, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
-    CREATE TABLE IF NOT EXISTS reports (id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER, accession_number TEXT, modality TEXT NOT NULL, body_region TEXT, study_date TEXT, patient_age INTEGER, patient_age_unit TEXT, indication TEXT, referring_physician TEXT, technique TEXT, comparison TEXT, content TEXT, findings TEXT, impressions TEXT, recommendations TEXT, status TEXT DEFAULT 'DRAFT', priority TEXT DEFAULT 'ROUTINE', is_from_worklist INTEGER DEFAULT 0, created_by INTEGER NOT NULL, opened_by INTEGER, opened_at TEXT, assigned_specialist_id INTEGER, submitted_by INTEGER, submitted_at TEXT, reviewed_by INTEGER, signed_by INTEGER, signed_at TEXT, status_before_sign TEXT, reporting_duration_ms INTEGER, review_duration_ms INTEGER, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
+     CREATE TABLE IF NOT EXISTS reports (id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER, accession_number TEXT, modality TEXT NOT NULL, body_region TEXT, study_date TEXT, patient_age INTEGER, patient_age_unit TEXT, indication TEXT, referring_physician TEXT, technique TEXT, comparison TEXT, content TEXT, findings TEXT, impressions TEXT, recommendations TEXT, active_template_id INTEGER, active_template_name TEXT, status TEXT DEFAULT 'DRAFT', priority TEXT DEFAULT 'ROUTINE', is_from_worklist INTEGER DEFAULT 0, created_by INTEGER NOT NULL, opened_by INTEGER, opened_at TEXT, assigned_specialist_id INTEGER, submitted_by INTEGER, submitted_at TEXT, reviewed_by INTEGER, signed_by INTEGER, signed_at TEXT, status_before_sign TEXT, reporting_duration_ms INTEGER, review_duration_ms INTEGER, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
     CREATE TABLE IF NOT EXISTS report_amendments (id INTEGER PRIMARY KEY AUTOINCREMENT, report_id INTEGER NOT NULL, amendment_type TEXT NOT NULL, reason TEXT NOT NULL, content TEXT NOT NULL, status TEXT DEFAULT 'DRAFT', created_by INTEGER NOT NULL, created_at TEXT, updated_at TEXT, assigned_specialist_id INTEGER, submitted_at TEXT, signed_by INTEGER, signed_at TEXT);
     CREATE TABLE IF NOT EXISTS report_workflows (id INTEGER PRIMARY KEY AUTOINCREMENT, report_id INTEGER NOT NULL, event TEXT NOT NULL, user_id INTEGER NOT NULL, user_role TEXT, occurred_at TEXT NOT NULL, assigned_to_id INTEGER, metadata TEXT);
     CREATE TABLE IF NOT EXISTS report_metrics_daily (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL, user_id INTEGER, user_role TEXT, modality TEXT, department TEXT, report_count INTEGER DEFAULT 0, total_reporting_time_ms INTEGER DEFAULT 0, avg_reporting_time_ms INTEGER DEFAULT 0, min_reporting_time_ms INTEGER, max_reporting_time_ms INTEGER, review_count INTEGER DEFAULT 0, total_review_time_ms INTEGER DEFAULT 0, avg_review_time_ms INTEGER DEFAULT 0, created_at TEXT, updated_at TEXT);
@@ -66,7 +66,23 @@ const initialize = () => {
     database.prepare(
       'INSERT INTO krispoint_schema_versions (version, applied_at) VALUES (?, ?)'
     ).run(1, new Date().toISOString());
-  }
+   }
+
+   // Existing Solo installations are upgraded in place. SQLite's
+   // CREATE TABLE IF NOT EXISTS does not add columns to an existing table.
+   if (current.version < 2) {
+     const columns = database.prepare('PRAGMA table_info(reports)').all() as Array<{ name: string }>;
+     const names = new Set(columns.map(column => column.name));
+     if (!names.has('active_template_id')) {
+       database.exec('ALTER TABLE reports ADD COLUMN active_template_id INTEGER');
+     }
+     if (!names.has('active_template_name')) {
+       database.exec('ALTER TABLE reports ADD COLUMN active_template_name TEXT');
+     }
+     database.prepare(
+       'INSERT INTO krispoint_schema_versions (version, applied_at) VALUES (?, ?)'
+     ).run(2, new Date().toISOString());
+   }
 };
 
 export const createSqliteDb = () => {

@@ -10,6 +10,28 @@ echo.
 REM Set working directory to KrisPoint root
 cd /d "%~dp0.."
 
+REM Load the edition selector and database configuration without echoing values.
+if exist ".env" (
+    for /f "usebackq tokens=1,* delims==" %%a in (".env") do (
+        if not "%%a"=="" if not "%%a:~0,1%"=="#" (
+            set "%%a=%%b"
+        )
+    )
+)
+
+REM Hospital development uses PostgreSQL; Solo development uses SQLite.
+if /I not "%VITE_KRISPOINT_EDITION%"=="solo" (
+    echo Applying Hospital database migration...
+    call npm run db:migrate:hospital
+    if errorlevel 1 (
+        echo ERROR: Hospital database migration failed. Development server not started.
+        pause
+        exit /b 1
+    )
+) else (
+    echo Solo edition detected - skipping Hospital PostgreSQL migration.
+)
+
 REM Configure services for network access
 set OLLAMA_HOST=0.0.0.0
 set OLLAMA_ORIGINS=*

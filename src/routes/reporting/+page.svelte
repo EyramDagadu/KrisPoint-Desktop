@@ -145,6 +145,11 @@
         // Set status in store
         const status = data.report.status || 'DRAFT';
         reportActions.setReportStatus(status);
+        reportData.update(current => ({
+          ...current,
+          activeTemplateId: data.report.activeTemplateId ?? null,
+          activeTemplateName: data.report.activeTemplateName ?? null
+        }));
         
         // Set report metadata in store (drives readOnly and isAssignedSpecialist reactively)
         // CRITICAL: Use nullish coalescing (??) to preserve true values from clearReport()
@@ -327,6 +332,7 @@
       
       // Clear report and start fresh
       reportActions.clearReport();
+      reportActions.setActiveTemplate(template);
       
       // Build content from separate section fields (preferred) or fallback to content field
       let htmlContent = '';
@@ -509,6 +515,7 @@
           if (dbTemplate) {
             // Clear report and start fresh
             reportActions.clearReport();
+            reportActions.setActiveTemplate(dbTemplate);
             
             // Database templates already have HTML content
             reportActions.updateContent(dbTemplate.content || '');

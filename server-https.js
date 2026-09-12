@@ -2,6 +2,7 @@
 // This enables secure connections for voice dictation on remote computers
 
 import { handler } from './build/handler.js';
+import { run as runHospitalDatabaseMigration } from './scripts/migrate-active-template-identity.mjs';
 import https from 'https';
 import http from 'http';
 import fs from 'fs';
@@ -11,6 +12,13 @@ import os from 'os';
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || '0.0.0.0';
 const SSL_DIR = './ssl';
+
+// server-https.js is the root Hospital production wrapper. Run the small,
+// retry-safe PostgreSQL rollout before opening the listener. Solo packaging
+// has its own SQLite initialization and never enters this path.
+if (process.env.VITE_KRISPOINT_EDITION !== 'solo') {
+    await runHospitalDatabaseMigration();
+}
 
 // Get local IP address
 function getLocalIP() {
