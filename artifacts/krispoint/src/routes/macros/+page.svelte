@@ -5,6 +5,7 @@
   import { toastSuccess, toastError } from '$lib/utils/toast.js';
   import PremiumGate from '$lib/components/ui/PremiumGate.svelte';
   import { isLicenseActive, hasFeature } from '$lib/stores/licenseStore.js';
+  import { isSoloEdition } from '$lib/config/edition.js';
   
   $: isPremium = hasFeature('macros');
   
@@ -20,7 +21,7 @@
   let canManageSystem = false;
   let currentUserId = null;
   
-  let activeTab = 'system';
+  let activeTab = isSoloEdition ? 'all' : 'system';
   
   let newMacro = {
     name: '',
@@ -66,7 +67,7 @@
   async function loadMacros() {
     loading = true;
     try {
-      const res = await fetch(`/api/macros?scope=${activeTab}`, {
+      const res = await fetch(isSoloEdition ? '/api/macros' : `/api/macros?scope=${activeTab}`, {
         credentials: 'include'
       });
       
@@ -133,7 +134,7 @@
     saving = true;
     
     try {
-      const isSystem = activeTab === 'system';
+      const isSystem = !isSoloEdition && activeTab === 'system';
       
       const payload = {
         name: newMacro.name,
@@ -213,6 +214,9 @@
   }
 
   function canEditMacro(macro) {
+    if (isSoloEdition) {
+      return macro.isSystem ? canManageSystem : macro.createdBy === currentUserId;
+    }
     if (activeTab === 'system') {
       return canManageSystem;
     }
@@ -220,6 +224,9 @@
   }
 
   function canDeleteMacro(macro) {
+    if (isSoloEdition) {
+      return macro.isSystem ? canManageSystem : macro.createdBy === currentUserId;
+    }
     if (activeTab === 'system') {
       return canManageSystem;
     }
@@ -227,6 +234,7 @@
   }
 
   function canCreateMacro() {
+    if (isSoloEdition) return true;
     if (activeTab === 'system') {
       return canManageSystem;
     }
@@ -253,7 +261,7 @@
   })();
 
   // Reactive statement for create permission
-  $: canCreate = activeTab === 'system' ? canManageSystem : true;
+  $: canCreate = isSoloEdition || activeTab !== 'system' || canManageSystem;
 </script>
 
 <svelte:head>
@@ -289,12 +297,13 @@
         {#if canCreate}
           <button class="btn btn-primary" on:click={startAddMacro}>
             <span>+</span>
-            Create {activeTab === 'system' ? 'System' : 'Personal'} Macro
+            Create {isSoloEdition ? '' : activeTab === 'system' ? 'System ' : 'Personal '}Macro
           </button>
         {/if}
       </div>
     </div>
     
+    {#if !isSoloEdition}
     <div class="tabs">
       <button 
         class="tab" 
@@ -311,6 +320,7 @@
         My Macros
       </button>
     </div>
+    {/if}
     
     {#if loading}
       <div class="loading-state">
@@ -319,9 +329,11 @@
       </div>
     {:else if filteredMacros.length === 0}
       <div class="empty-state">
-        <h3>No {activeTab} macros found</h3>
+        <h3>{isSoloEdition ? 'No macros found' : `No ${activeTab} macros found`}</h3>
         <p>
-          {#if activeTab === 'system'}
+          {#if isSoloEdition}
+            Create macros for frequently used reporting text.
+          {:else if activeTab === 'system'}
             {#if canManageSystem}
               Create system macros that will be available to all users.
             {:else}
@@ -380,7 +392,7 @@
   <div class="modal-overlay" on:click={resetForm}>
     <div class="modal-content" on:click|stopPropagation>
       <div class="modal-header">
-        <h3>{editingMacro ? 'Edit Macro' : `Create ${activeTab === 'system' ? 'System' : 'Personal'} Macro`}</h3>
+        <h3>{editingMacro ? 'Edit Macro' : isSoloEdition ? 'Create Macro' : `Create ${activeTab === 'system' ? 'System' : 'Personal'} Macro`}</h3>
         <button class="close-btn" on:click={resetForm}>×</button>
       </div>
       <div class="modal-body">

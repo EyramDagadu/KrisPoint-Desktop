@@ -7,6 +7,7 @@
   import { aiPolishDraft } from './aiPolishDraftStore.js';
   import { reportActions } from '../../stores/reportStore.js';
   import { settingsService } from '../../services/SettingsService.js';
+  import { isSoloEdition } from '../../config/edition.js';
 
   export let reportContent = '';
   export let indication = '';
@@ -112,11 +113,17 @@
     errorMessage = '';
     templatesLoading = true;
     try {
-      const response = await fetch('/api/templates?scope=system', { credentials: 'include' });
-      const payload = await response.json().catch(() => ({}));
-      templates = (payload.templates || []).filter(template =>
-        matches(template) || sameTemplate(template, activeTemplateId, activeTemplateName)
+      const response = await fetch(
+        isSoloEdition ? '/api/templates' : '/api/templates?scope=system',
+        { credentials: 'include' }
       );
+      const payload = await response.json().catch(() => ({}));
+      const loadedTemplates = payload.templates || [];
+      templates = isSoloEdition
+        ? loadedTemplates
+        : loadedTemplates.filter(template =>
+            matches(template) || sameTemplate(template, activeTemplateId, activeTemplateName)
+          );
     } catch (error) {
       templates = [];
     } finally {

@@ -8,6 +8,7 @@
   import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
   import PremiumGate from '$lib/components/ui/PremiumGate.svelte';
   import { isLicenseActive, hasFeature } from '$lib/stores/licenseStore.js';
+  import { isSoloEdition } from '$lib/config/edition.js';
   
   $: isPremium = hasFeature('templates');
   
@@ -25,7 +26,7 @@
   let canManageSystem = false;
   let currentUserId = null;
   
-  let activeTab = 'system';
+  let activeTab = isSoloEdition ? 'all' : 'system';
   
   let newTemplate = {
     name: '',
@@ -67,7 +68,7 @@
   async function loadTemplates() {
     loading = true;
     try {
-      const res = await fetch(`/api/templates?scope=${activeTab}`, {
+      const res = await fetch(isSoloEdition ? '/api/templates' : `/api/templates?scope=${activeTab}`, {
         credentials: 'include'
       });
       
@@ -225,7 +226,7 @@
     saving = true;
     
     try {
-      const isSystem = activeTab === 'system';
+      const isSystem = !isSoloEdition && activeTab === 'system';
       
       const payload = {
         name: newTemplate.name,
@@ -280,6 +281,9 @@
   }
 
   function canEditTemplate(template) {
+    if (isSoloEdition) {
+      return template.isSystem ? canManageSystem : template.createdBy === currentUserId;
+    }
     if (activeTab === 'system') {
       return canManageSystem;
     }
@@ -287,6 +291,9 @@
   }
 
   function canDeleteTemplate(template) {
+    if (isSoloEdition) {
+      return template.isSystem ? canManageSystem : template.createdBy === currentUserId;
+    }
     if (activeTab === 'system') {
       return canManageSystem;
     }
@@ -294,6 +301,7 @@
   }
 
   function canCreateTemplate() {
+    if (isSoloEdition) return true;
     if (activeTab === 'system') {
       return canManageSystem;
     }
@@ -317,7 +325,7 @@
   }, {});
 
   // Reactive statement for create permission
-  $: canCreate = activeTab === 'system' ? canManageSystem : true;
+  $: canCreate = isSoloEdition || activeTab !== 'system' || canManageSystem;
 </script>
 
 <svelte:head>
@@ -345,12 +353,13 @@
         {#if canCreate}
           <button class="btn btn-primary" on:click={createTemplate}>
             <span>+</span>
-            Create {activeTab === 'system' ? 'System' : 'Personal'} Template
+            Create {isSoloEdition ? '' : activeTab === 'system' ? 'System ' : 'Personal '}Template
           </button>
         {/if}
       </div>
     </div>
     
+    {#if !isSoloEdition}
     <div class="tabs">
       <button 
         class="tab" 
@@ -367,6 +376,7 @@
         My Templates
       </button>
     </div>
+    {/if}
     
     {#if loading}
       <div class="loading-state">
@@ -375,9 +385,11 @@
       </div>
     {:else if filteredTemplates.length === 0}
       <div class="empty-state">
-        <h3>No {activeTab} templates found</h3>
+        <h3>{isSoloEdition ? 'No templates found' : `No ${activeTab} templates found`}</h3>
         <p>
-          {#if activeTab === 'system'}
+          {#if isSoloEdition}
+            Create templates for your reports and AI-assisted drafting.
+          {:else if activeTab === 'system'}
             {#if canManageSystem}
               Create system templates that will be available to all users.
             {:else}

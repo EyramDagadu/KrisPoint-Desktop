@@ -3,6 +3,7 @@
 import { uiState, reportData, reportActions, patientData } from "$lib/stores/reportStore";
   import { macroStore } from "$lib/stores/macroStore.js";
   import { hasFeature } from '$lib/stores/licenseStore.js';
+  import { isSoloEdition } from '$lib/config/edition.js';
 
   $: hasTemplateAccess = hasFeature('templates');
   $: hasMacroAccess = hasFeature('macros');
@@ -52,6 +53,11 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
   });
   
   async function loadSavedScopes() {
+    if (isSoloEdition) {
+      templateScope = 'all';
+      macroScope = 'all';
+      return;
+    }
     try {
       const res = await fetch('/api/user-settings', { credentials: 'include' });
       if (res.ok) {
@@ -76,7 +82,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
     const scopeAtRequest = templateScope;
     
     try {
-      const res = await fetch(`/api/templates?scope=${scopeAtRequest}`, {
+      const res = await fetch(isSoloEdition ? '/api/templates' : `/api/templates?scope=${scopeAtRequest}`, {
         credentials: 'include'
       });
 
@@ -105,7 +111,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
     const scopeAtRequest = macroScope;
     
     try {
-      const res = await fetch(`/api/macros?scope=${scopeAtRequest}`, {
+      const res = await fetch(isSoloEdition ? '/api/macros' : `/api/macros?scope=${scopeAtRequest}`, {
         credentials: 'include'
       });
 
@@ -383,6 +389,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
       
       {#if showTemplateDropdown}
         <div class="template-dropdown">
+          {#if !isSoloEdition}
           <div class="scope-toggle">
             <button 
               class="scope-btn {templateScope === 'system' ? 'active' : ''}"
@@ -397,6 +404,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
               Personal
             </button>
           </div>
+          {/if}
           <div class="search-box">
             <input 
               type="text" 
@@ -425,8 +433,8 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
             {:else}
               <div class="empty-state">
                 <div class="empty-icon">🔍</div>
-                <div class="empty-text">No {templateScope} templates found</div>
-                <div class="empty-hint">{templateScope === 'personal' ? 'Create personal templates in Templates page' : 'System templates are managed by admins'}</div>
+                <div class="empty-text">{isSoloEdition ? 'No templates found' : `No ${templateScope} templates found`}</div>
+                <div class="empty-hint">{isSoloEdition ? 'Create templates in the Templates page' : templateScope === 'personal' ? 'Create personal templates in Templates page' : 'System templates are managed by admins'}</div>
               </div>
             {/if}
           </div>
@@ -456,6 +464,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
       
       {#if showMacroDropdown}
         <div class="macro-dropdown">
+          {#if !isSoloEdition}
           <div class="scope-toggle">
             <button 
               class="scope-btn {macroScope === 'system' ? 'active' : ''}"
@@ -470,6 +479,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
               Personal
             </button>
           </div>
+          {/if}
           <div class="search-box">
             <input 
               type="text" 
