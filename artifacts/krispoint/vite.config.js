@@ -6,6 +6,7 @@ export default defineConfig(({ command }) => {
   const voiceClientToken = process.env.VOICE_CLIENT_TOKEN;
   const isHospitalEdition = process.env.VITE_KRISPOINT_EDITION !== 'solo';
   const configuredPort = Number(process.env.PORT || 5000);
+  const licenseServerTarget = process.env.LICENSE_SERVER_URL || 'http://localhost:3001';
   if (command === 'serve' && isHospitalEdition && !voiceClientToken) {
     throw new Error(
       'VOICE_CLIENT_TOKEN is required for the Hospital /voice development proxy. ' +
@@ -42,7 +43,7 @@ export default defineConfig(({ command }) => {
       },
       proxy: {
         '/license-server': {
-          target: 'http://localhost:3001',
+          target: licenseServerTarget,
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/license-server/, ''),
         },
