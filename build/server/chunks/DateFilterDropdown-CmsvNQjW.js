@@ -1,0 +1,6 @@
+import { _ as _e, o as be, z as ze, u as je, Z as Ze, n as Ot, t as Xe, f as ve } from './index2-CY1CdFeX.js';
+
+function _(e,l){_e();let a=be(l.startDate,""),r=be(l.endDate,""),s=be(l.selectedPreset,"all");const i=[{value:"all",label:"All Time"},{value:"today",label:"Today"},{value:"7days",label:"Last 7 Days"},{value:"30days",label:"Last 30 Days"},{value:"3months",label:"Past 3 Months"},{value:"year",label:"Past Year"},{value:"custom-day",label:"Custom Day"},{value:"custom-range",label:"Custom Range"}];function h(){return s==="custom-day"&&a?n(a):s==="custom-range"&&a&&r?`${n(a)} - ${n(r)}`:i.find(u=>u.value===s)?.label||"All Time"}function n(t){return t?new Date(t).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}):""}h();const v=ze(i);e.out.push('<div class="date-filter-dropdown svelte-hd729a"><select class="preset-select svelte-hd729a">'),e.select_value=s,e.out.push("<!--[-->");for(let t=0,u=v.length;t<u;t++){let o=v[t];e.out.push(`<option${je("value",o.value)}${Ze(e,o.value)} class="svelte-hd729a">${Ot(o.label)}</option>`);}e.out.push("<!--]-->"),e.select_value=void 0,e.out.push("</select> "),e.out.push("<!--[!-->"),e.out.push("<!--]--></div>"),Xe(l,{startDate:a,endDate:r,selectedPreset:s}),ve();}
+
+export { _ };
+//# sourceMappingURL=DateFilterDropdown-CmsvNQjW.js.map

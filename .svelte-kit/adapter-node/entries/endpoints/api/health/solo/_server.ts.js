@@ -1,0 +1,1 @@
+import{json as r}from"@sveltejs/kit";const n=async({request:t})=>{const e=process.env.KRISPOINT_LAUNCH_SECRET;return!e||t.headers.get("x-krispoint-launch-secret")!==e?r({ready:!1},{status:404}):r({ready:!0})};export{n as GET};

@@ -1,0 +1,298 @@
+{
+	"/": [
+		"src/routes/+layout.js",
+		"src/routes/+layout.js"
+	],
+	"/admin/analytics": [
+		"src/routes/+layout.js"
+	],
+	"/admin/audit-logs": [
+		"src/routes/+layout.js"
+	],
+	"/admin/sessions": [
+		"src/routes/+layout.js"
+	],
+	"/admin/training-data": [
+		"src/routes/+layout.js"
+	],
+	"/admin/users": [
+		"src/routes/+layout.js"
+	],
+	"/analytics": [
+		"src/routes/analytics/+page.js",
+		"src/routes/analytics/+page.server.ts",
+		"src/routes/+layout.js"
+	],
+	"/api/admin/analytics": [
+		"src/routes/api/admin/analytics/+server.ts"
+	],
+	"/api/admin/audit-logs": [
+		"src/routes/api/admin/audit-logs/+server.ts"
+	],
+	"/api/admin/seed": [
+		"src/routes/api/admin/seed/+server.ts"
+	],
+	"/api/admin/sessions": [
+		"src/routes/api/admin/sessions/+server.ts"
+	],
+	"/api/admin/users": [
+		"src/routes/api/admin/users/+server.ts"
+	],
+	"/api/admin/users/[id]": [
+		"src/routes/api/admin/users/[id]/+server.ts"
+	],
+	"/api/admin/users/[id]/reset-password": [
+		"src/routes/api/admin/users/[id]/reset-password/+server.ts"
+	],
+	"/api/admin/users/[id]/toggle-status": [
+		"src/routes/api/admin/users/[id]/toggle-status/+server.ts"
+	],
+	"/api/ai/polish": [
+		"src/routes/api/ai/polish/+server.ts"
+	],
+	"/api/ai/status": [
+		"src/routes/api/ai/status/+server.ts"
+	],
+	"/api/analytics/admin": [
+		"src/routes/api/analytics/admin/+server.ts"
+	],
+	"/api/analytics/user": [
+		"src/routes/api/analytics/user/+server.ts"
+	],
+	"/api/analytics/user/details": [
+		"src/routes/api/analytics/user/details/+server.ts"
+	],
+	"/api/auth/change-password": [
+		"src/routes/api/auth/change-password/+server.ts"
+	],
+	"/api/auth/check-users": [
+		"src/routes/api/auth/check-users/+server.ts"
+	],
+	"/api/auth/login": [
+		"src/routes/api/auth/login/+server.ts"
+	],
+	"/api/auth/logout": [
+		"src/routes/api/auth/logout/+server.ts"
+	],
+	"/api/auth/register": [
+		"src/routes/api/auth/register/+server.ts"
+	],
+	"/api/auth/reset-password": [
+		"src/routes/api/auth/reset-password/+server.ts"
+	],
+	"/api/auth/roles": [
+		"src/routes/api/auth/roles/+server.ts"
+	],
+	"/api/auth/security-question": [
+		"src/routes/api/auth/security-question/+server.ts"
+	],
+	"/api/auth/session-events": [
+		"src/routes/api/auth/session-events/+server.ts"
+	],
+	"/api/auth/session": [
+		"src/routes/api/auth/session/+server.ts"
+	],
+	"/api/auth/update-security-question": [
+		"src/routes/api/auth/update-security-question/+server.ts"
+	],
+	"/api/auth/verify-security-answer": [
+		"src/routes/api/auth/verify-security-answer/+server.ts"
+	],
+	"/api/chat/messages": [
+		"src/routes/api/chat/messages/+server.ts"
+	],
+	"/api/chat/messages/[userId]": [
+		"src/routes/api/chat/messages/[userId]/+server.ts"
+	],
+	"/api/chat/presence": [
+		"src/routes/api/chat/presence/+server.ts"
+	],
+	"/api/chat/unread": [
+		"src/routes/api/chat/unread/+server.ts"
+	],
+	"/api/chat/users": [
+		"src/routes/api/chat/users/+server.ts"
+	],
+	"/api/health": [
+		"src/routes/api/health/+server.ts"
+	],
+	"/api/health/solo": [
+		"src/routes/api/health/solo/+server.ts"
+	],
+	"/api/macros": [
+		"src/routes/api/macros/+server.ts"
+	],
+	"/api/macros/[id]": [
+		"src/routes/api/macros/[id]/+server.ts"
+	],
+	"/api/organization": [
+		"src/routes/api/organization/+server.ts"
+	],
+	"/api/organization/letterhead": [
+		"src/routes/api/organization/letterhead/+server.ts"
+	],
+	"/api/organization/settings": [
+		"src/routes/api/organization/settings/+server.ts"
+	],
+	"/api/reports": [
+		"src/routes/api/reports/+server.ts"
+	],
+	"/api/reports/counts": [
+		"src/routes/api/reports/counts/+server.ts"
+	],
+	"/api/reports/events": [
+		"src/routes/api/reports/events/+server.ts"
+	],
+	"/api/reports/pending-reviews": [
+		"src/routes/api/reports/pending-reviews/+server.ts"
+	],
+	"/api/reports/returned": [
+		"src/routes/api/reports/returned/+server.ts"
+	],
+	"/api/reports/[id]": [
+		"src/routes/api/reports/[id]/+server.ts"
+	],
+	"/api/reports/[id]/addendums": [
+		"src/routes/api/reports/[id]/addendums/+server.ts"
+	],
+	"/api/reports/[id]/addendums/[addendumId]": [
+		"src/routes/api/reports/[id]/addendums/[addendumId]/+server.ts"
+	],
+	"/api/reports/[id]/addendums/[addendumId]/claim": [
+		"src/routes/api/reports/[id]/addendums/[addendumId]/claim/+server.ts"
+	],
+	"/api/reports/[id]/addendums/[addendumId]/return": [
+		"src/routes/api/reports/[id]/addendums/[addendumId]/return/+server.ts"
+	],
+	"/api/reports/[id]/addendums/[addendumId]/sign": [
+		"src/routes/api/reports/[id]/addendums/[addendumId]/sign/+server.ts"
+	],
+	"/api/reports/[id]/addendums/[addendumId]/submit": [
+		"src/routes/api/reports/[id]/addendums/[addendumId]/submit/+server.ts"
+	],
+	"/api/reports/[id]/cancel": [
+		"src/routes/api/reports/[id]/cancel/+server.ts"
+	],
+	"/api/reports/[id]/claim": [
+		"src/routes/api/reports/[id]/claim/+server.ts"
+	],
+	"/api/reports/[id]/presence": [
+		"src/routes/api/reports/[id]/presence/+server.ts"
+	],
+	"/api/reports/[id]/request-review": [
+		"src/routes/api/reports/[id]/request-review/+server.ts"
+	],
+	"/api/reports/[id]/return": [
+		"src/routes/api/reports/[id]/return/+server.ts"
+	],
+	"/api/reports/[id]/sign-off": [
+		"src/routes/api/reports/[id]/sign-off/+server.ts"
+	],
+	"/api/reports/[id]/sign": [
+		"src/routes/api/reports/[id]/sign/+server.ts"
+	],
+	"/api/reports/[id]/submit": [
+		"src/routes/api/reports/[id]/submit/+server.ts"
+	],
+	"/api/reports/[id]/undo-sign": [
+		"src/routes/api/reports/[id]/undo-sign/+server.ts"
+	],
+	"/api/setup/complete": [
+		"src/routes/api/setup/complete/+server.ts"
+	],
+	"/api/setup/generate-key": [
+		"src/routes/api/setup/generate-key/+server.ts"
+	],
+	"/api/setup/status": [
+		"src/routes/api/setup/status/+server.ts"
+	],
+	"/api/specialists": [
+		"src/routes/api/specialists/+server.ts"
+	],
+	"/api/templates": [
+		"src/routes/api/templates/+server.ts"
+	],
+	"/api/templates/[id]": [
+		"src/routes/api/templates/[id]/+server.ts"
+	],
+	"/api/user-settings": [
+		"src/routes/api/user-settings/+server.ts"
+	],
+	"/api/users": [
+		"src/routes/api/users/+server.ts"
+	],
+	"/api/users/signature": [
+		"src/routes/api/users/signature/+server.ts"
+	],
+	"/api/users/specialists": [
+		"src/routes/api/users/specialists/+server.ts"
+	],
+	"/api/users/[id]": [
+		"src/routes/api/users/[id]/+server.ts"
+	],
+	"/api/voice-training/audio/[id]": [
+		"src/routes/api/voice-training/audio/[id]/+server.ts"
+	],
+	"/api/voice-training/export": [
+		"src/routes/api/voice-training/export/+server.ts"
+	],
+	"/api/voice-training/samples": [
+		"src/routes/api/voice-training/samples/+server.ts"
+	],
+	"/api/voice-training/samples/[id]": [
+		"src/routes/api/voice-training/samples/[id]/+server.ts"
+	],
+	"/api/voice-training/samples/[id]/correction": [
+		"src/routes/api/voice-training/samples/[id]/correction/+server.ts"
+	],
+	"/api/voice/ticket": [
+		"src/routes/api/voice/ticket/+server.ts"
+	],
+	"/api/worklist": [
+		"src/routes/api/worklist/+server.ts"
+	],
+	"/api/worklist/create-with-report": [
+		"src/routes/api/worklist/create-with-report/+server.ts"
+	],
+	"/api/worklist/[id]": [
+		"src/routes/api/worklist/[id]/+server.ts"
+	],
+	"/api/worklist/[id]/pickup": [
+		"src/routes/api/worklist/[id]/pickup/+server.ts"
+	],
+	"/auth": [
+		"src/routes/+layout.js"
+	],
+	"/macros": [
+		"src/routes/+layout.js"
+	],
+	"/reporting": [
+		"src/routes/reporting/+page.js",
+		"src/routes/+layout.js"
+	],
+	"/reports": [
+		"src/routes/reports/+page.js",
+		"src/routes/+layout.js"
+	],
+	"/reports/pending-reviews": [
+		"src/routes/+layout.js"
+	],
+	"/reports/returned": [
+		"src/routes/+layout.js"
+	],
+	"/settings": [
+		"src/routes/+layout.js"
+	],
+	"/setup": [
+		"src/routes/+layout.js"
+	],
+	"/templates": [
+		"src/routes/+layout.js"
+	],
+	"/voice-test": [
+		"src/routes/+layout.js"
+	],
+	"/worklist": [
+		"src/routes/+layout.js"
+	]
+}

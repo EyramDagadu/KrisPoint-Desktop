@@ -1,0 +1,16 @@
+import { j as json } from './index-Djsj11qr.js';
+import { d as fe, s as _e } from './db-C6eh-v9M.js';
+import { v as X, c as J, i as re, l as m } from './auth-CFRsUa-j.js';
+import { p } from './reportEvents-Ce-jVB2J.js';
+import { eq } from 'drizzle-orm';
+import 'dotenv/config';
+import 'pg';
+import 'drizzle-orm/node-postgres';
+import 'drizzle-orm/pg-core';
+import 'bcryptjs';
+import 'crypto';
+
+const O=async({request:p$1,params:w})=>{try{const e=await X(p$1);if(!e.success||!e.user)return json({success:!1,error:"Unauthorized"},{status:401});if(!await J(e.user.id,"reports.submit"))return json({success:!1,error:"Permission denied"},{status:403});const s=parseInt(w.id);if(isNaN(s))return json({success:!1,error:"Invalid ID"},{status:400});const a=await re(e.user.id,s);if(a.denyReason==="Report not found")return json({success:!1,error:"Report not found"},{status:404});if(!a.canMutate)return await m({userId:e.user.id,username:e.user.username,userRole:e.user.roleName,action:"REPORT_SUBMIT_DENIED",category:"REPORTS",severity:"WARNING",resourceType:"REPORT",resourceId:String(s),description:`Submit attempt denied: ${a.denyReason}`,metadata:{reason:a.denyReason}}),json({success:!1,error:a.denyReason},{status:403});const I=await p$1.json(),{specialistId:o,message:m$1}=I;if(!o)return json({success:!1,error:"Please select a specialist to submit to"},{status:400});const[i]=await fe.select().from(_e.reports).where(eq(_e.reports.id,s)).limit(1);if(!i)return json({success:!1,error:"Report not found"},{status:404});if(i.status!=="DRAFT")return i.status==="SIGNED"?json({success:!1,error:'Report is already signed. Use "Undo Sign Off" first if you need to submit for review.'},{status:400}):json({success:!1,error:"Report has already been submitted"},{status:400});const u=new Date,T=2147483647;let l=null;if(i.openedAt){const c=u.getTime()-new Date(i.openedAt).getTime();l=c>T?null:c;}console.log(`Submitting report ${s} to specialist ${o} by user ${e.user.id}`);const[f]=await fe.update(_e.reports).set({status:"SUBMITTED",assignedSpecialistId:o,submittedBy:e.user.id,submittedAt:u,reportingDurationMs:l,updatedAt:u}).where(eq(_e.reports.id,s)).returning();console.log(`Report ${s} updated, new status: ${f?.status}`);try{await fe.delete(_e.reportEditLocks).where(eq(_e.reportEditLocks.reportId,s)),console.log(`Released edit lock for report ${s} after submission`);}catch(c){console.error("Error releasing edit lock:",c);}await fe.insert(_e.reportWorkflows).values({reportId:s,event:"SUBMITTED",userId:e.user.id,userRole:e.user.roleName,occurredAt:u,assignedToId:o,metadata:m$1?{message:m$1}:null});const[g]=await fe.select().from(_e.worklist).where(eq(_e.worklist.reportId,s)).limit(1);return p.notifyReportStatusChange(s,g?.id||null,"IN_PROGRESS","SUBMITTED"),await m({userId:e.user.id,username:e.user.username,userRole:e.user.roleName,action:"REPORT_SUBMITTED",category:"REPORTS",severity:"INFO",resourceType:"REPORT",resourceId:String(s),description:`Report submitted for review to specialist ID ${o}`,metadata:{specialistId:o,reportingDurationMs:l}}),json({success:!0,report:f,message:"Report submitted for review"})}catch(e){return console.error("Submit report error:",e),json({success:false,error:"Failed to submit report"},{status:500})}};
+
+export { O as POST };
+//# sourceMappingURL=_server.ts-mmgvhpNr.js.map

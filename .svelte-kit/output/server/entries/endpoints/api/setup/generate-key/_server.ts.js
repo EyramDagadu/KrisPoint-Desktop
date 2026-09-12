@@ -1,0 +1,1 @@
+import{json as r}from"@sveltejs/kit";import{randomBytes as e}from"crypto";const n=async()=>{if(process.env.ENCRYPTION_KEY||process.env.SOLO_ENCRYPTION_KEY)return r({success:!1,error:"Encryption key is already configured"},{status:400});const s=e(32).toString("hex");return r({success:!0,key:s})};export{n as POST};

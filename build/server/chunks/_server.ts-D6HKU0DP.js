@@ -1,0 +1,15 @@
+import { j as json } from './index-Djsj11qr.js';
+import { d as fe, s as _e } from './db-C6eh-v9M.js';
+import { v as X, c as J, l as m } from './auth-CFRsUa-j.js';
+import { eq, and, gt, desc } from 'drizzle-orm';
+import 'dotenv/config';
+import 'pg';
+import 'drizzle-orm/node-postgres';
+import 'drizzle-orm/pg-core';
+import 'bcryptjs';
+import 'crypto';
+
+const S=async({request:t})=>{try{const e=await X(t);if(!e.success||!e.user)return json({success:!1,error:"Unauthorized"},{status:401});if(!await J(e.user.id,"users.manage"))return json({success:!1,error:"Permission denied"},{status:403});const o=new Date,i=await fe.select({id:_e.sessions.id,userId:_e.sessions.userId,ipAddress:_e.sessions.ipAddress,userAgent:_e.sessions.userAgent,deviceInfo:_e.sessions.deviceInfo,createdAt:_e.sessions.createdAt,expiresAt:_e.sessions.expiresAt,isValid:_e.sessions.isValid,userName:_e.users.fullName,username:_e.users.username,roleName:_e.roles.name}).from(_e.sessions).innerJoin(_e.users,eq(_e.sessions.userId,_e.users.id)).innerJoin(_e.roles,eq(_e.users.roleId,_e.roles.id)).where(and(eq(_e.sessions.isValid,!0),gt(_e.sessions.expiresAt,o))).orderBy(desc(_e.sessions.createdAt)),a=e.sessionId;return json({success:!0,sessions:i.map(c=>({...c,isCurrent:c.id===a})),currentSessionId:a})}catch(e){return console.error("Get sessions error:",e),json({success:false,error:"Failed to fetch sessions"},{status:500})}},R=async({request:t})=>{try{const e=await X(t);if(!e.success||!e.user)return json({success:!1,error:"Unauthorized"},{status:401});if(!await J(e.user.id,"users.manage"))return json({success:!1,error:"Permission denied"},{status:403});const{sessionId:o,userId:i,revokeAll:a}=await t.json();return a&&i?(await fe.update(_e.sessions).set({isValid:!1,revokedAt:new Date,revokedReason:"admin_force_logout_all"}).where(eq(_e.sessions.userId,i)),await m({userId:e.user.id,username:e.user.username,userRole:e.user.roleName,action:"FORCE_LOGOUT_ALL",category:"SECURITY",severity:"WARNING",resourceType:"USER",resourceId:String(i),description:`Admin forced logout of all sessions for user ID ${i}`}),json({success:!0,message:"All user sessions revoked"})):o?o===e.sessionId?json({success:!1,error:"Cannot terminate your own session"},{status:400}):(await fe.select({userId:_e.sessions.userId}).from(_e.sessions).where(eq(_e.sessions.id,o)).limit(1)).length===0?json({success:!1,error:"Session not found"},{status:404}):(await fe.update(_e.sessions).set({isValid:!1,revokedAt:new Date,revokedReason:"admin_force_logout"}).where(eq(_e.sessions.id,o)),await m({userId:e.user.id,username:e.user.username,userRole:e.user.roleName,action:"FORCE_LOGOUT",category:"SECURITY",severity:"WARNING",resourceType:"SESSION",resourceId:String(o),description:`Admin forced logout of session ID ${o}`}),json({success:!0,message:"Session revoked"})):json({success:!1,error:"Session ID or user ID required"},{status:400})}catch(e){return console.error("Revoke session error:",e),json({success:false,error:"Failed to revoke session"},{status:500})}};
+
+export { R as DELETE, S as GET };
+//# sourceMappingURL=_server.ts-D6HKU0DP.js.map

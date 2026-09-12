@@ -1,0 +1,1464 @@
+{
+  ".svelte-kit/generated/server/internal.js": {
+    "file": "internal.js",
+    "name": "internal",
+    "src": ".svelte-kit/generated/server/internal.js",
+    "isEntry": true,
+    "imports": [
+      "_internal.js",
+      "_environment.js"
+    ]
+  },
+  "_ConfirmDialog.BS-59iBY.css": {
+    "file": "_app/immutable/assets/ConfirmDialog.BS-59iBY.css",
+    "src": "_ConfirmDialog.BS-59iBY.css"
+  },
+  "_ConfirmDialog.js": {
+    "file": "chunks/ConfirmDialog.js",
+    "name": "ConfirmDialog",
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/ConfirmDialog.BS-59iBY.css"
+    ]
+  },
+  "_DateFilterDropdown.D9YbXaKS.css": {
+    "file": "_app/immutable/assets/DateFilterDropdown.D9YbXaKS.css",
+    "src": "_DateFilterDropdown.D9YbXaKS.css"
+  },
+  "_DateFilterDropdown.js": {
+    "file": "chunks/DateFilterDropdown.js",
+    "name": "DateFilterDropdown",
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/DateFilterDropdown.D9YbXaKS.css"
+    ]
+  },
+  "_OllamaService.js": {
+    "file": "chunks/OllamaService.js",
+    "name": "OllamaService"
+  },
+  "_PDFPreviewModal.D4SeAJ6Q.css": {
+    "file": "_app/immutable/assets/PDFPreviewModal.D4SeAJ6Q.css",
+    "src": "_PDFPreviewModal.D4SeAJ6Q.css"
+  },
+  "_PDFPreviewModal.svelte_svelte_type_style_lang.js": {
+    "file": "chunks/PDFPreviewModal.svelte_svelte_type_style_lang.js",
+    "name": "PDFPreviewModal.svelte_svelte_type_style_lang",
+    "isDynamicEntry": true,
+    "imports": [
+      "_index.js",
+      "_reportStore.js",
+      "_letterheadStore.js",
+      "_authStore.js"
+    ],
+    "css": [
+      "_app/immutable/assets/PDFPreviewModal.D4SeAJ6Q.css"
+    ]
+  },
+  "_PatientsRepository.js": {
+    "file": "chunks/PatientsRepository.js",
+    "name": "PatientsRepository",
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "_PremiumGate.B0vf9PuH.css": {
+    "file": "_app/immutable/assets/PremiumGate.B0vf9PuH.css",
+    "src": "_PremiumGate.B0vf9PuH.css"
+  },
+  "_PremiumGate.js": {
+    "file": "chunks/PremiumGate.js",
+    "name": "PremiumGate",
+    "imports": [
+      "_index2.js",
+      "_licenseStore.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js"
+    ],
+    "css": [
+      "_app/immutable/assets/PremiumGate.B0vf9PuH.css"
+    ]
+  },
+  "_SSEManager.js": {
+    "file": "chunks/SSEManager.js",
+    "name": "SSEManager"
+  },
+  "_auth.js": {
+    "file": "chunks/auth.js",
+    "name": "auth",
+    "isDynamicEntry": true,
+    "imports": [
+      "_db.js"
+    ]
+  },
+  "_authStore.js": {
+    "file": "chunks/authStore.js",
+    "name": "authStore",
+    "imports": [
+      "_index.js"
+    ]
+  },
+  "_client.js": {
+    "file": "chunks/client.js",
+    "name": "client",
+    "imports": [
+      "_exports.js",
+      "_utils.js",
+      "_index.js",
+      "_state.svelte.js"
+    ]
+  },
+  "_db.js": {
+    "file": "chunks/db.js",
+    "name": "db",
+    "isDynamicEntry": true,
+    "dynamicImports": [
+      "src/lib/server/sqlite.ts",
+      "_sqlite-schema.js"
+    ]
+  },
+  "_edition.js": {
+    "file": "chunks/edition.js",
+    "name": "edition"
+  },
+  "_environment.js": {
+    "file": "chunks/environment.js",
+    "name": "environment"
+  },
+  "_exports.js": {
+    "file": "chunks/exports.js",
+    "name": "exports"
+  },
+  "_false.js": {
+    "file": "chunks/false.js",
+    "name": "false"
+  },
+  "_getReportIdentifier.js": {
+    "file": "chunks/getReportIdentifier.js",
+    "name": "getReportIdentifier",
+    "imports": [
+      "_db.js"
+    ]
+  },
+  "_index-server.js": {
+    "file": "chunks/index-server.js",
+    "name": "index-server",
+    "imports": [
+      "_index2.js"
+    ]
+  },
+  "_index.js": {
+    "file": "chunks/index.js",
+    "name": "index",
+    "imports": [
+      "_index2.js"
+    ]
+  },
+  "_index2.js": {
+    "file": "chunks/index2.js",
+    "name": "index",
+    "imports": [
+      "_false.js"
+    ]
+  },
+  "_internal.js": {
+    "file": "chunks/internal.js",
+    "name": "internal",
+    "imports": [
+      "_index2.js",
+      "_environment.js"
+    ],
+    "dynamicImports": [
+      "src/hooks.server.ts"
+    ]
+  },
+  "_letterheadStore.js": {
+    "file": "chunks/letterheadStore.js",
+    "name": "letterheadStore",
+    "imports": [
+      "_index.js"
+    ]
+  },
+  "_licenseStore.js": {
+    "file": "chunks/licenseStore.js",
+    "name": "licenseStore",
+    "imports": [
+      "_index.js"
+    ]
+  },
+  "_reportEvents.js": {
+    "file": "chunks/reportEvents.js",
+    "name": "reportEvents"
+  },
+  "_reportStore.js": {
+    "file": "chunks/reportStore.js",
+    "name": "reportStore",
+    "imports": [
+      "_index.js",
+      "_false.js",
+      "_authStore.js"
+    ]
+  },
+  "_seed.js": {
+    "file": "chunks/seed.js",
+    "name": "seed",
+    "imports": [
+      "_db.js"
+    ]
+  },
+  "_shared.js": {
+    "file": "chunks/shared.js",
+    "name": "shared",
+    "imports": [
+      "_utils.js"
+    ]
+  },
+  "_sqlite-schema.js": {
+    "file": "chunks/sqlite-schema.js",
+    "name": "sqlite-schema",
+    "isDynamicEntry": true
+  },
+  "_state.svelte.js": {
+    "file": "chunks/state.svelte.js",
+    "name": "state.svelte",
+    "imports": [
+      "_index2.js"
+    ]
+  },
+  "_stores.js": {
+    "file": "chunks/stores.js",
+    "name": "stores",
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js"
+    ]
+  },
+  "_utils.js": {
+    "file": "chunks/utils.js",
+    "name": "utils"
+  },
+  "_validateEnvironment.js": {
+    "file": "chunks/validateEnvironment.js",
+    "name": "validateEnvironment"
+  },
+  "node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js": {
+    "file": "remote-entry.js",
+    "name": "remote-entry",
+    "src": "node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js",
+    "isEntry": true,
+    "imports": [
+      "_shared.js",
+      "_false.js",
+      "_environment.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/components/svelte-5/error.svelte": {
+    "file": "entries/fallbacks/error.svelte.js",
+    "name": "entries/fallbacks/error.svelte",
+    "src": "node_modules/@sveltejs/kit/src/runtime/components/svelte-5/error.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_state.svelte.js",
+      "_client.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/server/index.js": {
+    "file": "index.js",
+    "name": "index",
+    "src": "node_modules/@sveltejs/kit/src/runtime/server/index.js",
+    "isEntry": true,
+    "imports": [
+      "_false.js",
+      "_environment.js",
+      "_exports.js",
+      "_utils.js",
+      "_index.js",
+      "_internal.js",
+      "_shared.js"
+    ]
+  },
+  "src/hooks.server.ts": {
+    "file": "chunks/hooks.server.js",
+    "name": "hooks.server",
+    "src": "src/hooks.server.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_validateEnvironment.js",
+      "_seed.js"
+    ]
+  },
+  "src/lib/server/sqlite.ts": {
+    "file": "chunks/sqlite.js",
+    "name": "sqlite",
+    "src": "src/lib/server/sqlite.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_sqlite-schema.js"
+    ]
+  },
+  "src/routes/+layout.js": {
+    "file": "entries/pages/_layout.js",
+    "name": "entries/pages/_layout",
+    "src": "src/routes/+layout.js",
+    "isEntry": true
+  },
+  "src/routes/+layout.svelte": {
+    "file": "entries/pages/_layout.svelte.js",
+    "name": "entries/pages/_layout.svelte",
+    "src": "src/routes/+layout.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index-server.js",
+      "_stores.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_authStore.js",
+      "_edition.js",
+      "_ConfirmDialog.js",
+      "_index.js",
+      "_licenseStore.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_layout.Dgb3Nspf.css"
+    ]
+  },
+  "src/routes/+page.svelte": {
+    "file": "entries/pages/_page.svelte.js",
+    "name": "entries/pages/_page.svelte",
+    "src": "src/routes/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_authStore.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.BnH849ld.css"
+    ]
+  },
+  "src/routes/admin/analytics/+page.svelte": {
+    "file": "entries/pages/admin/analytics/_page.svelte.js",
+    "name": "entries/pages/admin/analytics/_page.svelte",
+    "src": "src/routes/admin/analytics/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_client.js",
+      "_authStore.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.0DmhDD8S.css"
+    ]
+  },
+  "src/routes/admin/audit-logs/+page.svelte": {
+    "file": "entries/pages/admin/audit-logs/_page.svelte.js",
+    "name": "entries/pages/admin/audit-logs/_page.svelte",
+    "src": "src/routes/admin/audit-logs/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_authStore.js",
+      "_DateFilterDropdown.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.DkdSiuD7.css"
+    ]
+  },
+  "src/routes/admin/sessions/+page.svelte": {
+    "file": "entries/pages/admin/sessions/_page.svelte.js",
+    "name": "entries/pages/admin/sessions/_page.svelte",
+    "src": "src/routes/admin/sessions/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CtYStKZx.css"
+    ]
+  },
+  "src/routes/admin/training-data/+page.svelte": {
+    "file": "entries/pages/admin/training-data/_page.svelte.js",
+    "name": "entries/pages/admin/training-data/_page.svelte",
+    "src": "src/routes/admin/training-data/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.B3gi9eUt.css"
+    ]
+  },
+  "src/routes/admin/users/+page.svelte": {
+    "file": "entries/pages/admin/users/_page.svelte.js",
+    "name": "entries/pages/admin/users/_page.svelte",
+    "src": "src/routes/admin/users/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_authStore.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.8OtVRtcG.css"
+    ]
+  },
+  "src/routes/analytics/+page.js": {
+    "file": "entries/pages/analytics/_page.js",
+    "name": "entries/pages/analytics/_page",
+    "src": "src/routes/analytics/+page.js",
+    "isEntry": true
+  },
+  "src/routes/analytics/+page.server.ts": {
+    "file": "entries/pages/analytics/_page.server.ts.js",
+    "name": "entries/pages/analytics/_page.server.ts",
+    "src": "src/routes/analytics/+page.server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/analytics/+page.svelte": {
+    "file": "entries/pages/analytics/_page.svelte.js",
+    "name": "entries/pages/analytics/_page.svelte",
+    "src": "src/routes/analytics/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_DateFilterDropdown.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.Cq9xmXAt.css"
+    ]
+  },
+  "src/routes/api/admin/analytics/+server.ts": {
+    "file": "entries/endpoints/api/admin/analytics/_server.ts.js",
+    "name": "entries/endpoints/api/admin/analytics/_server.ts",
+    "src": "src/routes/api/admin/analytics/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/admin/audit-logs/+server.ts": {
+    "file": "entries/endpoints/api/admin/audit-logs/_server.ts.js",
+    "name": "entries/endpoints/api/admin/audit-logs/_server.ts",
+    "src": "src/routes/api/admin/audit-logs/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js",
+      "_db.js"
+    ]
+  },
+  "src/routes/api/admin/seed/+server.ts": {
+    "file": "entries/endpoints/api/admin/seed/_server.ts.js",
+    "name": "entries/endpoints/api/admin/seed/_server.ts",
+    "src": "src/routes/api/admin/seed/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_seed.js"
+    ]
+  },
+  "src/routes/api/admin/sessions/+server.ts": {
+    "file": "entries/endpoints/api/admin/sessions/_server.ts.js",
+    "name": "entries/endpoints/api/admin/sessions/_server.ts",
+    "src": "src/routes/api/admin/sessions/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/admin/users/+server.ts": {
+    "file": "entries/endpoints/api/admin/users/_server.ts.js",
+    "name": "entries/endpoints/api/admin/users/_server.ts",
+    "src": "src/routes/api/admin/users/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/admin/users/[id]/+server.ts": {
+    "file": "entries/endpoints/api/admin/users/_id_/_server.ts.js",
+    "name": "entries/endpoints/api/admin/users/_id_/_server.ts",
+    "src": "src/routes/api/admin/users/[id]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js",
+      "_db.js"
+    ]
+  },
+  "src/routes/api/admin/users/[id]/reset-password/+server.ts": {
+    "file": "entries/endpoints/api/admin/users/_id_/reset-password/_server.ts.js",
+    "name": "entries/endpoints/api/admin/users/_id_/reset-password/_server.ts",
+    "src": "src/routes/api/admin/users/[id]/reset-password/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js",
+      "_db.js"
+    ]
+  },
+  "src/routes/api/admin/users/[id]/toggle-status/+server.ts": {
+    "file": "entries/endpoints/api/admin/users/_id_/toggle-status/_server.ts.js",
+    "name": "entries/endpoints/api/admin/users/_id_/toggle-status/_server.ts",
+    "src": "src/routes/api/admin/users/[id]/toggle-status/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js",
+      "_db.js"
+    ]
+  },
+  "src/routes/api/ai/polish/+server.ts": {
+    "file": "entries/endpoints/api/ai/polish/_server.ts.js",
+    "name": "entries/endpoints/api/ai/polish/_server.ts",
+    "src": "src/routes/api/ai/polish/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/ai/status/+server.ts": {
+    "file": "entries/endpoints/api/ai/status/_server.ts.js",
+    "name": "entries/endpoints/api/ai/status/_server.ts",
+    "src": "src/routes/api/ai/status/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/analytics/admin/+server.ts": {
+    "file": "entries/endpoints/api/analytics/admin/_server.ts.js",
+    "name": "entries/endpoints/api/analytics/admin/_server.ts",
+    "src": "src/routes/api/analytics/admin/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/analytics/user/+server.ts": {
+    "file": "entries/endpoints/api/analytics/user/_server.ts.js",
+    "name": "entries/endpoints/api/analytics/user/_server.ts",
+    "src": "src/routes/api/analytics/user/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/analytics/user/details/+server.ts": {
+    "file": "entries/endpoints/api/analytics/user/details/_server.ts.js",
+    "name": "entries/endpoints/api/analytics/user/details/_server.ts",
+    "src": "src/routes/api/analytics/user/details/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/auth/change-password/+server.ts": {
+    "file": "entries/endpoints/api/auth/change-password/_server.ts.js",
+    "name": "entries/endpoints/api/auth/change-password/_server.ts",
+    "src": "src/routes/api/auth/change-password/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/auth/check-users/+server.ts": {
+    "file": "entries/endpoints/api/auth/check-users/_server.ts.js",
+    "name": "entries/endpoints/api/auth/check-users/_server.ts",
+    "src": "src/routes/api/auth/check-users/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js"
+    ]
+  },
+  "src/routes/api/auth/login/+server.ts": {
+    "file": "entries/endpoints/api/auth/login/_server.ts.js",
+    "name": "entries/endpoints/api/auth/login/_server.ts",
+    "src": "src/routes/api/auth/login/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/auth/logout/+server.ts": {
+    "file": "entries/endpoints/api/auth/logout/_server.ts.js",
+    "name": "entries/endpoints/api/auth/logout/_server.ts",
+    "src": "src/routes/api/auth/logout/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/auth/register/+server.ts": {
+    "file": "entries/endpoints/api/auth/register/_server.ts.js",
+    "name": "entries/endpoints/api/auth/register/_server.ts",
+    "src": "src/routes/api/auth/register/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js",
+      "_db.js"
+    ]
+  },
+  "src/routes/api/auth/reset-password/+server.ts": {
+    "file": "entries/endpoints/api/auth/reset-password/_server.ts.js",
+    "name": "entries/endpoints/api/auth/reset-password/_server.ts",
+    "src": "src/routes/api/auth/reset-password/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/auth/roles/+server.ts": {
+    "file": "entries/endpoints/api/auth/roles/_server.ts.js",
+    "name": "entries/endpoints/api/auth/roles/_server.ts",
+    "src": "src/routes/api/auth/roles/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/auth/security-question/+server.ts": {
+    "file": "entries/endpoints/api/auth/security-question/_server.ts.js",
+    "name": "entries/endpoints/api/auth/security-question/_server.ts",
+    "src": "src/routes/api/auth/security-question/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js"
+    ]
+  },
+  "src/routes/api/auth/session-events/+server.ts": {
+    "file": "entries/endpoints/api/auth/session-events/_server.ts.js",
+    "name": "entries/endpoints/api/auth/session-events/_server.ts",
+    "src": "src/routes/api/auth/session-events/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/auth/session/+server.ts": {
+    "file": "entries/endpoints/api/auth/session/_server.ts.js",
+    "name": "entries/endpoints/api/auth/session/_server.ts",
+    "src": "src/routes/api/auth/session/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/auth/update-security-question/+server.ts": {
+    "file": "entries/endpoints/api/auth/update-security-question/_server.ts.js",
+    "name": "entries/endpoints/api/auth/update-security-question/_server.ts",
+    "src": "src/routes/api/auth/update-security-question/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/auth/verify-security-answer/+server.ts": {
+    "file": "entries/endpoints/api/auth/verify-security-answer/_server.ts.js",
+    "name": "entries/endpoints/api/auth/verify-security-answer/_server.ts",
+    "src": "src/routes/api/auth/verify-security-answer/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js"
+    ]
+  },
+  "src/routes/api/chat/messages/+server.ts": {
+    "file": "entries/endpoints/api/chat/messages/_server.ts.js",
+    "name": "entries/endpoints/api/chat/messages/_server.ts",
+    "src": "src/routes/api/chat/messages/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/chat/messages/[userId]/+server.ts": {
+    "file": "entries/endpoints/api/chat/messages/_userId_/_server.ts.js",
+    "name": "entries/endpoints/api/chat/messages/_userId_/_server.ts",
+    "src": "src/routes/api/chat/messages/[userId]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/chat/presence/+server.ts": {
+    "file": "entries/endpoints/api/chat/presence/_server.ts.js",
+    "name": "entries/endpoints/api/chat/presence/_server.ts",
+    "src": "src/routes/api/chat/presence/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/chat/unread/+server.ts": {
+    "file": "entries/endpoints/api/chat/unread/_server.ts.js",
+    "name": "entries/endpoints/api/chat/unread/_server.ts",
+    "src": "src/routes/api/chat/unread/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/chat/users/+server.ts": {
+    "file": "entries/endpoints/api/chat/users/_server.ts.js",
+    "name": "entries/endpoints/api/chat/users/_server.ts",
+    "src": "src/routes/api/chat/users/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/health/+server.ts": {
+    "file": "entries/endpoints/api/health/_server.ts.js",
+    "name": "entries/endpoints/api/health/_server.ts",
+    "src": "src/routes/api/health/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_validateEnvironment.js"
+    ]
+  },
+  "src/routes/api/health/solo/+server.ts": {
+    "file": "entries/endpoints/api/health/solo/_server.ts.js",
+    "name": "entries/endpoints/api/health/solo/_server.ts",
+    "src": "src/routes/api/health/solo/+server.ts",
+    "isEntry": true
+  },
+  "src/routes/api/macros/+server.ts": {
+    "file": "entries/endpoints/api/macros/_server.ts.js",
+    "name": "entries/endpoints/api/macros/_server.ts",
+    "src": "src/routes/api/macros/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/macros/[id]/+server.ts": {
+    "file": "entries/endpoints/api/macros/_id_/_server.ts.js",
+    "name": "entries/endpoints/api/macros/_id_/_server.ts",
+    "src": "src/routes/api/macros/[id]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/organization/+server.ts": {
+    "file": "entries/endpoints/api/organization/_server.ts.js",
+    "name": "entries/endpoints/api/organization/_server.ts",
+    "src": "src/routes/api/organization/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/organization/letterhead/+server.ts": {
+    "file": "entries/endpoints/api/organization/letterhead/_server.ts.js",
+    "name": "entries/endpoints/api/organization/letterhead/_server.ts",
+    "src": "src/routes/api/organization/letterhead/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/organization/settings/+server.ts": {
+    "file": "entries/endpoints/api/organization/settings/_server.ts.js",
+    "name": "entries/endpoints/api/organization/settings/_server.ts",
+    "src": "src/routes/api/organization/settings/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/reports/+server.ts": {
+    "file": "entries/endpoints/api/reports/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_server.ts",
+    "src": "src/routes/api/reports/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_reportEvents.js",
+      "_PatientsRepository.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/_server.ts",
+    "src": "src/routes/api/reports/[id]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_PatientsRepository.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/addendums/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/addendums/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/addendums/_server.ts",
+    "src": "src/routes/api/reports/[id]/addendums/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_getReportIdentifier.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/addendums/[addendumId]/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/addendums/_addendumId_/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/addendums/_addendumId_/_server.ts",
+    "src": "src/routes/api/reports/[id]/addendums/[addendumId]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_getReportIdentifier.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/addendums/[addendumId]/claim/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/addendums/_addendumId_/claim/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/addendums/_addendumId_/claim/_server.ts",
+    "src": "src/routes/api/reports/[id]/addendums/[addendumId]/claim/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/addendums/[addendumId]/return/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/addendums/_addendumId_/return/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/addendums/_addendumId_/return/_server.ts",
+    "src": "src/routes/api/reports/[id]/addendums/[addendumId]/return/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_getReportIdentifier.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/addendums/[addendumId]/sign/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/addendums/_addendumId_/sign/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/addendums/_addendumId_/sign/_server.ts",
+    "src": "src/routes/api/reports/[id]/addendums/[addendumId]/sign/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_getReportIdentifier.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/addendums/[addendumId]/submit/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/addendums/_addendumId_/submit/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/addendums/_addendumId_/submit/_server.ts",
+    "src": "src/routes/api/reports/[id]/addendums/[addendumId]/submit/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_getReportIdentifier.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/cancel/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/cancel/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/cancel/_server.ts",
+    "src": "src/routes/api/reports/[id]/cancel/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/claim/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/claim/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/claim/_server.ts",
+    "src": "src/routes/api/reports/[id]/claim/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_reportEvents.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/presence/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/presence/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/presence/_server.ts",
+    "src": "src/routes/api/reports/[id]/presence/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/request-review/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/request-review/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/request-review/_server.ts",
+    "src": "src/routes/api/reports/[id]/request-review/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/return/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/return/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/return/_server.ts",
+    "src": "src/routes/api/reports/[id]/return/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_reportEvents.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/sign-off/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/sign-off/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/sign-off/_server.ts",
+    "src": "src/routes/api/reports/[id]/sign-off/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_reportEvents.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/sign/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/sign/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/sign/_server.ts",
+    "src": "src/routes/api/reports/[id]/sign/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_reportEvents.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/submit/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/submit/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/submit/_server.ts",
+    "src": "src/routes/api/reports/[id]/submit/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_reportEvents.js"
+    ]
+  },
+  "src/routes/api/reports/[id]/undo-sign/+server.ts": {
+    "file": "entries/endpoints/api/reports/_id_/undo-sign/_server.ts.js",
+    "name": "entries/endpoints/api/reports/_id_/undo-sign/_server.ts",
+    "src": "src/routes/api/reports/[id]/undo-sign/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_reportEvents.js"
+    ]
+  },
+  "src/routes/api/reports/counts/+server.ts": {
+    "file": "entries/endpoints/api/reports/counts/_server.ts.js",
+    "name": "entries/endpoints/api/reports/counts/_server.ts",
+    "src": "src/routes/api/reports/counts/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/reports/events/+server.ts": {
+    "file": "entries/endpoints/api/reports/events/_server.ts.js",
+    "name": "entries/endpoints/api/reports/events/_server.ts",
+    "src": "src/routes/api/reports/events/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js",
+      "_reportEvents.js"
+    ]
+  },
+  "src/routes/api/reports/pending-reviews/+server.ts": {
+    "file": "entries/endpoints/api/reports/pending-reviews/_server.ts.js",
+    "name": "entries/endpoints/api/reports/pending-reviews/_server.ts",
+    "src": "src/routes/api/reports/pending-reviews/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_PatientsRepository.js"
+    ]
+  },
+  "src/routes/api/reports/returned/+server.ts": {
+    "file": "entries/endpoints/api/reports/returned/_server.ts.js",
+    "name": "entries/endpoints/api/reports/returned/_server.ts",
+    "src": "src/routes/api/reports/returned/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_PatientsRepository.js"
+    ]
+  },
+  "src/routes/api/setup/complete/+server.ts": {
+    "file": "entries/endpoints/api/setup/complete/_server.ts.js",
+    "name": "entries/endpoints/api/setup/complete/_server.ts",
+    "src": "src/routes/api/setup/complete/+server.ts",
+    "isEntry": true
+  },
+  "src/routes/api/setup/generate-key/+server.ts": {
+    "file": "entries/endpoints/api/setup/generate-key/_server.ts.js",
+    "name": "entries/endpoints/api/setup/generate-key/_server.ts",
+    "src": "src/routes/api/setup/generate-key/+server.ts",
+    "isEntry": true
+  },
+  "src/routes/api/setup/status/+server.ts": {
+    "file": "entries/endpoints/api/setup/status/_server.ts.js",
+    "name": "entries/endpoints/api/setup/status/_server.ts",
+    "src": "src/routes/api/setup/status/+server.ts",
+    "isEntry": true
+  },
+  "src/routes/api/specialists/+server.ts": {
+    "file": "entries/endpoints/api/specialists/_server.ts.js",
+    "name": "entries/endpoints/api/specialists/_server.ts",
+    "src": "src/routes/api/specialists/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/templates/+server.ts": {
+    "file": "entries/endpoints/api/templates/_server.ts.js",
+    "name": "entries/endpoints/api/templates/_server.ts",
+    "src": "src/routes/api/templates/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/templates/[id]/+server.ts": {
+    "file": "entries/endpoints/api/templates/_id_/_server.ts.js",
+    "name": "entries/endpoints/api/templates/_id_/_server.ts",
+    "src": "src/routes/api/templates/[id]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/user-settings/+server.ts": {
+    "file": "entries/endpoints/api/user-settings/_server.ts.js",
+    "name": "entries/endpoints/api/user-settings/_server.ts",
+    "src": "src/routes/api/user-settings/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/users/+server.ts": {
+    "file": "entries/endpoints/api/users/_server.ts.js",
+    "name": "entries/endpoints/api/users/_server.ts",
+    "src": "src/routes/api/users/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/users/[id]/+server.ts": {
+    "file": "entries/endpoints/api/users/_id_/_server.ts.js",
+    "name": "entries/endpoints/api/users/_id_/_server.ts",
+    "src": "src/routes/api/users/[id]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js",
+      "_db.js"
+    ]
+  },
+  "src/routes/api/users/signature/+server.ts": {
+    "file": "entries/endpoints/api/users/signature/_server.ts.js",
+    "name": "entries/endpoints/api/users/signature/_server.ts",
+    "src": "src/routes/api/users/signature/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/users/specialists/+server.ts": {
+    "file": "entries/endpoints/api/users/specialists/_server.ts.js",
+    "name": "entries/endpoints/api/users/specialists/_server.ts",
+    "src": "src/routes/api/users/specialists/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/voice-training/audio/[id]/+server.ts": {
+    "file": "entries/endpoints/api/voice-training/audio/_id_/_server.ts.js",
+    "name": "entries/endpoints/api/voice-training/audio/_id_/_server.ts",
+    "src": "src/routes/api/voice-training/audio/[id]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js"
+    ],
+    "dynamicImports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/voice-training/export/+server.ts": {
+    "file": "entries/endpoints/api/voice-training/export/_server.ts.js",
+    "name": "entries/endpoints/api/voice-training/export/_server.ts",
+    "src": "src/routes/api/voice-training/export/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/voice-training/samples/+server.ts": {
+    "file": "entries/endpoints/api/voice-training/samples/_server.ts.js",
+    "name": "entries/endpoints/api/voice-training/samples/_server.ts",
+    "src": "src/routes/api/voice-training/samples/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js"
+    ],
+    "dynamicImports": [
+      "_db.js",
+      "_auth.js",
+      "_auth.js",
+      "_auth.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/voice-training/samples/[id]/+server.ts": {
+    "file": "entries/endpoints/api/voice-training/samples/_id_/_server.ts.js",
+    "name": "entries/endpoints/api/voice-training/samples/_id_/_server.ts",
+    "src": "src/routes/api/voice-training/samples/[id]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js"
+    ],
+    "dynamicImports": [
+      "_auth.js",
+      "_auth.js",
+      "_auth.js",
+      "_auth.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/voice-training/samples/[id]/correction/+server.ts": {
+    "file": "entries/endpoints/api/voice-training/samples/_id_/correction/_server.ts.js",
+    "name": "entries/endpoints/api/voice-training/samples/_id_/correction/_server.ts",
+    "src": "src/routes/api/voice-training/samples/[id]/correction/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js"
+    ]
+  },
+  "src/routes/api/voice/ticket/+server.ts": {
+    "file": "entries/endpoints/api/voice/ticket/_server.ts.js",
+    "name": "entries/endpoints/api/voice/ticket/_server.ts",
+    "src": "src/routes/api/voice/ticket/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/worklist/+server.ts": {
+    "file": "entries/endpoints/api/worklist/_server.ts.js",
+    "name": "entries/endpoints/api/worklist/_server.ts",
+    "src": "src/routes/api/worklist/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_PatientsRepository.js"
+    ]
+  },
+  "src/routes/api/worklist/[id]/+server.ts": {
+    "file": "entries/endpoints/api/worklist/_id_/_server.ts.js",
+    "name": "entries/endpoints/api/worklist/_id_/_server.ts",
+    "src": "src/routes/api/worklist/[id]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js"
+    ]
+  },
+  "src/routes/api/worklist/[id]/pickup/+server.ts": {
+    "file": "entries/endpoints/api/worklist/_id_/pickup/_server.ts.js",
+    "name": "entries/endpoints/api/worklist/_id_/pickup/_server.ts",
+    "src": "src/routes/api/worklist/[id]/pickup/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_reportEvents.js",
+      "_PatientsRepository.js"
+    ]
+  },
+  "src/routes/api/worklist/create-with-report/+server.ts": {
+    "file": "entries/endpoints/api/worklist/create-with-report/_server.ts.js",
+    "name": "entries/endpoints/api/worklist/create-with-report/_server.ts",
+    "src": "src/routes/api/worklist/create-with-report/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db.js",
+      "_auth.js",
+      "_PatientsRepository.js"
+    ]
+  },
+  "src/routes/auth/+page.svelte": {
+    "file": "entries/pages/auth/_page.svelte.js",
+    "name": "entries/pages/auth/_page.svelte",
+    "src": "src/routes/auth/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_client.js",
+      "_authStore.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CQKLOHXW.css"
+    ]
+  },
+  "src/routes/macros/+page.svelte": {
+    "file": "entries/pages/macros/_page.svelte.js",
+    "name": "entries/pages/macros/_page.svelte",
+    "src": "src/routes/macros/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_ConfirmDialog.js",
+      "_PremiumGate.js",
+      "_licenseStore.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.ItvN2DBP.css"
+    ]
+  },
+  "src/routes/reporting/+page.js": {
+    "file": "entries/pages/reporting/_page.js",
+    "name": "entries/pages/reporting/_page",
+    "src": "src/routes/reporting/+page.js",
+    "isEntry": true
+  },
+  "src/routes/reporting/+page.svelte": {
+    "file": "entries/pages/reporting/_page.svelte.js",
+    "name": "entries/pages/reporting/_page.svelte",
+    "src": "src/routes/reporting/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index-server.js",
+      "_reportStore.js",
+      "_authStore.js",
+      "_licenseStore.js",
+      "_OllamaService.js",
+      "_index.js",
+      "_PDFPreviewModal.svelte_svelte_type_style_lang.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_stores.js"
+    ],
+    "dynamicImports": [
+      "_PDFPreviewModal.svelte_svelte_type_style_lang.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.B69i3NtK.css",
+      "_app/immutable/assets/ConfirmDialog.BS-59iBY.css"
+    ]
+  },
+  "src/routes/reports/+page.js": {
+    "file": "entries/pages/reports/_page.js",
+    "name": "entries/pages/reports/_page",
+    "src": "src/routes/reports/+page.js",
+    "isEntry": true
+  },
+  "src/routes/reports/+page.svelte": {
+    "file": "entries/pages/reports/_page.svelte.js",
+    "name": "entries/pages/reports/_page.svelte",
+    "src": "src/routes/reports/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_ConfirmDialog.js",
+      "_PDFPreviewModal.svelte_svelte_type_style_lang.js",
+      "_index-server.js",
+      "_authStore.js",
+      "_reportStore.js",
+      "_letterheadStore.js",
+      "_DateFilterDropdown.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CZH5ZRS6.css"
+    ]
+  },
+  "src/routes/reports/pending-reviews/+page.svelte": {
+    "file": "entries/pages/reports/pending-reviews/_page.svelte.js",
+    "name": "entries/pages/reports/pending-reviews/_page.svelte",
+    "src": "src/routes/reports/pending-reviews/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index-server.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_authStore.js",
+      "_DateFilterDropdown.js",
+      "_SSEManager.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.BzGBSpxX.css"
+    ]
+  },
+  "src/routes/reports/returned/+page.svelte": {
+    "file": "entries/pages/reports/returned/_page.svelte.js",
+    "name": "entries/pages/reports/returned/_page.svelte",
+    "src": "src/routes/reports/returned/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_authStore.js",
+      "_DateFilterDropdown.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.D5GPJy6V.css"
+    ]
+  },
+  "src/routes/settings/+page.svelte": {
+    "file": "entries/pages/settings/_page.svelte.js",
+    "name": "entries/pages/settings/_page.svelte",
+    "src": "src/routes/settings/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_letterheadStore.js",
+      "_ConfirmDialog.js",
+      "_authStore.js",
+      "_OllamaService.js",
+      "_licenseStore.js",
+      "_edition.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.B7ZfmmMc.css"
+    ]
+  },
+  "src/routes/setup/+page.svelte": {
+    "file": "entries/pages/setup/_page.svelte.js",
+    "name": "entries/pages/setup/_page.svelte",
+    "src": "src/routes/setup/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.DlJ-699B.css"
+    ]
+  },
+  "src/routes/templates/+page.svelte": {
+    "file": "entries/pages/templates/_page.svelte.js",
+    "name": "entries/pages/templates/_page.svelte",
+    "src": "src/routes/templates/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_ConfirmDialog.js",
+      "_PremiumGate.js",
+      "_licenseStore.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.Hffj3jd9.css"
+    ]
+  },
+  "src/routes/voice-test/+page.svelte": {
+    "file": "entries/pages/voice-test/_page.svelte.js",
+    "name": "entries/pages/voice-test/_page.svelte",
+    "src": "src/routes/voice-test/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index.js",
+      "_reportStore.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.BqtNw-Sy.css"
+    ]
+  },
+  "src/routes/worklist/+page.svelte": {
+    "file": "entries/pages/worklist/_page.svelte.js",
+    "name": "entries/pages/worklist/_page.svelte",
+    "src": "src/routes/worklist/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index-server.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js",
+      "_authStore.js",
+      "_reportStore.js",
+      "_DateFilterDropdown.js",
+      "_SSEManager.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.D25SWEhs.css"
+    ]
+  }
+}
