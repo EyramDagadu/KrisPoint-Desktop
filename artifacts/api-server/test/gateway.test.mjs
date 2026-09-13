@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { generateKeyPairSync, sign } from 'node:crypto';
 import { once } from 'node:events';
 import test from 'node:test';
-import { createGatewayServer, MAX_JSON_BYTES } from '../src/server.mjs';
+import { createGatewayServer, groqProviderAdapter, MAX_JSON_BYTES } from '../src/server.mjs';
 import { checkImpressionSafety } from '../src/safety.mjs';
 
 function license(publicKey, privateKey) {
@@ -42,6 +42,8 @@ test('health is available and polish verifies license before provider', async ()
     const address = server.address();
     const health = await fetch(`http://127.0.0.1:${address.port}/health`);
     assert.equal(health.status, 200);
+    const previewHealth = await fetch(`http://127.0.0.1:${address.port}/health/`);
+    assert.equal(previewHealth.status, 200);
     const result = await fetch(`http://127.0.0.1:${address.port}/v1/polish`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -136,6 +138,97 @@ test('provider adapter seam preserves the client API when switching provider and
     server.close();
     await once(server, 'close');
   }
+});
+
+test('normal-study shorthand authorizes matching template expansion but detailed reports do not', async () => {
+  const expansionFlags = [];
+  const { server, envelope } = await setup({
+    provider: 'fake',
+    providerAdapter: {
+      async polish(input) {
+        expansionFlags.push(input.templateExpansionAuthorized);
+        return input.templateExpansionAuthorized ? input.template : input.report;
+      }
+    }
+  });
+  try {
+    const address = server.address();
+    for (const report of ['normal abdominal ultrasound', 'Liver normal, measuring 14 cm.']) {
+      const result = await fetch(`http://127.0.0.1:${address.port}/v1/polish`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          licenseEnvelope: envelope,
+          report,
+          modality: 'Ultrasound',
+          bodyRegion: 'Abdominal',
+          template: '<p><strong>FINDINGS:</strong></p><p>The liver is normal.</p>'
+        })
+      });
+      assert.equal(result.status, 200);
+    }
+    assert.deepEqual(expansionFlags, [true, false]);
+  } finally {
+    server.close();
+    await once(server, 'close');
+  }
+});
+
+test('clinical differences are advisory and do not block clinician review', async () => {
+  const { server, envelope } = await setup({
+    provider: 'fake',
+    providerAdapter: {
+      async polish() {
+        return 'There is a 20 mm right lung nodule.';
+      }
+    }
+  });
+  try {
+    const address = server.address();
+    const result = await fetch(`http://127.0.0.1:${address.port}/v1/polish`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        licenseEnvelope: envelope,
+        report: 'There is a 12 mm left lung nodule.'
+      })
+    });
+    const payload = await result.json();
+    assert.equal(result.status, 200);
+    assert.equal(payload.accepted, true);
+    assert.equal(payload.blocked, false);
+    assert.ok(payload.warnings.length > 0);
+    assert.match(payload.safetyMessage, /clinician review/i);
+  } finally {
+    server.close();
+    await once(server, 'close');
+  }
+});
+
+test('Groq adapter falls back when the configured model is unavailable', async () => {
+  const attemptedModels = [];
+  const output = await groqProviderAdapter.polish(
+    { report: 'A clear report.', action: 'polish' },
+    {
+      apiKey: 'test-secret',
+      model: 'retired/model',
+      timeoutMs: 1_000,
+      fetch: async (_url, options) => {
+        attemptedModels.push(JSON.parse(options.body).model);
+        if (attemptedModels.length === 1) {
+          return new Response('{"error":{"code":"model_not_found"}}', { status: 404 });
+        }
+        return new Response(JSON.stringify({
+          choices: [{ message: { content: JSON.stringify({
+            polishedText: 'A clear report.',
+            changes: []
+          }) } }]
+        }), { status: 200 });
+      }
+    }
+  );
+  assert.equal(output, 'A clear report.');
+  assert.deepEqual(attemptedModels, ['retired/model', 'openai/gpt-oss-120b']);
 });
 
 test('hosted impression action uses the impression prompt and structured response', async () => {

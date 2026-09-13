@@ -1,5 +1,5 @@
 kind = "api"
-previewPath = "/ai-gateway"
+previewPath = "/health"
 title = "KrisPoint AI Gateway"
 version = "1.0.0"
 id = "3B4_FFSkEVBkAeYMFRJ2e"

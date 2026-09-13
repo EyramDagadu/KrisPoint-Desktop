@@ -8,6 +8,7 @@
   import { reportActions } from '../../stores/reportStore.js';
   import { settingsService } from '../../services/SettingsService.js';
   import { isSoloEdition } from '../../config/edition.js';
+  import { sanitizeHTML } from '../../utils/htmlSanitizer.js';
 
   export let reportContent = '';
   export let indication = '';
@@ -79,6 +80,11 @@
 
   function normalize(value) {
     return String(value || '').trim().toLowerCase();
+  }
+
+  function previewHtml(value) {
+    return sanitizeHTML(String(value || ''))
+      .replace(/<(p|div)(?:\s[^>]*)?>\s*(?:<br\s*\/?>|&nbsp;|\s)*<\/\1>/gi, '');
   }
 
   function normalizeModality(value) {
@@ -286,8 +292,17 @@
           <div class="loading-card"><div class="skeleton line"></div><div class="skeleton line short"></div><p>Preparing a proposed revision…</p></div>
         {:else}
           <div class="review-grid">
-            <article><h3>Original</h3><div class="report-copy">{originalContent}</div></article>
-            <article class:empty={!proposedContent}><h3>Proposed</h3><div class="report-copy">{proposedContent || 'Run polish to review a proposed revision.'}</div></article>
+            <article><h3>Original</h3><div class="report-copy">{@html previewHtml(originalContent)}</div></article>
+            <article class:empty={!proposedContent}>
+              <h3>Proposed</h3>
+              <div class="report-copy">
+                {#if proposedContent}
+                  {@html previewHtml(proposedContent)}
+                {:else}
+                  Run polish to review a proposed revision.
+                {/if}
+              </div>
+            </article>
           </div>
         {/if}
       </div>
@@ -323,6 +338,10 @@
   .modal-body { overflow:auto; padding:20px; } .template-row { display:flex; align-items:center; gap:12px; } label { font:700 11px ui-monospace,monospace; text-transform:uppercase; color:#52757a; } select { flex:1; max-width:500px; padding:9px 10px; border:1px solid #bdcecf; border-radius:5px; background:#fff; color:#17313b; font:500 13px ui-sans-serif,system-ui,sans-serif; }
   .template-note { margin:8px 0 16px 68px; color:#6a8185; font-size:12px; } .responsibility-note { margin:0 0 18px; padding:11px 13px; border-left:3px solid #d09a45; background:#fff8eb; color:#5b4932; font-size:12px; line-height:1.45; } .responsibility-note strong { display:block; margin-bottom:2px; }
   .review-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; } .review-grid article { min-width:0; padding:14px; border:1px solid #d4dfdf; border-radius:7px; background:#fff; } .review-grid article.empty { background:#f0f4f3; } .report-copy { min-height:170px; max-height:310px; overflow:auto; white-space:pre-wrap; font:13px/1.65 ui-sans-serif,system-ui,sans-serif; color:#263f47; }
+  :global(.report-copy p), :global(.report-copy div) { margin:0 0 4px; }
+  :global(.report-copy p:last-child), :global(.report-copy div:last-child) { margin-bottom:0; }
+  :global(.report-copy strong) { display:inline-block; margin-top:5px; }
+  :global(.report-copy > p:first-child strong) { margin-top:0; }
   .safety-panel { margin:0 0 14px; padding:11px 13px; border:1px solid #dfbb77; border-radius:6px; background:#fff8e8; color:#674d25; font-size:12px; } .safety-panel.blocked { border-color:#c98787; background:#fff0f0; color:#713b3b; } .safety-panel p { margin:5px 0 0; }
   .button { padding:9px 14px; border-radius:5px; font:700 12px ui-sans-serif,system-ui,sans-serif; cursor:pointer; } .button.quiet { border:1px solid #bdcecf; background:#fff; color:#365860; } .button.primary { border:1px solid #285b62; background:#285b62; color:#fff; } .button:disabled { opacity:.45; cursor:not-allowed; }
   .loading-card { padding:26px 12px; text-align:center; color:#668086; } .skeleton { height:36px; border-radius:4px; background:linear-gradient(90deg,#dce6e5,#f4f7f6,#dce6e5); background-size:200% 100%; animation:shimmer 1.4s ease-in-out infinite; } .skeleton.line { width:100%; margin:8px 0; } .skeleton.short { width:62%; } @keyframes shimmer { from {background-position:200% 0} to {background-position:-200% 0} }

@@ -345,7 +345,7 @@ export function createGatewayServer(options = {}) {
 
   return createServer(async (request, response) => {
     try {
-      if (request.method === 'GET' && request.url === '/health') {
+      if (request.method === 'GET' && (request.url === '/health' || request.url === '/health/')) {
         return jsonResponse(response, 200, { ok: true, provider: config.provider });
       }
       if (request.method !== 'POST' || request.url !== '/v1/polish') {
