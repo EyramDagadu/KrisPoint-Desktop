@@ -73,11 +73,14 @@ export const POST: RequestHandler = async ({ request }) => {
         })
         .where(eq(schema.organizationSettings.key, LETTERHEAD_KEY));
     } else {
+      const now = new Date();
       await db.insert(schema.organizationSettings).values({
         key: LETTERHEAD_KEY,
         value: valueToStore,
         description: 'Organization letterhead for PDF exports',
-        updatedBy: session.user.id
+        updatedBy: session.user.id,
+        createdAt: now,
+        updatedAt: now
       });
     }
 

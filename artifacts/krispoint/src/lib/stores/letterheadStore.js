@@ -125,14 +125,17 @@ export const letterheadActions = {
                 })
             });
             
-            if (response.ok) {
-                const data = await response.json();
-                return data.success;
+            const data = await response.json().catch(() => ({}));
+            if (response.ok && data.success) {
+                return { success: true };
             }
-            return false;
+            return {
+                success: false,
+                error: data.error || `Failed to save letterhead (${response.status})`
+            };
         } catch (error) {
             console.warn('Failed to save letterhead to server:', error);
-            return false;
+            return { success: false, error: 'Could not connect to the local KrisPoint server' };
         }
     },
     

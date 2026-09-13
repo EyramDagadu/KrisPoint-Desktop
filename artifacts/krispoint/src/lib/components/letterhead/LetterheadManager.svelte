@@ -18,11 +18,11 @@
     
     async function handleLetterheadSelect(letterhead) {
         letterheadActions.setCurrentLetterhead(letterhead);
-        const saved = await letterheadActions.saveToServer();
-        if (saved) {
+        const result = await letterheadActions.saveToServer();
+        if (result.success) {
             toastSuccess('Letterhead set for all users');
         } else {
-            toastError('Failed to save letterhead. You may not have permission.');
+            toastError(result.error || 'Failed to save letterhead');
         }
     }
     
@@ -53,11 +53,11 @@
         const letterhead = event.detail;
         letterheadActions.addLetterhead(letterhead);
         letterheadActions.setCurrentLetterhead(letterhead);
-        const saved = await letterheadActions.saveToServer();
-        if (saved) {
+        const result = await letterheadActions.saveToServer();
+        if (result.success) {
             toastSuccess('Letterhead uploaded and saved for all users');
         } else {
-            toastError('Letterhead uploaded but failed to save to server. You may not have permission.');
+            toastError(result.error || 'Letterhead uploaded but failed to save');
         }
         showUpload = false;
     }
