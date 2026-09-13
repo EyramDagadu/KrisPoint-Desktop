@@ -1,0 +1,195 @@
+C3XYIRKB.js:2 Database: seeded
+DDUZErzj.js:1 No user logged in, using global key: krishPoint_theme
+getUserKey @ DDUZErzj.js:1
+DDUZErzj.js:1 No user logged in, using global key: krishPoint_theme
+getUserKey @ DDUZErzj.js:1
+DDUZErzj.js:1 No user logged in, using global key: krishPoint_theme
+getUserKey @ DDUZErzj.js:1
+0.BGRpwxGR.js:2 ThemeService initialized: light
+C3XYIRKB.js:2 SSE session monitor connected
+2.twH0wd5i.js:1 Dashboard loaded reports: Object
+2.twH0wd5i.js:1 Dashboard loaded reports: Object
+DDUZErzj.js:1 No user logged in, using global key: krispoint-settings
+getUserKey @ DDUZErzj.js:1
+-pzKP2Ze.js:2 ✅ Voice recognition supported
+BfS4cxKj.js:4 🔧 Setting up enhanced commands...
+BfS4cxKj.js:8 ✅ Enhanced commands setup complete: 26 patterns registered
+11.BCHZyDpX.js:157 Loading report from worklist pickup: 1
+11.BCHZyDpX.js:157 loadReportFromServer called with ID: 1
+11.BCHZyDpX.js:157 Fetching from: /api/reports?id=1
+11.BCHZyDpX.js:157 Loading report from worklist pickup: 1
+11.BCHZyDpX.js:157 loadReportFromServer called with ID: 1
+11.BCHZyDpX.js:157 Fetching from: /api/reports?id=1
+-pzKP2Ze.js:2 [VoiceTraining] Loaded settings - contributeTrainingData: false
+11.BCHZyDpX.js:157 API response status: 200
+11.BCHZyDpX.js:157 API response data: {
+  "success": true,
+  "report": {
+    "id": 1,
+    "patientId": 1,
+    "accessionNumber": null,
+    "modality": "Ultrasound",
+    "bodyRegion": "Abdominal",
+    "studyDate": "2026-09-13T00:00:00.000Z",
+    "indication": "Abdominal pain",
+    "technique": null,
+    "comparison": null,
+    "content": null,
+    "findings": null,
+    "impressions": null,
+    "recommendations": null,
+    "status": "DRAFT",
+    "priority": "ROUTINE",
+    "isFromWorklist": true,
+    "createdBy": 1,
+    "signedBy": null,
+    "signedAt": null,
+    "reviewedBy": null,
+    "openedBy": 1,
+    "openedAt": "2026-09-13T19:36:12.838Z",
+    "createdAt": "2026-09-13 19:36:12",
+    "updatedAt": "2026-09-13 19:36:12",
+    "submittedAt": null,
+    "assignedSpecialistId": null,
+    "referringPhysician": null,
+    "patientFirstName": "ad88fff0835fa0a2c64a1320970ec844:7a64e82db008d684ba8d21b08c45b8e1:629a70",
+    "patientLastName": "a8481450553f70289c03187bbe1a1a95:aa1ccb8b7b367823426ff631ef58c7b7:5d0f9d15ae431d",
+    "patientHospitalNumber": "23eed49b8e0221583b6a0bad9bbf9c37:051e87c91a6c1602735804b4eec6c82f:857dc5874f51",
+    "patientGender": "M",
+    "patientDateOfBirth": "c1e85b4b653712d9c7516a8febf52268:1ed168a1d14e2d276e7fc0428e76f50d:26085e17a6acf989bcd3",
+    "patientAge": null,
+    "patientAgeUnit": "years",
+    "activeTemplateId": null,
+    "activeTemplateName": null,
+    "canEdit": true,
+    "canEditBase": true,
+    "isOwner": true,
+    "isAssignedSpecialist": false,
+    "isSigner": false,
+    "isReviewer": false,
+    "isReportAuthor": true,
+    "canUndoSign": false,
+    "undoSignExpiresAt": null,
+    "lock": {
+      "isLocked": false,
+      "lockHolder": null,
+      "isOwnLock": false
+    },
+    "creatorInfo": {
+      "id": 1,
+      "fullName": "Eyram Mawulolo Dagadu",
+      "designation": "Radiologist",
+      "title": "Dr.",
+      "signatureUrl": null
+    },
+    "signerInfo": null,
+    "reviewerInfo": null,
+    "patientData": {
+      "name": "Yaw Boateng",
+      "hospitalNumber": "ABC123",
+      "gender": "M",
+      "dateOfBirth": "1986-09-13",
+      "age": null,
+      "ageUnit": "years",
+      "examType": "Ultrasound",
+      "examSubtype": "Abdominal",
+      "indication": "Abdominal pain",
+      "referringPhysician": "Dr Doe",
+      "studyDate": "2026-09-13"
+    }
+  }
+}
+11.BCHZyDpX.js:157 [page.svelte] Loading report metadata. submittedAt = null computed hasBeenSubmitted = false
+11.BCHZyDpX.js:157 API response status: 200
+11.BCHZyDpX.js:157 API response data: {
+  "success": true,
+  "report": {
+    "id": 1,
+    "patientId": 1,
+    "accessionNumber": null,
+    "modality": "Ultrasound",
+    "bodyRegion": "Abdominal",
+    "studyDate": "2026-09-13T00:00:00.000Z",
+    "indication": "Abdominal pain",
+    "technique": null,
+    "comparison": null,
+    "content": null,
+    "findings": null,
+    "impressions": null,
+    "recommendations": null,
+    "status": "DRAFT",
+    "priority": "ROUTINE",
+    "isFromWorklist": true,
+    "createdBy": 1,
+    "signedBy": null,
+    "signedAt": null,
+    "reviewedBy": null,
+    "openedBy": 1,
+    "openedAt": "2026-09-13T19:36:12.838Z",
+    "createdAt": "2026-09-13 19:36:12",
+    "updatedAt": "2026-09-13 19:36:12",
+    "submittedAt": null,
+    "assignedSpecialistId": null,
+    "referringPhysician": null,
+    "patientFirstName": "ad88fff0835fa0a2c64a1320970ec844:7a64e82db008d684ba8d21b08c45b8e1:629a70",
+    "patientLastName": "a8481450553f70289c03187bbe1a1a95:aa1ccb8b7b367823426ff631ef58c7b7:5d0f9d15ae431d",
+    "patientHospitalNumber": "23eed49b8e0221583b6a0bad9bbf9c37:051e87c91a6c1602735804b4eec6c82f:857dc5874f51",
+    "patientGender": "M",
+    "patientDateOfBirth": "c1e85b4b653712d9c7516a8febf52268:1ed168a1d14e2d276e7fc0428e76f50d:26085e17a6acf989bcd3",
+    "patientAge": null,
+    "patientAgeUnit": "years",
+    "activeTemplateId": null,
+    "activeTemplateName": null,
+    "canEdit": true,
+    "canEditBase": true,
+    "isOwner": true,
+    "isAssignedSpecialist": false,
+    "isSigner": false,
+    "isReviewer": false,
+    "isReportAuthor": true,
+    "canUndoSign": false,
+    "undoSignExpiresAt": null,
+    "lock": {
+      "isLocked": false,
+      "lockHolder": null,
+      "isOwnLock": false
+    },
+    "creatorInfo": {
+      "id": 1,
+      "fullName": "Eyram Mawulolo Dagadu",
+      "designation": "Radiologist",
+      "title": "Dr.",
+      "signatureUrl": null
+    },
+    "signerInfo": null,
+    "reviewerInfo": null,
+    "patientData": {
+      "name": "Yaw Boateng",
+      "hospitalNumber": "ABC123",
+      "gender": "M",
+      "dateOfBirth": "1986-09-13",
+      "age": null,
+      "ageUnit": "years",
+      "examType": "Ultrasound",
+      "examSubtype": "Abdominal",
+      "indication": "Abdominal pain",
+      "referringPhysician": "Dr Doe",
+      "studyDate": "2026-09-13"
+    }
+  }
+}
+11.BCHZyDpX.js:157 [page.svelte] Loading report metadata. submittedAt = null computed hasBeenSubmitted = false
+DPTwWFdb.js:1 Uncaught ReferenceError: toggleAddendumWorkspace is not defined
+    at wt (11.BCHZyDpX.js:157:94483)
+    at wah_RO0c.js:1:1282
+    at rn (DPTwWFdb.js:1:21609)
+    at re (DPTwWFdb.js:1:22835)
+    at H (DPTwWFdb.js:1:25050)
+    at J (DPTwWFdb.js:1:26296)
+    at E.ensure (wah_RO0c.js:1:1276)
+    at f (wah_RO0c.js:1:1738)
+    at wah_RO0c.js:1:1783
+    at 11.BCHZyDpX.js:157:94618
+The FetchEvent for "http://127.0.0.1:58688/reporting" resulted in a network error response: the promise was rejected.
+service-worker.js:89  Uncaught (in promise) TypeError: Failed to fetch
+    at service-worker.js:89:21
