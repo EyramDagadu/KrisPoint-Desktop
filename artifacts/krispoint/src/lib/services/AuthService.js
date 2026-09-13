@@ -122,7 +122,11 @@ class AuthService {
             const result = await response.json();
 
             if (result.success) {
-                await this.loadSession();
+                const sessionResult = await this.loadSession();
+                if (!sessionResult.success || !sessionResult.user) {
+                    return { success: false, error: 'Profile saved, but the updated session could not be loaded' };
+                }
+                return { ...result, user: sessionResult.user };
             }
             return result;
         } catch (error) {

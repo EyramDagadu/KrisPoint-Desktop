@@ -28,6 +28,8 @@ export const GET: RequestHandler = async ({ params, request }) => {
         licenseNumber: schema.users.licenseNumber,
         specialty: schema.users.specialty,
         department: schema.users.department,
+        institution: schema.users.institution,
+        designation: schema.users.designation,
         roleId: schema.users.roleId,
         roleName: schema.roles.name,
         roleDisplayName: schema.roles.displayName,
@@ -72,7 +74,7 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
     }
 
     const allowedFields = isSelf 
-      ? ['fullName', 'email', 'title', 'specialty', 'department', 'institution', 'signatureUrl', 'signatureName']
+      ? ['fullName', 'email', 'title', 'specialty', 'department', 'institution', 'designation', 'signatureUrl', 'signatureName']
       : ['fullName', 'email', 'title', 'licenseNumber', 'specialty', 'department', 'institution', 'designation', 'roleId', 'isActive', 'signatureUrl', 'signatureName'];
 
     const filteredUpdates: Record<string, any> = {};
