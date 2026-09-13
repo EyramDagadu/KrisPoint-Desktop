@@ -4,6 +4,7 @@
 - [Hospital voice gateway](hospital-voice-gateway.md) — browser voice uses authenticated same-origin WebSockets while MedASR remains private on loopback.
 - [MedASR endpoint detection](medasr-endpoint-detection.md) — both editions segment dictation by calibrated natural pauses, not fixed windows.
 - [Hosted AI gateway boundary](hosted-ai-gateway-boundary.md) — Solo uses a stable gateway URL; provider secrets and report processing stay outside licensing.
+- [AI identifier screening scope](ai-identifier-screening-scope.md) — screen transmitted clinical content, not template metadata; require strong evidence for unlabeled names.
 - [Hospital Windows releases](hospital-windows-releases.md) — local servers use immutable Git releases, protected machine config, health-gated switching, and application rollback.
 - [Solo template and macro collections](solo-template-macro-collections.md) — Solo uses unified owner collections; Hospital retains system and personal pools.
 - [Solo local worklist](solo-local-worklist.md) — Solo keeps a private local worklist even though shared multi-user worklist behavior remains Hospital-only.

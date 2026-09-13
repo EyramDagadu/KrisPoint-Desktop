@@ -38,7 +38,7 @@ function hasUnlabeledPersonName(value) {
   return candidates.some(match => {
     const words = match[0].replace(/\./g, '').split(/\s+/);
     if (words.length < 2) return false;
-    return words.some(word => !CLINICAL_NAME_ALLOWLIST.has(word.toLowerCase()));
+    return words.filter(word => !CLINICAL_NAME_ALLOWLIST.has(word.toLowerCase())).length >= 2;
   });
 }
 
@@ -70,6 +70,10 @@ export function findExplicitIdentifiersInRequest(input) {
     }
     if (value && typeof value === 'object') {
       for (const [childKey, childValue] of Object.entries(value)) {
+        if (path[0] === 'template' && path.length === 1 &&
+            !['content', 'comparisonHtml', 'techniqueHtml', 'findingsHtml', 'impressionHtml'].includes(childKey)) {
+          continue;
+        }
         visit(childValue, childKey, path.concat(childKey));
       }
     }

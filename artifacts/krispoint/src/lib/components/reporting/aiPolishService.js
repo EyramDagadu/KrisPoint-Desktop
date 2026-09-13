@@ -15,6 +15,19 @@ function signedLicenceEnvelope() {
   };
 }
 
+function clinicalTemplateText(template) {
+  if (!template || typeof template !== 'object') return '';
+  if (typeof template.content === 'string' && template.content.trim()) {
+    return template.content;
+  }
+  return [
+    template.comparisonHtml,
+    template.techniqueHtml,
+    template.findingsHtml,
+    template.impressionHtml
+  ].filter(part => typeof part === 'string' && part.trim()).join('\n');
+}
+
 class AiProviderError extends Error {
   constructor(message, code) {
     super(message);
@@ -97,7 +110,7 @@ export async function polishReport({
       bodyRegion: bodyRegion || '',
       action: action === 'impression' ? 'impression' : 'polish',
       providerMode,
-      template: template || null,
+      templateText: clinicalTemplateText(template),
       templateId: template?.id || null,
       templateIdentity: template?.identity || null,
       licence: signedLicenceEnvelope()

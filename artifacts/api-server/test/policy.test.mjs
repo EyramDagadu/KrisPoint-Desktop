@@ -55,3 +55,19 @@ test('identifier policy blocks labelled and plausible unlabeled names only in co
     template: 'No Acute Cardiopulmonary Abnormality.'
   }), []);
 });
+
+test('identifier policy permits normal report prose and non-clinical template metadata', () => {
+  assert.deepEqual(findExplicitIdentifiersInRequest({
+    content: 'Normal head CT scan. No abnormalities found.',
+    indication: '',
+    modality: 'CT',
+    bodyRegion: 'Head',
+    template: {
+      name: 'Normal Study',
+      identity: 'fallback:ct:head',
+      voiceCommand: 'Normal Head',
+      content: '<p>No acute intracranial abnormality.</p>'
+    },
+    action: 'polish'
+  }), []);
+});
