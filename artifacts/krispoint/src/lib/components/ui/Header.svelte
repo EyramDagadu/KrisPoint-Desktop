@@ -7,6 +7,7 @@
   // Create event dispatcher
   import { createEventDispatcher } from 'svelte';
   import { currentUser } from '../../stores/authStore.js';
+  import { isSoloEdition } from '$lib/config/edition';
   const dispatch = createEventDispatcher();
   
   function handleNewReport() {
@@ -51,7 +52,11 @@
           <div class="avatar">{getInitials($currentUser?.fullName)}</div>
           <div>
             <div class="user-name">{$currentUser?.fullName || 'Doctor'}</div>
-            <div class="user-role">{$currentUser?.roleDisplayName || 'Radiologist'}</div>
+            {#if !isSoloEdition || $currentUser?.designation}
+              <div class="user-role">
+                {isSoloEdition ? $currentUser?.designation : ($currentUser?.roleDisplayName || 'Radiologist')}
+              </div>
+            {/if}
           </div>
         </div>
       {/if}

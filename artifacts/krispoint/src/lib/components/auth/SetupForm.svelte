@@ -389,7 +389,9 @@
                     <span class="loading-spinner"></span>
                     Creating account...
                 {:else}
-                    {isFirstUser ? 'Create System Owner Account' : 'Create User Account'}
+                    {isFirstUser
+                        ? (isSoloEdition ? 'Create Solo Account' : 'Create System Owner Account')
+                        : 'Create User Account'}
                 {/if}
             </button>
         </form>

@@ -10,6 +10,7 @@
     let letterheadName = '';
     let preview = null;
     let selectedFile = null;
+    let preparedImage = null;
     
     const maxFileSize = 5 * 1024 * 1024; // 5MB
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']; // Only PNG/JPEG supported by pdf-lib
@@ -22,7 +23,7 @@
         dragOver = false;
     }
     
-    function processFile(file) {
+    async function processFile(file) {
         // Validate file type
         if (!allowedTypes.includes(file.type)) {
             letterheadActions.setUploadState(false, 0, 'Please select a valid image file (JPG or PNG only)');
@@ -38,19 +39,84 @@
         selectedFile = file;
         fileName = file.name;
         letterheadName = file.name.replace(/\.[^/.]+$/, ''); // Remove file extension
-        
-        // Create preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            preview = e.target.result;
-        };
-        reader.readAsDataURL(file);
-        
-        letterheadActions.setUploadState(false, 0, null);
+
+        try {
+            preparedImage = await prepareImageForStorage(file);
+            preview = preparedImage.url;
+            letterheadActions.setUploadState(false, 0, null);
+        } catch (error) {
+            selectedFile = null;
+            preparedImage = null;
+            preview = null;
+            letterheadActions.setUploadState(false, 0, 'Could not process this image. Please try another JPG or PNG file.');
+        }
+    }
+
+    function readFileAsDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function loadImage(url) {
+        return new Promise((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => resolve(image);
+            image.onerror = reject;
+            image.src = url;
+        });
+    }
+
+    async function prepareImageForStorage(file) {
+        const originalUrl = await readFileAsDataUrl(file);
+        const image = await loadImage(originalUrl);
+        const maxStoredLength = 400 * 1024;
+
+        if (originalUrl.length <= maxStoredLength) {
+            return {
+                url: originalUrl,
+                width: image.naturalWidth,
+                height: image.naturalHeight
+            };
+        }
+
+        const maxWidth = 2000;
+        const maxHeight = 800;
+        const initialScale = Math.min(1, maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
+        let width = Math.max(1, Math.round(image.naturalWidth * initialScale));
+        let height = Math.max(1, Math.round(image.naturalHeight * initialScale));
+        let quality = 0.9;
+        let compressedUrl = '';
+
+        for (let attempt = 0; attempt < 8; attempt += 1) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const context = canvas.getContext('2d');
+            context.fillStyle = '#ffffff';
+            context.fillRect(0, 0, width, height);
+            context.drawImage(image, 0, 0, width, height);
+            compressedUrl = canvas.toDataURL('image/jpeg', quality);
+
+            if (compressedUrl.length <= maxStoredLength) break;
+
+            quality = Math.max(0.65, quality - 0.08);
+            width = Math.max(1, Math.round(width * 0.85));
+            height = Math.max(1, Math.round(height * 0.85));
+        }
+
+        if (compressedUrl.length > maxStoredLength) {
+            throw new Error('Processed letterhead remains too large');
+        }
+
+        return { url: compressedUrl, width, height };
     }
     
     async function handleUpload() {
-        if (!selectedFile || !letterheadName.trim()) {
+        if (!selectedFile || !preparedImage || !letterheadName.trim()) {
             letterheadActions.setUploadState(false, 0, 'Please select a file and enter a name');
             return;
         }
@@ -65,32 +131,19 @@
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
             
-            // For now, we'll use a data URL as the "uploaded" URL
-            // In a real implementation, this would upload to the object storage
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const letterhead = {
-                    id: Date.now().toString(),
-                    name: letterheadName.trim(),
-                    filename: fileName,
-                    url: e.target.result, // In real implementation, this would be the storage URL
-                    uploadDate: new Date(),
-                    fileSize: file.size,
-                    dimensions: { width: 0, height: 0 }, // Would be populated after image load
-                    isDefault: false
-                };
-                
-                // Get image dimensions
-                const img = new Image();
-                img.onload = () => {
-                    letterhead.dimensions = { width: img.width, height: img.height };
-                    letterheadActions.setUploadState(false, 0, null);
-                    dispatch('success', letterhead);
-                };
-                img.src = e.target.result;
+            const letterhead = {
+                id: Date.now().toString(),
+                name: letterheadName.trim(),
+                filename: fileName,
+                url: preparedImage.url,
+                uploadDate: new Date(),
+                fileSize: file.size,
+                dimensions: { width: preparedImage.width, height: preparedImage.height },
+                isDefault: false
             };
-            reader.readAsDataURL(file);
-            
+
+            letterheadActions.setUploadState(false, 0, null);
+            dispatch('success', letterhead);
         } catch (error) {
             console.error('Upload failed:', error);
             letterheadActions.setUploadState(false, 0, 'Upload failed. Please try again.');
@@ -100,6 +153,7 @@
     function handleCancel() {
         fileInput.value = '';
         selectedFile = null;
+        preparedImage = null;
         fileName = '';
         letterheadName = '';
         preview = null;

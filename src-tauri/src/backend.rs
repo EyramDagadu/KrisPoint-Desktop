@@ -70,6 +70,7 @@ impl BackendState {
             .env("NODE_ENV", "production")
             .env("PORT", port.to_string())
             .env("HOST", "127.0.0.1")
+            .env("BODY_SIZE_LIMIT", "10M")
             .env("VITE_KRISPOINT_EDITION", "solo")
             .env("DATABASE_URL", format!("sqlite://{}", db_path.display()))
             .env("KRISPOINT_SOLO_DB_PATH", &db_path)

@@ -155,13 +155,11 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(windows, /Get-NetFirewallProfile \| Where-Object \{ -not \$_.Enabled \}/);
 });
 
-test('Solo permits the report creation endpoint while blocking collaborative worklists', async () => {
+test('Solo permits its private local worklist while blocking collaboration APIs', async () => {
   const hooks = await read('src/hooks.server.ts');
-  assert.match(
-    hooks,
-    /pathname === ['"]\/api\/worklist\/create-with-report['"][\s\S]*return false/
-  );
-  assert.match(hooks, /pathname\.startsWith\(['"]\/api\/worklist['"]\)/);
+  assert.doesNotMatch(hooks, /pathname\.startsWith\(['"]\/api\/worklist['"]\)/);
+  assert.match(hooks, /pathname\.startsWith\(['"]\/api\/chat['"]\)/);
+  assert.match(hooks, /pathname === ['"]\/api\/reports\/pending-reviews['"]/);
 });
 
 test('license server hostnames are normalized to HTTPS', async () => {
