@@ -1,0 +1,1 @@
+import{h as l,a as r,c as o,b as d}from"./DPTwWFdb.js";function u(a,t,f,n,c){if(l&&r(),t.$$host?.$$shadowRoot){const i=o("slot");d(a,i);return}var e=t.$$slots?.[f],s=!1;e===!0&&(e=t.children,s=!0),e===void 0||e(a,s?()=>n:n)}export{u as s};
