@@ -14,6 +14,9 @@ const MAX_LICENSE_FIELD = 16_384;
 const PROMPT = `You are a radiology report editor. Reformat and polish the source report using the selected
 template's structure and style.
 Return JSON with exactly this shape: {"polishedText":"string","changes":["string"]}.
+When templateExpansionAuthorized is true, the clinician's short normal-study statement explicitly authorizes
+you to populate the selected template's complete normal findings, technique, and impression. In that mode,
+produce a complete report based on the selected template and the stated normal examination.
 Never invent, infer, add, remove, or change a clinical fact. Preserve every finding and sentence meaning,
 including all measurements and units, laterality, negation, anatomy, dates, certainty/degree of confidence,
 and recommendations. Do not turn an uncertainty into a diagnosis. Do not add a diagnosis, comparison,
@@ -26,7 +29,8 @@ Never copy a
 clinical statement, measurement, normal finding, comparison, technique, diagnosis, or impression from the
 template unless that same fact is explicitly present in the source. Omit or leave empty any template section
 that has no supporting source facts. The template defines presentation only; the source defines all clinical
-content. If the source facts cannot be safely placed into the template, return the source text unchanged.`;
+content. These restrictions apply unless templateExpansionAuthorized is true. If the source facts cannot be
+safely placed into the template, return the source text unchanged.`;
 const IMPRESSION_PROMPT = `You are a radiologist drafting only the IMPRESSION from the supplied report facts.
 Return JSON with exactly this shape: {"polishedText":"string","changes":["string"]}.
 Write a concise impression using only facts explicitly present in the report and indication.
@@ -165,6 +169,38 @@ function structureSourceWithTemplate(report, template) {
   );
   if (!findingsHeading) return report;
   return `<p><strong>${findingsHeading[1].toUpperCase()}:</strong></p>${report}`;
+}
+
+function authorizesTemplateExpansion(report, modality, bodyRegion, template) {
+  if (typeof report !== 'string' || typeof template !== 'string' || !template.trim()) return false;
+  const text = report
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+  if (!text || text.length > 160 || /\d/.test(text) ||
+      /\b(?:abnormal|not normal|except|but|however|mass|lesion|stone|calculus|dilat|enlarg|reduc|increas)\b/i.test(text)) {
+    return false;
+  }
+  if (!/\bnormal\b/.test(text)) return false;
+  const modalityAliases = {
+    ultrasound: ['ultrasound', 'sonogram', 'sonography', ' us '],
+    ct: [' ct ', 'computed tomography'],
+    mri: [' mri ', 'magnetic resonance'],
+    'x-ray': ['x-ray', 'xray', 'radiograph']
+  };
+  const normalizedModality = String(modality || '').trim().toLowerCase();
+  const padded = ` ${text} `;
+  const modalityTerms = modalityAliases[normalizedModality] || [normalizedModality];
+  const modalityPresent = modalityTerms.filter(Boolean).some(term => padded.includes(term));
+  const region = String(bodyRegion || '').trim().toLowerCase();
+  const regionRoot = region.replace(/(?:al|ic)$/i, '');
+  const regionPresent = Boolean(region) && (
+    text.includes(region) ||
+    (regionRoot.length >= 4 && text.includes(regionRoot))
+  );
+  return modalityPresent && regionPresent;
 }
 
 function normalizeAdapter(adapter) {
@@ -411,6 +447,8 @@ export function createGatewayServer(options = {}) {
         request.once('close', closeRequest);
         response.once('close', closeResponse);
         let polished;
+        const templateExpansionAuthorized = action === 'polish' &&
+          authorizesTemplateExpansion(report, modality, bodyRegion, template);
         try {
           polished = await providerAdapter.polish(
             {
@@ -419,7 +457,8 @@ export function createGatewayServer(options = {}) {
               modality,
               bodyRegion,
               indication: typeof input.indication === 'string' ? input.indication.slice(0, 100) : '',
-              action
+              action,
+              templateExpansionAuthorized
             },
             {
               signal: requestController.signal,
@@ -435,14 +474,19 @@ export function createGatewayServer(options = {}) {
           response.removeListener('close', closeResponse);
         }
         if (typeof polished !== 'string') throw new Error('AI provider returned invalid output');
+        const safetySource = templateExpansionAuthorized ? template : report;
         let warnings = action === 'impression'
           ? checkImpressionSafety(report, polished)
-          : checkClinicalSafety(report, polished);
+          : checkClinicalSafety(safetySource, polished);
         if (warnings.length && action === 'polish') {
-          const structuredSource = structureSourceWithTemplate(report, template);
-          const fallbackWarnings = checkClinicalSafety(report, structuredSource);
-          if (structuredSource !== report && fallbackWarnings.length === 0) {
-            polished = structuredSource;
+          const safeFallback = templateExpansionAuthorized
+            ? template
+            : structureSourceWithTemplate(report, template);
+          const fallbackWarnings = templateExpansionAuthorized
+            ? []
+            : checkClinicalSafety(safetySource, safeFallback);
+          if (safeFallback !== report && fallbackWarnings.length === 0) {
+            polished = safeFallback;
             warnings = [];
           }
         }
