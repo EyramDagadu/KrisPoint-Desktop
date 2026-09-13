@@ -45,7 +45,7 @@ printf 'pass quick on lo0\nblock drop out all\n' | sudo pfctl -a com.apple/krisp
 [ "$pf_was_enabled" = 1 ] || sudo pfctl -e
 python scripts/verify-installed-voice.py \
   --application "$install_dir/KrisPoint.app/Contents/MacOS/krispoint" \
-  --audio training_data/audio/1/session_1766430738966_1urld97w9.wav
+  --audio scripts/fixtures/medasr-smoke.wav
 sudo pfctl -a com.apple/krispoint-offline-smoke -F all
 [ "$pf_was_enabled" = 1 ] || sudo pfctl -d
 

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import test from 'node:test';
 
 const appPath = path => /^(src\/|vite\.config\.js$)/.test(path)
@@ -144,8 +144,10 @@ test('native installer verification includes an offline authenticated transcript
   assert.doesNotMatch(macos, /codesign --verify --deep/);
   for (const script of [windows, macos]) {
     assert.match(script, /verify-installed-voice\.py/);
-    assert.match(script, /session_1766430738966_1urld97w9\.wav/);
+    assert.match(script, /scripts\/fixtures\/medasr-smoke\.wav/);
+    assert.doesNotMatch(script, /training_data\/audio/);
   }
+  assert.ok((await stat(new URL('../../scripts/fixtures/medasr-smoke.wav', import.meta.url))).size > 0);
   assert.match(smoke, /token=invalid/);
   assert.match(smoke, /hmac\.compare_digest/);
   assert.match(smoke, /message\.get\("type"\) == "transcription"/);
