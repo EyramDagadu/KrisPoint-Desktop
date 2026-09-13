@@ -9,8 +9,8 @@ The hosted AI gateway must remain independently publishable from the licence aut
 
 **How to apply:** Authorize gateway requests with signed licence metadata and metadata-only revocation checks. Never send reports, templates, prompts, audio, or model output to licensing. Enforce identifier policy and clinical safety at the gateway, and keep provider adapters replaceable without changing Solo.
 
-Explicit normal-study shorthand authorizes expansion from the selected normal template. Detailed reports remain fact-preserving, but phrases such as “normal abdominal ultrasound” may populate the template’s complete normal technique, findings, and impression for clinician review.
+AI drafting is review-first: the selected template may guide structure, expand shorthand, populate complete normal reports, and draft impressions. Clinical-difference checks are advisory rather than proposal-blocking.
 
-**Why:** AI Polish must support practical radiology shorthand rather than reducing every request to literal copy-editing, while keeping template expansion intentional and reviewable.
+**Why:** AI Polish must provide useful radiology drafting rather than literal copy-editing; the reporting clinician reviews, edits, accepts, or rejects every proposal before it changes the report.
 
-**How to apply:** Enable expansion only for short, unqualified normal-study statements that match the selected template’s modality and body region. Do not apply it to reports containing measurements, abnormalities, exceptions, or mixed findings.
+**How to apply:** Preserve explicit abnormalities, measurements, laterality, negation, and qualifications in the prompt, but surface detected differences as review warnings. Keep identifiers, signed licensing, request bounds, and explicit clinician acceptance enforced.

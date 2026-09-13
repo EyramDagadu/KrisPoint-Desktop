@@ -11,26 +11,14 @@ export const MAX_JSON_BYTES = 512_000;
 export const AI_TIMEOUT_MS = 30_000;
 const LICENSE_TIMEOUT_MS = 5_000;
 const MAX_LICENSE_FIELD = 16_384;
-const PROMPT = `You are a radiology report editor. Reformat and polish the source report using the selected
-template's structure and style.
+const PROMPT = `You are a radiology report drafting assistant. Produce a clear, complete, professional report
+using the source text, indication, modality, body region, and selected template.
 Return JSON with exactly this shape: {"polishedText":"string","changes":["string"]}.
-When templateExpansionAuthorized is true, the clinician's short normal-study statement explicitly authorizes
-you to populate the selected template's complete normal findings, technique, and impression. In that mode,
-produce a complete report based on the selected template and the stated normal examination.
-Never invent, infer, add, remove, or change a clinical fact. Preserve every finding and sentence meaning,
-including all measurements and units, laterality, negation, anatomy, dates, certainty/degree of confidence,
-and recommendations. Do not turn an uncertainty into a diagnosis. Do not add a diagnosis, comparison,
-technique, or impression not present in the source.
-The selected template's section order, headings, and formatting are REQUIRED for the output. Place each
-source fact into the appropriate template section. Preserve the wording of each clinical clause except for
-capitalization, punctuation, spacing, and obvious grammar corrections. Do not expand shorthand, replace a
-clinical phrase with a synonym, or turn "normal" into "normal in size/appearance" or any more specific claim.
-Never copy a
-clinical statement, measurement, normal finding, comparison, technique, diagnosis, or impression from the
-template unless that same fact is explicitly present in the source. Omit or leave empty any template section
-that has no supporting source facts. The template defines presentation only; the source defines all clinical
-content. These restrictions apply unless templateExpansionAuthorized is true. If the source facts cannot be
-safely placed into the template, return the source text unchanged.`;
+Use the selected template's section order, headings, formatting, and normal-report language. You may expand
+clinical shorthand, populate a full normal template from an explicit normal-study statement, improve
+organization, and draft an impression supported by the supplied context. Preserve explicit abnormalities,
+measurements, units, laterality, negation, dates, and qualifications from the source. Do not contradict those
+explicit details. The output is a proposal for mandatory clinician review, not a finalized report.`;
 const IMPRESSION_PROMPT = `You are a radiologist drafting only the IMPRESSION from the supplied report facts.
 Return JSON with exactly this shape: {"polishedText":"string","changes":["string"]}.
 Write a concise impression using only facts explicitly present in the report and indication.
@@ -158,17 +146,6 @@ function parseProviderResult(value) {
     throw new Error('AI returned an invalid report');
   }
   return value.polishedText;
-}
-
-function structureSourceWithTemplate(report, template) {
-  if (typeof report !== 'string' || !report.trim() ||
-      typeof template !== 'string' || !template.trim()) return report;
-  if (/\bFINDINGS\s*:/i.test(report)) return report;
-  const findingsHeading = template.match(
-    /<strong[^>]*>\s*(FINDINGS)\s*:?\s*<\/strong>/i
-  );
-  if (!findingsHeading) return report;
-  return `<p><strong>${findingsHeading[1].toUpperCase()}:</strong></p>${report}`;
 }
 
 function authorizesTemplateExpansion(report, modality, bodyRegion, template) {
@@ -475,30 +452,19 @@ export function createGatewayServer(options = {}) {
         }
         if (typeof polished !== 'string') throw new Error('AI provider returned invalid output');
         const safetySource = templateExpansionAuthorized ? template : report;
-        let warnings = action === 'impression'
+        const warnings = action === 'impression'
           ? checkImpressionSafety(report, polished)
           : checkClinicalSafety(safetySource, polished);
-        if (warnings.length && action === 'polish') {
-          const safeFallback = templateExpansionAuthorized
-            ? template
-            : structureSourceWithTemplate(report, template);
-          const fallbackWarnings = templateExpansionAuthorized
-            ? []
-            : checkClinicalSafety(safetySource, safeFallback);
-          if (safeFallback !== report && fallbackWarnings.length === 0) {
-            polished = safeFallback;
-            warnings = [];
-          }
-        }
-        if (warnings.length) {
-          return jsonResponse(response, 422, {
-            success: false, accepted: false,
-            error: 'The proposed edit contains blocking clinical safety warnings',
-            warnings, candidate: polished
-          });
-        }
         return jsonResponse(response, 200, {
-          success: true, accepted: true, polishedText: polished, proposedContent: polished, warnings: []
+          success: true,
+          accepted: true,
+          polishedText: polished,
+          proposedContent: polished,
+          blocked: false,
+          warnings,
+          safetyMessage: warnings.length
+            ? 'AI changes require clinician review before acceptance'
+            : 'Review the complete proposal before acceptance'
         });
         } finally {
           release();
