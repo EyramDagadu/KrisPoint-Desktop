@@ -44,7 +44,7 @@ jobs:
       - run: python -m pip install -r vosk-server/requirements.txt pyinstaller
       - run: python vosk-server/tests/test_parent_watchdog.py
       - run: pnpm run test:solo:installer
-      - run: pnpm run build:solo:installer -- --bundles ${{ matrix.bundle }}
+      - run: pnpm exec tauri build --bundles ${{ matrix.bundle }}
       - if: runner.os == 'Windows'
         shell: pwsh
         run: ./scripts/verify-solo-installer.ps1

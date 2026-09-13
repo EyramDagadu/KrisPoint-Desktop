@@ -52,7 +52,12 @@ test('release bundles target Windows and macOS installers', async () => {
   assert.equal(packageJson.scripts['build:solo:installer'], 'tauri build');
   assert.match(workflow, /artifact: windows-x64\s+bundle: msi/);
   assert.match(workflow, /artifact: macos-apple-silicon\s+bundle: dmg/);
-  assert.match(workflow, /pnpm run build:solo:installer -- --bundles \$\{\{ matrix\.bundle \}\}/);
+  assert.match(workflow, /pnpm exec tauri build --bundles \$\{\{ matrix\.bundle \}\}/);
+  assert.doesNotMatch(
+    workflow,
+    /tauri build -- --bundles/,
+    'bundle selection must be parsed by Tauri rather than forwarded to Cargo'
+  );
   assert.ok(
     workflow.indexOf('pnpm/action-setup@v4') < workflow.indexOf('cache: pnpm'),
     'CI must install pnpm before setup-node initializes the pnpm cache'
