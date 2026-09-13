@@ -42,7 +42,7 @@
   
   $: menuItems = [
     { id: '', label: 'Home', icon: '🏠', badge: 0 },
-    ...(canViewWorklist && editionCapabilities.sharedWorklist ? [{ id: 'worklist', label: 'Worklist', icon: '📋', badge: 0 }] : []),
+    ...(canViewWorklist ? [{ id: 'worklist', label: 'Worklist', icon: '📋', badge: 0 }] : []),
     ...(canCreateReports ? [{ id: 'reporting', label: 'Continue Reporting', icon: '📝', badge: 0 }] : []),
     ...(canReviewReports && editionCapabilities.collaboration ? [{ id: 'reports/pending-reviews', label: 'Pending Reviews', icon: '✓', badge: pendingReviewsBadge }] : []),
     ...(canSubmitReports && editionCapabilities.collaboration ? [{ id: 'reports/returned', label: 'Returned Reports', icon: '↩️', badge: returnedReportsBadge }] : []),

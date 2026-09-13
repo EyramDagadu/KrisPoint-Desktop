@@ -158,14 +158,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 };
 
 function isCollaborationOnlyApi(pathname: string): boolean {
-  // Solo creates a local worklist row alongside each new report so the shared
-  // report-creation endpoint must remain available. Other worklist operations
-  // are Hospital-only collaboration features.
-  if (pathname === '/api/worklist/create-with-report') {
-    return false;
-  }
+  // Solo uses the same worklist routes as a private local reporting queue.
+  // Only multi-user collaboration and review routes are Hospital-only.
   return pathname.startsWith('/api/chat') ||
-    pathname.startsWith('/api/worklist') ||
     pathname.startsWith('/api/admin/users') ||
     pathname === '/api/reports/pending-reviews' ||
     pathname === '/api/reports/returned' ||

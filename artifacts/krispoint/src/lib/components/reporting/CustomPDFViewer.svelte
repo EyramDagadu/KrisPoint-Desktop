@@ -1,6 +1,7 @@
 <script>
   import { onDestroy } from 'svelte';
   import * as pdfjsLib from 'pdfjs-dist';
+  import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
   
   export let pdfData = null;
   export let disableFitToWidth = false; // When true, always render at scale 1.0
@@ -28,8 +29,9 @@
   let loadError = '';
   let loadedPdfData = null;
   
-  // Set worker path IMMEDIATELY - before any reactive statements
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.worker.min.mjs`;
+  // Bundle the worker from the same installed pdfjs-dist package so its
+  // version always matches the API used by this component.
+  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
   
   // Load PDF whenever pdfData changes (handles both initial mount and updates)
   $: if (pdfData && pdfData !== loadedPdfData) {
