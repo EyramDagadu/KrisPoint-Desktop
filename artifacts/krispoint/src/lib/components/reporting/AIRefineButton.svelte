@@ -55,7 +55,7 @@
       configuredDefault?.id,
       configuredDefault?.name
     ));
-    return configured || fallbackTemplate();
+    return configured || candidates[0] || fallbackTemplate();
   }
 
   function settingsDefaultTemplate() {

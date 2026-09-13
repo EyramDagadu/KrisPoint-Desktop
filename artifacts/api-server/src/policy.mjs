@@ -12,15 +12,15 @@ const IDENTIFIER_RULES = [
 ];
 const CLINICAL_NAME_ALLOWLIST = new Set(
   `a an and acute abdomen abdominal abnormality abnormal abnormalities adrenal airway all also analysis appears
-  approach artery assessment atelectasis bilateral bladder bone bowel brain breast cardiac cardiopulmonary cardiomediastinal
+  approach artery assessment atelectasis bilateral bile bladder bone bowel brain breast cardiac cardiopulmonary cardiomediastinal cava
   cervical chest chronic clear comparison compatible conclusion consistent cortical demonstrate
-  demonstrated demonstrates density diagnosis diaphragm diffuse disease distal effusion esophagus
+  demonstrated demonstrates density diagnosis diaphragm diffuse disease distal ducts effusion esophagus
   evident examination findings follow-up fracture frontal gallbladder gastric head heart hepatic
   hilum history impression inferior inner identified imaging kidney left lesion level liver lobe
   lower lumbar lymph lung lungs mass medial mediastinal midline mild moderate normal nodule noted
   no none observation opacity or ovary pancreas patient pelvis pleural possible posterior prostate provided
   pulmonary recommendation renal report right rib scattered seen severe sinus spleen spine stable
-  stomach suggestive technique tendon thoracic thyroid tissue trachea transabdominal ultrasound upper uterus vascular vein
+  stomach suggestive technique tendon thoracic thyroid tissue trachea transabdominal ultrasound upper uterus vascular vein vena
   visualized without within there this the ct mri xray ap pa bibasilar silhouette focal consolidation
   infiltrate infiltrates opacity opacities prominence prominent interstitial degenerative changes
   change changes postoperative post surgical acute chronic`.split(/\s+/)
