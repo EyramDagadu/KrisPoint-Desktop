@@ -184,7 +184,8 @@
     email: '',
     specialty: '',
     department: '',
-    institution: ''
+    institution: '',
+    designation: ''
   };
 
   // Password change state
@@ -281,12 +282,10 @@
       email: $currentUser.email || '',
       specialty: $currentUser.specialty || 'Radiology',
       department: $currentUser.department || '',
-      institution: $currentUser.institution || ''
+      institution: $currentUser.institution || '',
+      designation: $currentUser.designation || ''
     };
   }
-  
-  // Designation comes from the role's display name (set by admin)
-  $: userDesignation = $currentUser?.roleDisplayName || 'Not assigned';
 
   async function updateProfile() {
     if (!$currentUser) return;
@@ -797,7 +796,7 @@
                       <option value="Radiation Oncology">Radiation Oncology</option>
                     </select>
                   {:else}
-                    <input 
+                    <input
                       id="profile-specialty"
                       type="text"
                       value={profileData.specialty || 'Not assigned'}
@@ -810,14 +809,25 @@
                 
                 <div class="setting-group">
                   <label for="profile-designation">Designation</label>
-                  <input 
-                    id="profile-designation"
-                    type="text"
-                    value={userDesignation}
-                    disabled
-                    class="readonly-field"
-                  />
-                  <p class="setting-description">Designation is determined by your assigned role</p>
+                  {#if isSoloEdition}
+                    <input
+                      id="profile-designation"
+                      type="text"
+                      bind:value={profileData.designation}
+                      placeholder="e.g., Consultant Radiologist"
+                      disabled={profileUpdating}
+                    />
+                    <p class="setting-description">Shown on your reports and PDF signatures</p>
+                  {:else}
+                    <input
+                      id="profile-designation"
+                      type="text"
+                      value={$currentUser?.designation || $currentUser?.roleDisplayName || 'Not assigned'}
+                      disabled
+                      class="readonly-field"
+                    />
+                    <p class="setting-description">Designation is set by the administrator</p>
+                  {/if}
                 </div>
               </div>
               

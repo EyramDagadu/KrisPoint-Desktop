@@ -477,6 +477,7 @@ async function handleSingleReportRequest(request: Request, id: number): Promise<
           id: schema.users.id,
           fullName: schema.users.fullName,
           title: schema.users.title,
+          designation: schema.users.designation,
           signatureUrl: schema.users.signatureUrl,
           deletedAt: schema.users.deletedAt,
           roleDisplayName: schema.roles.displayName
@@ -489,7 +490,7 @@ async function handleSingleReportRequest(request: Request, id: number): Promise<
         creatorInfo = {
           id: creator.id,
           fullName: creator.deletedAt ? `${creator.fullName} *` : creator.fullName,
-          designation: creator.roleDisplayName || 'Doctor',
+          designation: creator.designation || 'Doctor',
           title: creator.title,
           signatureUrl: creator.signatureUrl
         };
@@ -503,6 +504,7 @@ async function handleSingleReportRequest(request: Request, id: number): Promise<
           id: schema.users.id,
           fullName: schema.users.fullName,
           title: schema.users.title,
+          designation: schema.users.designation,
           signatureUrl: schema.users.signatureUrl,
           deletedAt: schema.users.deletedAt,
           roleDisplayName: schema.roles.displayName
@@ -515,7 +517,7 @@ async function handleSingleReportRequest(request: Request, id: number): Promise<
         signerInfo = {
           id: signer.id,
           fullName: signer.deletedAt ? `${signer.fullName} *` : signer.fullName,
-          designation: signer.roleDisplayName || 'Doctor',
+          designation: signer.designation || 'Doctor',
           title: signer.title,
           signatureUrl: signer.signatureUrl
         };
@@ -529,6 +531,7 @@ async function handleSingleReportRequest(request: Request, id: number): Promise<
           id: schema.users.id,
           fullName: schema.users.fullName,
           title: schema.users.title,
+          designation: schema.users.designation,
           signatureUrl: schema.users.signatureUrl,
           deletedAt: schema.users.deletedAt,
           roleDisplayName: schema.roles.displayName
@@ -541,7 +544,7 @@ async function handleSingleReportRequest(request: Request, id: number): Promise<
         reviewerInfo = {
           id: reviewer.id,
           fullName: reviewer.deletedAt ? `${reviewer.fullName} *` : reviewer.fullName,
-          designation: reviewer.roleDisplayName || 'Doctor',
+          designation: reviewer.designation || 'Doctor',
           title: reviewer.title,
           signatureUrl: reviewer.signatureUrl
         };

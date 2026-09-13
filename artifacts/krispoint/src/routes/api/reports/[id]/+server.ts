@@ -153,7 +153,7 @@ export const GET: RequestHandler = async ({ request, params }) => {
     const referringPhysician = worklistInfo.length > 0 ? worklistInfo[0].referringPhysician : null;
     const worklistIndication = worklistInfo.length > 0 ? worklistInfo[0].indication : null;
 
-    // Fetch creator user details for PDF signature (use role name as designation)
+    // Fetch creator user details for PDF signature.
     let creatorInfo = null;
     if (report.createdBy) {
       const [creator] = await db
@@ -161,6 +161,7 @@ export const GET: RequestHandler = async ({ request, params }) => {
           id: schema.users.id,
           fullName: schema.users.fullName,
           title: schema.users.title,
+          designation: schema.users.designation,
           signatureUrl: schema.users.signatureUrl,
           deletedAt: schema.users.deletedAt,
           roleDisplayName: schema.roles.displayName
@@ -173,7 +174,7 @@ export const GET: RequestHandler = async ({ request, params }) => {
         creatorInfo = {
           id: creator.id,
           fullName: creator.deletedAt ? `${creator.fullName} *` : creator.fullName,
-          designation: creator.roleDisplayName || 'Doctor',
+          designation: creator.designation || 'Doctor',
           title: creator.title,
           signatureUrl: creator.signatureUrl
         };
@@ -188,6 +189,7 @@ export const GET: RequestHandler = async ({ request, params }) => {
           id: schema.users.id,
           fullName: schema.users.fullName,
           title: schema.users.title,
+          designation: schema.users.designation,
           signatureUrl: schema.users.signatureUrl,
           deletedAt: schema.users.deletedAt,
           roleDisplayName: schema.roles.displayName
@@ -200,7 +202,7 @@ export const GET: RequestHandler = async ({ request, params }) => {
         signerInfo = {
           id: signer.id,
           fullName: signer.deletedAt ? `${signer.fullName} *` : signer.fullName,
-          designation: signer.roleDisplayName || 'Doctor',
+          designation: signer.designation || 'Doctor',
           title: signer.title,
           signatureUrl: signer.signatureUrl
         };
@@ -215,6 +217,7 @@ export const GET: RequestHandler = async ({ request, params }) => {
           id: schema.users.id,
           fullName: schema.users.fullName,
           title: schema.users.title,
+          designation: schema.users.designation,
           signatureUrl: schema.users.signatureUrl,
           deletedAt: schema.users.deletedAt,
           roleDisplayName: schema.roles.displayName
@@ -227,7 +230,7 @@ export const GET: RequestHandler = async ({ request, params }) => {
         reviewerInfo = {
           id: reviewer.id,
           fullName: reviewer.deletedAt ? `${reviewer.fullName} *` : reviewer.fullName,
-          designation: reviewer.roleDisplayName || 'Doctor',
+          designation: reviewer.designation || 'Doctor',
           title: reviewer.title,
           signatureUrl: reviewer.signatureUrl
         };

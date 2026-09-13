@@ -7,3 +7,4 @@
 - [Hospital Windows releases](hospital-windows-releases.md) — local servers use immutable Git releases, protected machine config, health-gated switching, and application rollback.
 - [Solo template and macro collections](solo-template-macro-collections.md) — Solo uses unified owner collections; Hospital retains system and personal pools.
 - [Solo local worklist](solo-local-worklist.md) — Solo keeps a private local worklist even though shared multi-user worklist behavior remains Hospital-only.
+- [Solo clinical designation](solo-clinical-designation.md) — Solo’s internal owner role is distinct from the editable clinical designation shown on reports.
