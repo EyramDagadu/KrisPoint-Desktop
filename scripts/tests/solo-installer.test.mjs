@@ -163,6 +163,11 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(windows, /Get-NetFirewallProfile \| Where-Object \{ -not \$_.Enabled \}/);
 });
 
+test('reporting workspace does not bind an undefined addendum toggle handler', async () => {
+  const workspace = await read('artifacts/krispoint/src/lib/components/reporting/ReportWorkspace.svelte');
+  assert.doesNotMatch(workspace, /on:toggleAddendumWorkspace=\{toggleAddendumWorkspace\}/);
+});
+
 test('Solo permits its private local worklist while blocking collaboration APIs', async () => {
   const hooks = await read('src/hooks.server.ts');
   assert.doesNotMatch(hooks, /pathname\.startsWith\(['"]\/api\/worklist['"]\)/);

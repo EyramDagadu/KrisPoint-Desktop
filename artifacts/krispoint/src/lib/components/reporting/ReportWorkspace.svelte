@@ -554,7 +554,6 @@
         on:reportReturned={handleReportReturned}
         on:reportSigned={handleReportSigned}
         on:reportCancelled={handleReportCancelled}
-        on:toggleAddendumWorkspace={toggleAddendumWorkspace}
       />
     </footer>
   {:else}
