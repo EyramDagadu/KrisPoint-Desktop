@@ -157,6 +157,7 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(smoke, /KRISPOINT_OFFLINE_VOICE_SMOKE_RESULT/);
   assert.match(smoke, /KRISPOINT_OFFLINE_VOICE_SMOKE_LOG/);
   assert.match(smoke, /print_voice_log\(log_path\)/);
+  assert.match(smoke, /packet_bytes = 16000 \* 2 \/\/ 10/);
   assert.doesNotMatch(windows, /Start-Process \$installed\.FullName/);
   assert.doesNotMatch(windows, /Get-NetConnectionProfile/);
   assert.match(windows, /Get-NetFirewallProfile \| Where-Object \{ -not \$_.Enabled \}/);

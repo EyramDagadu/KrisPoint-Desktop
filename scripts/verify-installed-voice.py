@@ -107,8 +107,11 @@ async def verify(args):
 
             await websocket.send(json.dumps({"type": "start"}))
             await receive_type(websocket, "status")
-            for offset in range(0, len(pcm), 32000):
-                await websocket.send(pcm[offset:offset + 32000])
+            # Match browser streaming cadence closely enough for MedASR's
+            # startup calibration to observe multiple short audio frames.
+            packet_bytes = 16000 * 2 // 10
+            for offset in range(0, len(pcm), packet_bytes):
+                await websocket.send(pcm[offset:offset + packet_bytes])
             await websocket.send(json.dumps({"type": "stop"}))
             text = ""
             stopped = False
@@ -137,6 +140,9 @@ async def verify(args):
                 raise RuntimeError("Voice socket remained available after KrisPoint shut down")
             except (OSError, asyncio.TimeoutError):
                 pass
+        except Exception:
+            print_voice_log(log_path)
+            raise
         finally:
             if process.poll() is None:
                 stop_path.touch()
