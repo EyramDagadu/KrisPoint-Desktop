@@ -81,11 +81,42 @@
     return String(value || '').trim().toLowerCase();
   }
 
+  function normalizeModality(value) {
+    const normalized = normalize(value).replace(/[^a-z0-9]/g, '');
+    const aliases = {
+      us: 'ultrasound',
+      ultrasound: 'ultrasound',
+      ct: 'ct',
+      computedtomography: 'ct',
+      mri: 'mri',
+      magneticresonanceimaging: 'mri',
+      xray: 'xray',
+      radiograph: 'xray',
+      radiography: 'xray'
+    };
+    return aliases[normalized] || normalized;
+  }
+
+  function normalizeRegion(value) {
+    const normalized = normalize(value).replace(/[^a-z0-9]/g, '');
+    const aliases = {
+      abdomen: 'abdomen',
+      abdominal: 'abdomen',
+      pelvis: 'pelvis',
+      pelvic: 'pelvis',
+      chest: 'chest',
+      thoracic: 'chest',
+      head: 'head',
+      cranial: 'head'
+    };
+    return aliases[normalized] || normalized;
+  }
+
   function matches(template) {
-    const currentModality = normalize(modality);
-    const currentRegion = normalize(bodyRegion);
-    const templateModality = normalize(template.modality);
-    const templateRegion = normalize(template.bodyRegion);
+    const currentModality = normalizeModality(modality);
+    const currentRegion = normalizeRegion(bodyRegion);
+    const templateModality = normalizeModality(template.modality);
+    const templateRegion = normalizeRegion(template.bodyRegion);
     const modalityMatch = !templateModality || templateModality === currentModality ||
       templateModality.includes(currentModality) || currentModality.includes(templateModality);
     const regionMatch = !templateRegion || templateRegion === currentRegion ||

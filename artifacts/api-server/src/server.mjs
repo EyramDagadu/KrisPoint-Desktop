@@ -160,12 +160,19 @@ export const groqProviderAdapter = {
     const abort = () => controller.abort();
     signal?.addEventListener('abort', abort, { once: true });
     try {
-      const response = await fetchImpl('https://api.groq.com/openai/v1/chat/completions', {
+      const models = [...new Set([
+        model === 'llama-3.3-70b-versatile' ? 'openai/gpt-oss-120b' : model,
+        'openai/gpt-oss-120b',
+        'openai/gpt-oss-20b'
+      ].filter(Boolean))];
+      let response;
+      for (const candidateModel of models) {
+        response = await fetchImpl('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
           redirect: 'error',
           body: JSON.stringify({
-            model,
+            model: candidateModel,
             temperature: 0,
             response_format: { type: 'json_object' },
             messages: [
@@ -175,6 +182,8 @@ export const groqProviderAdapter = {
           }),
           signal: controller.signal
         });
+        if (response.ok || response.status !== 404) break;
+      }
         if (!response.ok) {
           const providerMessage = response.status === 401 || response.status === 403
             ? 'AI provider credential was rejected; no changes were made'
