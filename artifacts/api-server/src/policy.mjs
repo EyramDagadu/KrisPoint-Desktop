@@ -12,7 +12,7 @@ const IDENTIFIER_RULES = [
 ];
 const CLINICAL_NAME_ALLOWLIST = new Set(
   `a an and acute abdomen abdominal abnormality abnormal abnormalities adrenal airway all also analysis appears
-  artery assessment atelectasis bilateral bladder bone bowel brain breast cardiac cardiopulmonary cardiomediastinal
+  approach artery assessment atelectasis bilateral bladder bone bowel brain breast cardiac cardiopulmonary cardiomediastinal
   cervical chest chronic clear comparison compatible conclusion consistent cortical demonstrate
   demonstrated demonstrates density diagnosis diaphragm diffuse disease distal effusion esophagus
   evident examination findings follow-up fracture frontal gallbladder gastric head heart hepatic
@@ -20,7 +20,7 @@ const CLINICAL_NAME_ALLOWLIST = new Set(
   lower lumbar lymph lung lungs mass medial mediastinal midline mild moderate normal nodule noted
   no none observation opacity or ovary pancreas patient pelvis pleural possible posterior prostate provided
   pulmonary recommendation renal report right rib scattered seen severe sinus spleen spine stable
-  stomach suggestive technique tendon thoracic thyroid tissue trachea ultrasound upper uterus vascular vein
+  stomach suggestive technique tendon thoracic thyroid tissue trachea transabdominal ultrasound upper uterus vascular vein
   visualized without within there this the ct mri xray ap pa bibasilar silhouette focal consolidation
   infiltrate infiltrates opacity opacities prominence prominent interstitial degenerative changes
   change changes postoperative post surgical acute chronic`.split(/\s+/)
