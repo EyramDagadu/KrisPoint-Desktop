@@ -11,13 +11,22 @@ export const MAX_JSON_BYTES = 512_000;
 export const AI_TIMEOUT_MS = 30_000;
 const LICENSE_TIMEOUT_MS = 5_000;
 const MAX_LICENSE_FIELD = 16_384;
-const PROMPT = `You are a radiology report editor. Polish grammar, clarity, and organization only.
+const PROMPT = `You are a radiology report editor. Reformat and polish the source report using the selected
+template's structure and style.
 Return JSON with exactly this shape: {"polishedText":"string","changes":["string"]}.
 Never invent, infer, add, remove, or change a clinical fact. Preserve every finding and sentence meaning,
 including all measurements and units, laterality, negation, anatomy, dates, certainty/degree of confidence,
 and recommendations. Do not turn an uncertainty into a diagnosis. Do not add a diagnosis, comparison,
-technique, or impression not present in the source. The template is style guidance only and is not a source
-of clinical facts. If a safe edit is not possible, return the source text unchanged.`;
+technique, or impression not present in the source.
+The selected template's section order, headings, and formatting are REQUIRED for the output. Place each
+source fact into the appropriate template section. Preserve the wording of each clinical clause except for
+capitalization, punctuation, spacing, and obvious grammar corrections. Do not expand shorthand, replace a
+clinical phrase with a synonym, or turn "normal" into "normal in size/appearance" or any more specific claim.
+Never copy a
+clinical statement, measurement, normal finding, comparison, technique, diagnosis, or impression from the
+template unless that same fact is explicitly present in the source. Omit or leave empty any template section
+that has no supporting source facts. The template defines presentation only; the source defines all clinical
+content. If the source facts cannot be safely placed into the template, return the source text unchanged.`;
 const IMPRESSION_PROMPT = `You are a radiologist drafting only the IMPRESSION from the supplied report facts.
 Return JSON with exactly this shape: {"polishedText":"string","changes":["string"]}.
 Write a concise impression using only facts explicitly present in the report and indication.
@@ -145,6 +154,17 @@ function parseProviderResult(value) {
     throw new Error('AI returned an invalid report');
   }
   return value.polishedText;
+}
+
+function structureSourceWithTemplate(report, template) {
+  if (typeof report !== 'string' || !report.trim() ||
+      typeof template !== 'string' || !template.trim()) return report;
+  if (/\bFINDINGS\s*:/i.test(report)) return report;
+  const findingsHeading = template.match(
+    /<strong[^>]*>\s*(FINDINGS)\s*:?\s*<\/strong>/i
+  );
+  if (!findingsHeading) return report;
+  return `<p><strong>${findingsHeading[1].toUpperCase()}:</strong></p>${report}`;
 }
 
 function normalizeAdapter(adapter) {
@@ -415,9 +435,17 @@ export function createGatewayServer(options = {}) {
           response.removeListener('close', closeResponse);
         }
         if (typeof polished !== 'string') throw new Error('AI provider returned invalid output');
-        const warnings = action === 'impression'
+        let warnings = action === 'impression'
           ? checkImpressionSafety(report, polished)
           : checkClinicalSafety(report, polished);
+        if (warnings.length && action === 'polish') {
+          const structuredSource = structureSourceWithTemplate(report, template);
+          const fallbackWarnings = checkClinicalSafety(report, structuredSource);
+          if (structuredSource !== report && fallbackWarnings.length === 0) {
+            polished = structuredSource;
+            warnings = [];
+          }
+        }
         if (warnings.length) {
           return jsonResponse(response, 422, {
             success: false, accepted: false,
