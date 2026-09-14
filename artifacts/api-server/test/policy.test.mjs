@@ -71,3 +71,15 @@ test('identifier policy permits normal report prose and non-clinical template me
     action: 'polish'
   }), []);
 });
+
+test('identifier policy permits abdominal ultrasound dictation and clinical indications', () => {
+  assert.deepEqual(findExplicitIdentifiersInRequest({
+    content: 'The liver is normal. It measures 12cm in vertical span. The gallbladder, pancreas, and spleen are all normal. Kidneys have normal size and echotexture. The right and left kidneys measure 12.5x3.2cm and 11.2x5.4cm respectively. The urinary bladder and prostate gland are normal.',
+    indication: 'Right Upper Quadrant Pain',
+    modality: 'Ultrasound',
+    bodyRegion: 'Abdomen and Pelvis',
+    templateText: '<h2>Abdominal Ultrasound</h2><p>Liver, gallbladder, spleen, kidneys, urinary bladder and prostate gland.</p>',
+    providerMode: 'hosted',
+    action: 'polish'
+  }), []);
+});

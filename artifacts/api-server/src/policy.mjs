@@ -38,7 +38,10 @@ function hasUnlabeledPersonName(value) {
   return candidates.some(match => {
     const words = match[0].replace(/\./g, '').split(/\s+/);
     if (words.length < 2) return false;
-    return words.filter(word => !CLINICAL_NAME_ALLOWLIST.has(word.toLowerCase())).length >= 2;
+    // A plausible unlabeled name must be entirely non-clinical. Requiring only
+    // two unknown words made title-cased indications such as
+    // "Right Upper Quadrant Pain" look like person names.
+    return words.every(word => !CLINICAL_NAME_ALLOWLIST.has(word.toLowerCase()));
   });
 }
 
