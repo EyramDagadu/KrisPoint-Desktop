@@ -351,8 +351,8 @@ export const licenseActions = {
           payload: data.license.payload,
           signature: data.license.signature,
           machineId,
-          lastValidated: signedData.validatedAt,
-          offlineGraceUntil: signedData.offlineGraceUntil
+          lastValidated: signedData.validatedAt || signedData.issuedAt,
+          offlineGraceUntil: legacyGraceUntil(data.license, signedData)
         };
 
         localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(license));
@@ -425,8 +425,8 @@ export const licenseActions = {
             expiresAt: signedData.expiresAt,
             payload: data.license.payload,
             signature: data.license.signature,
-            lastValidated: signedData.validatedAt,
-            offlineGraceUntil: signedData.offlineGraceUntil
+            lastValidated: signedData.validatedAt || signedData.issuedAt,
+            offlineGraceUntil: legacyGraceUntil(data.license, signedData)
           };
 
           localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(updatedLicense));

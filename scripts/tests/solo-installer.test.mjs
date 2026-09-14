@@ -127,6 +127,8 @@ test('Solo licensing uses protected native identity and bounded online validatio
   assert.match(licenseStore, /VALIDATION_INTERVAL_MS = 6 \* 60 \* 60 \* 1000/);
   assert.match(licenseStore, /OFFLINE_GRACE_MS = 72 \* 60 \* 60 \* 1000/);
   assert.match(licenseStore, /CLOCK_ROLLBACK_TOLERANCE_MS/);
+  assert.match(licenseStore, /lastValidated: signedData\.validatedAt \|\| signedData\.issuedAt/);
+  assert.match(licenseStore, /offlineGraceUntil: legacyGraceUntil\(data\.license, signedData\)/);
   assert.match(licenseStore, /setInterval\(\(\) => actions\.validateOnline\(\)/);
   assert.match(licenseStore, /verifyLicenseEnvelope\(data\.license/);
   assert.match(licenseStore, /VITE_KRISPOINT_LICENSE_PUBLIC_KEY/);
