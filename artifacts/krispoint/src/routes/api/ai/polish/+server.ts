@@ -212,11 +212,20 @@ export const POST: RequestHandler = async ({ request, url }) => {
       }
       if (process.env.KRISPOINT_AI_ALLOW_IDENTIFIERS?.toLowerCase() !== 'true') {
         const identifiers = findExplicitIdentifiersInRequest(input);
-        if (identifiers.length) {
+        const hardIdentifiers = identifiers.filter(item => item.code !== 'UNLABELED_PERSON_NAME');
+        const reviewableIdentifiers = identifiers.filter(item => item.code === 'UNLABELED_PERSON_NAME');
+        if (hardIdentifiers.length) {
           return response({
             success: false,
             error: 'Report contains explicit patient identifiers; remove them before using hosted AI',
             policy: 'IDENTIFIERS_BLOCKED'
+          }, 422);
+        }
+        if (reviewableIdentifiers.length && input.identifierReviewConfirmed !== true) {
+          return response({
+            success: false,
+            error: 'KrisPoint found text that could be a person name. Review the report and indication before continuing.',
+            policy: 'IDENTIFIER_REVIEW_REQUIRED'
           }, 422);
         }
       }
@@ -227,11 +236,20 @@ export const POST: RequestHandler = async ({ request, url }) => {
     await verifyAiLicense(input.licenseEnvelope || input.license || input.licence);
     if (process.env.KRISPOINT_AI_ALLOW_IDENTIFIERS?.toLowerCase() !== 'true') {
       const identifiers = findExplicitIdentifiersInRequest(input);
-      if (identifiers.length) {
+      const hardIdentifiers = identifiers.filter(item => item.code !== 'UNLABELED_PERSON_NAME');
+      const reviewableIdentifiers = identifiers.filter(item => item.code === 'UNLABELED_PERSON_NAME');
+      if (hardIdentifiers.length) {
         return response({
           success: false,
           error: 'Report contains explicit patient identifiers; remove them before using AI',
           policy: 'IDENTIFIERS_BLOCKED'
+        }, 422);
+      }
+      if (reviewableIdentifiers.length && input.identifierReviewConfirmed !== true) {
+        return response({
+          success: false,
+          error: 'KrisPoint found text that could be a person name. Review the report and indication before continuing.',
+          policy: 'IDENTIFIER_REVIEW_REQUIRED'
         }, 422);
       }
     }

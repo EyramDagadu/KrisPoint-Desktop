@@ -354,7 +354,9 @@ test('gateway policy blocks direct originless licensed identifier requests', asy
   const setupResult = await setup({
     fetchImpl: async (url) => url.includes('/api/license/validate')
       ? new Response('{"valid":true}')
-      : (++providerCalls, new Response('{}'))
+      : (++providerCalls, new Response(JSON.stringify({
+          choices: [{ message: { content: JSON.stringify({ polishedText: 'A clear report.', changes: [] }) } }]
+        })))
   });
   try {
     const address = setupResult.server.address();
@@ -375,18 +377,48 @@ test('gateway policy blocks direct originless licensed identifier requests', asy
   }
 });
 
-test('gateway blocks Ghanaian-style and initialed context names before provider call', async () => {
+test('gateway requires review for unlabeled names but never permits explicit identifiers', async () => {
   let providerCalls = 0;
   const setupResult = await setup({
     fetchImpl: async (url) => url.includes('/api/license/validate')
       ? new Response('{"valid":true}')
-      : (++providerCalls, new Response('{}'))
+      : (++providerCalls, new Response(JSON.stringify({
+          choices: [{ message: { content: JSON.stringify({ polishedText: 'A clear report.', changes: [] }) } }]
+        })))
   });
   try {
     const address = setupResult.server.address();
     for (const bodyField of [
       { indication: 'Kwame Kofi Mensah for chest pain.' },
-      { template: { findingsHtml: 'J. K. Mensah' } },
+      { template: { findingsHtml: 'J. K. Mensah' } }
+    ]) {
+      const review = await fetch(`http://127.0.0.1:${address.port}/v1/polish`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          licenseEnvelope: setupResult.envelope,
+          report: 'There is a 12 mm nodule.',
+          ...bodyField
+        })
+      });
+      assert.equal(review.status, 422);
+      assert.equal((await review.json()).policy, 'IDENTIFIER_REVIEW_REQUIRED');
+
+      const confirmed = await fetch(`http://127.0.0.1:${address.port}/v1/polish`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          licenseEnvelope: setupResult.envelope,
+          report: 'There is a 12 mm nodule.',
+          identifierReviewConfirmed: true,
+          ...bodyField
+        })
+      });
+      assert.equal(confirmed.status, 200);
+    }
+    assert.equal(providerCalls, 2);
+
+    for (const bodyField of [
       { indication: 'Patient: Ama Serwaa Osei.' },
       { indication: 'Patient name:' },
       { template: 'Name: Jane Doe' }
@@ -397,12 +429,13 @@ test('gateway blocks Ghanaian-style and initialed context names before provider 
         body: JSON.stringify({
           licenseEnvelope: setupResult.envelope,
           report: 'There is a 12 mm nodule.',
+          identifierReviewConfirmed: true,
           ...bodyField
         })
       });
       assert.equal(result.status, 422);
     }
-    assert.equal(providerCalls, 0);
+    assert.equal(providerCalls, 2);
   } finally {
     setupResult.server.close();
     await once(setupResult.server, 'close');

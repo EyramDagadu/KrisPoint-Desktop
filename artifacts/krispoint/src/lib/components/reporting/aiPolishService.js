@@ -81,7 +81,8 @@ export async function polishReport({
   bodyRegion,
   template,
   signal,
-  action = 'polish'
+  action = 'polish',
+  identifierReviewConfirmed = false
 }) {
   const providerMode = settingsService.settings?.ai?.providerMode || 'hosted';
   if (providerMode === 'disabled') {
@@ -113,6 +114,7 @@ export async function polishReport({
       templateText: clinicalTemplateText(template),
       templateId: template?.id || null,
       templateIdentity: template?.identity || null,
+      identifierReviewConfirmed,
       licence: signedLicenceEnvelope()
     })
   });
@@ -128,6 +130,7 @@ export async function polishReport({
   }
   if (!response.ok) {
     const error = new Error(payload.error || payload.message || 'Polish request could not be completed');
+    error.identifierReviewRequired = payload.policy === 'IDENTIFIER_REVIEW_REQUIRED';
     error.blocked = Boolean(payload.blocked || payload.safety?.blocked || payload.warnings?.length);
     error.warnings = payload.warnings || payload.safety?.warnings || [];
     throw error;

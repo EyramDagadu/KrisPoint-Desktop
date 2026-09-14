@@ -30,6 +30,7 @@
   let safetyMessage = '';
   let blocked = false;
   let errorMessage = '';
+  let identifierReviewRequired = false;
   let requestController;
   let proposalAction = 'polish';
   let lastUsedTemplate = null;
@@ -148,6 +149,7 @@
     safetyMessage = '';
     blocked = false;
     errorMessage = '';
+    identifierReviewRequired = false;
     templatesLoading = true;
     try {
       const response = await fetch(
@@ -177,13 +179,15 @@
     warnings = [];
     blocked = false;
     errorMessage = '';
+    identifierReviewRequired = false;
     aiPolishDraft.set({ selectedTemplate, originalContent, proposedContent: '', blocked: false, warnings: [] });
   }
 
-  async function runPolish() {
+  async function runPolish(identifierReviewConfirmed = false) {
     if (!selectedTemplate || loading) return;
     loading = true;
     errorMessage = '';
+    identifierReviewRequired = false;
     requestController = new AbortController();
     try {
       const result = await polishReport({
@@ -193,19 +197,22 @@
         bodyRegion,
         template: selectedTemplate,
         signal: requestController.signal,
-        action: proposalAction
+        action: proposalAction,
+        identifierReviewConfirmed
       });
       proposedContent = result.proposedContent;
       warnings = result.warnings;
       safetyMessage = result.safetyMessage;
       blocked = result.blocked;
+      identifierReviewRequired = false;
       aiPolishDraft.set({ selectedTemplate, originalContent, proposedContent, blocked, warnings });
     } catch (error) {
       if (error.name !== 'AbortError') {
         errorMessage = error.message || 'Polish request could not be completed';
+        identifierReviewRequired = Boolean(error.identifierReviewRequired);
         warnings = error.warnings || [];
         blocked = Boolean(error.blocked);
-        toastError(errorMessage);
+        if (!identifierReviewRequired) toastError(errorMessage);
       }
     } finally {
       loading = false;
@@ -275,12 +282,25 @@
         </div>
         <p class="template-note">Selected template is retained with this draft. Only the report author accepts changes.</p>
 
-        {#if warnings.length || safetyMessage || errorMessage}
+        {#if !identifierReviewRequired && (warnings.length || safetyMessage || errorMessage)}
           <div class:blocked class="safety-panel" role="alert">
             <strong>{blocked ? 'Polish blocked' : 'Safety review'}</strong>
             {#if safetyMessage}<p>{safetyMessage}</p>{/if}
             {#if errorMessage}<p>{errorMessage}</p>{/if}
             {#each warnings as warning}<p>{typeof warning === 'string' ? warning : warning.message || warning.code}</p>{/each}
+          </div>
+        {/if}
+        {#if identifierReviewRequired}
+          <div class="identifier-review" role="alert">
+            <strong>Possible identifier — review before continuing</strong>
+            <p>
+              KrisPoint found text that could be a person name. Review the original report
+              and indication shown here. If you are certain they contain no patient
+              identifiers, you can continue this request.
+            </p>
+            {#if indication}
+              <p><b>Indication:</b> {indication}</p>
+            {/if}
           </div>
         {/if}
         <div class="responsibility-note">
@@ -310,6 +330,11 @@
       <footer class="modal-footer">
         {#if loading}
           <button class="button quiet" on:click={cancelRequest}>Cancel request</button>
+        {:else if identifierReviewRequired}
+          <button class="button quiet" on:click={closeModal}>Cancel</button>
+          <button class="button primary" on:click={() => runPolish(true)}>
+            I reviewed it — continue
+          </button>
         {:else if !proposedContent}
           <button class="button quiet" on:click={closeModal}>Cancel</button>
           <button class="button quiet" on:click={() => { proposalAction = 'impression'; runPolish(); }} disabled={!selectedTemplate}>Generate impression</button>
@@ -343,6 +368,7 @@
   :global(.report-copy strong) { display:inline-block; margin-top:5px; }
   :global(.report-copy > p:first-child strong) { margin-top:0; }
   .safety-panel { margin:0 0 14px; padding:11px 13px; border:1px solid #dfbb77; border-radius:6px; background:#fff8e8; color:#674d25; font-size:12px; } .safety-panel.blocked { border-color:#c98787; background:#fff0f0; color:#713b3b; } .safety-panel p { margin:5px 0 0; }
+  .identifier-review { margin:0 0 14px; padding:12px 13px; border:1px solid #d7a44c; border-radius:6px; background:#fff8e8; color:#624a22; font-size:12px; line-height:1.5; } .identifier-review p { margin:5px 0 0; }
   .button { padding:9px 14px; border-radius:5px; font:700 12px ui-sans-serif,system-ui,sans-serif; cursor:pointer; } .button.quiet { border:1px solid #bdcecf; background:#fff; color:#365860; } .button.primary { border:1px solid #285b62; background:#285b62; color:#fff; } .button:disabled { opacity:.45; cursor:not-allowed; }
   .loading-card { padding:26px 12px; text-align:center; color:#668086; } .skeleton { height:36px; border-radius:4px; background:linear-gradient(90deg,#dce6e5,#f4f7f6,#dce6e5); background-size:200% 100%; animation:shimmer 1.4s ease-in-out infinite; } .skeleton.line { width:100%; margin:8px 0; } .skeleton.short { width:62%; } @keyframes shimmer { from {background-position:200% 0} to {background-position:-200% 0} }
   @media (max-width:640px) { .modal-backdrop { padding:0; align-items:end; } .polish-modal { max-height:94dvh; border-radius:10px 10px 0 0; } .modal-header,.modal-footer,.modal-body { padding:14px; } .template-row { align-items:flex-start; flex-direction:column; gap:7px; } select { width:100%; max-width:none; } .template-note { margin-left:0; } .review-grid { grid-template-columns:1fr; } .review-grid article { min-height:150px; } .modal-footer { flex-wrap:wrap; } .button { flex:1; } }

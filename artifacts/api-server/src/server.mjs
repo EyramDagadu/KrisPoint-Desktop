@@ -382,11 +382,20 @@ export function createGatewayServer(options = {}) {
         try {
           if (process.env.KRISPOINT_AI_ALLOW_IDENTIFIERS?.toLowerCase() !== 'true') {
             const identifiers = findExplicitIdentifiersInRequest(input);
-            if (identifiers.length) {
+            const hardIdentifiers = identifiers.filter(item => item.code !== 'UNLABELED_PERSON_NAME');
+            const reviewableIdentifiers = identifiers.filter(item => item.code === 'UNLABELED_PERSON_NAME');
+            if (hardIdentifiers.length) {
               return jsonResponse(response, 422, {
                 success: false,
                 error: 'Report contains explicit patient identifiers; remove them before using hosted AI',
                 policy: 'IDENTIFIERS_BLOCKED'
+              });
+            }
+            if (reviewableIdentifiers.length && input.identifierReviewConfirmed !== true) {
+              return jsonResponse(response, 422, {
+                success: false,
+                error: 'KrisPoint found text that could be a person name. Review the report and indication before continuing.',
+                policy: 'IDENTIFIER_REVIEW_REQUIRED'
               });
             }
           }
