@@ -45,9 +45,9 @@
           Renew License
         </button>
       {:else}
-        <p>This feature requires a premium license.</p>
+        <p>{$licenseState.error || 'This feature requires a premium license.'}</p>
         <button class="upgrade-btn" on:click={goToLicense}>
-          Upgrade Now
+          {$licenseState.license ? 'Review License' : 'Upgrade Now'}
         </button>
       {/if}
     </div>

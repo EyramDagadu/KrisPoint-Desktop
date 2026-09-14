@@ -4,6 +4,16 @@ import { browser } from '$app/environment';
 const LICENSE_STORAGE_KEY = 'krispoint_license';
 const LICENSE_SERVER_URL_KEY = 'krispoint_license_server_url';
 const PUBLIC_KEY_STORAGE_KEY = 'krispoint_license_public_key';
+const PINNED_PUBLIC_KEY = (import.meta.env.VITE_KRISPOINT_LICENSE_PUBLIC_KEY || '').trim();
+const LAST_SEEN_STORAGE_KEY = 'krispoint_license_last_seen_at';
+const VALIDATION_INTERVAL_MS = 6 * 60 * 60 * 1000;
+const POLICY_CHECK_INTERVAL_MS = 60 * 1000;
+const OFFLINE_GRACE_MS = 72 * 60 * 60 * 1000;
+const CLOCK_ROLLBACK_TOLERANCE_MS = 5 * 60 * 1000;
+
+let validationTimer = null;
+let policyTimer = null;
+let validationInFlight = null;
 
 function normalizeServerUrl(url) {
   const trimmed = url.trim();
@@ -61,6 +71,8 @@ const initialLicenseState = {
   features: [],
   expiresAt: null,
   lastValidated: null,
+  offlineGraceUntil: null,
+  validationStatus: 'inactive',
   error: null,
   isLoading: false,
   serverUrl: ''
@@ -71,6 +83,7 @@ export const licenseState = writable(initialLicenseState);
 export const isLicenseActive = derived(licenseState, $state => {
   if (!$state.isActivated || !$state.license) return false;
   if ($state.expiresAt && new Date($state.expiresAt) < new Date()) return false;
+  if ($state.offlineGraceUntil && new Date($state.offlineGraceUntil) < new Date()) return false;
   return true;
 });
 
@@ -86,10 +99,15 @@ export const hasFeature = (feature) => {
   const state = get(licenseState);
   if (!state.isActivated) return false;
   if (state.expiresAt && new Date(state.expiresAt) < new Date()) return false;
+  if (state.offlineGraceUntil && new Date(state.offlineGraceUntil) < new Date()) return false;
   return state.features?.includes(feature) || false;
 };
 
-function getMachineId() {
+function isTauriRuntime() {
+  return browser && Boolean(window.__TAURI_INTERNALS__ || window.__TAURI__?.core);
+}
+
+function getBrowserMachineId() {
   if (!browser) return 'server';
   
   let machineId = localStorage.getItem('krispoint_machine_id');
@@ -119,6 +137,113 @@ function getMachineId() {
   return machineId;
 }
 
+async function getMachineId() {
+  if (!isTauriRuntime()) return getBrowserMachineId();
+  const { invoke } = await import('@tauri-apps/api/core');
+  const machineId = await invoke('get_solo_machine_id');
+  if (typeof machineId !== 'string' || !/^KP2-[A-F0-9]{32}$/.test(machineId)) {
+    throw new Error('Secure device identity is unavailable');
+  }
+  return machineId;
+}
+
+function parseTime(value) {
+  if (!value) return null;
+  const parsed = new Date(value).getTime();
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function legacyGraceUntil(license, signedData) {
+  const signedGrace = parseTime(signedData?.offlineGraceUntil);
+  if (signedGrace) return new Date(signedGrace).toISOString();
+  const lastValidated = parseTime(license.lastValidated) || parseTime(signedData?.issuedAt);
+  return lastValidated ? new Date(lastValidated + OFFLINE_GRACE_MS).toISOString() : null;
+}
+
+function inspectLocalPolicy(license, signedData = {}) {
+  const now = Date.now();
+  const expiresAt = parseTime(signedData.expiresAt || license.expiresAt);
+  const offlineGraceUntil = legacyGraceUntil(license, signedData);
+  const graceTime = parseTime(offlineGraceUntil);
+  const lastSeen = parseTime(localStorage.getItem(LAST_SEEN_STORAGE_KEY));
+  const clockRolledBack = Boolean(lastSeen && now + CLOCK_ROLLBACK_TOLERANCE_MS < lastSeen);
+
+  if (!clockRolledBack && (!lastSeen || now > lastSeen)) {
+    localStorage.setItem(LAST_SEEN_STORAGE_KEY, new Date(now).toISOString());
+  }
+
+  if (clockRolledBack) {
+    return { active: false, offlineGraceUntil, error: 'System clock moved backwards. Connect to validate your license.' };
+  }
+  if (expiresAt && expiresAt < now) {
+    return { active: false, offlineGraceUntil, error: 'License has expired' };
+  }
+  if (!graceTime || graceTime < now) {
+    return {
+      active: false,
+      offlineGraceUntil,
+      error: 'License validation is overdue. Connect to the internet to continue using licensed features.'
+    };
+  }
+  return { active: true, offlineGraceUntil, error: null };
+}
+
+async function verifyLicenseEnvelope(license, publicKey, expectedMachineId) {
+  if (!license?.payload || !license?.signature || !publicKey) {
+    return { valid: false, error: 'Signed license evidence is missing' };
+  }
+  const verification = await verifyEd25519Signature(license.payload, license.signature, publicKey);
+  if (!verification.valid) return verification;
+  const data = verification.data;
+  if (data.key !== license.key) {
+    return { valid: false, error: 'Signed license key does not match this license' };
+  }
+  if (data.machineId && data.machineId !== expectedMachineId) {
+    return { valid: false, error: 'License is activated for another device' };
+  }
+  return { valid: true, data };
+}
+
+function trustedPublicKey(candidate = '') {
+  if (PINNED_PUBLIC_KEY) {
+    if (candidate && candidate !== PINNED_PUBLIC_KEY) {
+      throw new Error('License authority key does not match this KrisPoint release');
+    }
+    return PINNED_PUBLIC_KEY;
+  }
+  return candidate || localStorage.getItem(PUBLIC_KEY_STORAGE_KEY) || '';
+}
+
+function stopValidationSchedule() {
+  if (validationTimer) clearInterval(validationTimer);
+  if (policyTimer) clearInterval(policyTimer);
+  validationTimer = null;
+  policyTimer = null;
+}
+
+function enforceLocalPolicy() {
+  const state = get(licenseState);
+  if (!state.license) return;
+  const policy = inspectLocalPolicy(state.license, {
+    expiresAt: state.expiresAt,
+    offlineGraceUntil: state.offlineGraceUntil
+  });
+  licenseState.update(current => ({
+    ...current,
+    isActivated: policy.active,
+    features: policy.active ? current.license?.features || [] : [],
+    offlineGraceUntil: policy.offlineGraceUntil,
+    validationStatus: policy.active ? current.validationStatus : 'required',
+    error: policy.error || current.error
+  }));
+}
+
+function startValidationSchedule(actions) {
+  stopValidationSchedule();
+  validationTimer = setInterval(() => actions.validateOnline(), VALIDATION_INTERVAL_MS);
+  policyTimer = setInterval(enforceLocalPolicy, POLICY_CHECK_INTERVAL_MS);
+}
+
 export const licenseActions = {
   async initialize() {
     if (!browser) return;
@@ -129,41 +254,49 @@ export const licenseActions = {
       localStorage.setItem(LICENSE_SERVER_URL_KEY, serverUrl);
     }
     const storedLicense = localStorage.getItem(LICENSE_STORAGE_KEY);
-    const publicKey = localStorage.getItem(PUBLIC_KEY_STORAGE_KEY);
+    const publicKey = trustedPublicKey();
     
     if (storedLicense && publicKey) {
       try {
         const license = JSON.parse(storedLicense);
-        
-        const isExpired = license.expiresAt && new Date(license.expiresAt) < new Date();
-        
-        if (!isExpired && license.payload && license.signature) {
-          const verification = await verifyEd25519Signature(
-            license.payload,
-            license.signature,
-            publicKey
-          );
-          
-          if (!verification.valid) {
-            console.error('License signature verification failed');
-            this.clear();
-            return;
-          }
+        const machineId = await getMachineId();
+        const verification = await verifyLicenseEnvelope(license, publicKey, machineId);
+        if (!verification.valid) {
+          console.error('License signature verification failed');
+          this.clear();
+          licenseState.update(state => ({ ...state, error: verification.error }));
+          return;
         }
-        
+        const signedData = verification.data;
+        const normalizedLicense = {
+          ...license,
+          machineId,
+          features: signedData.features || [],
+          expiresAt: signedData.expiresAt,
+          offlineGraceUntil: legacyGraceUntil(license, signedData)
+        };
+        const policy = inspectLocalPolicy(normalizedLicense, signedData);
+
         licenseState.set({
-          isActivated: !isExpired,
-          license: license,
-          features: license.features || [],
-          expiresAt: license.expiresAt,
-          lastValidated: license.lastValidated,
-          error: isExpired ? 'License has expired' : null,
+          isActivated: policy.active,
+          license: normalizedLicense,
+          features: policy.active ? normalizedLicense.features : [],
+          expiresAt: normalizedLicense.expiresAt,
+          lastValidated: signedData.validatedAt || license.lastValidated,
+          offlineGraceUntil: policy.offlineGraceUntil,
+          validationStatus: policy.active ? 'offline-grace' : 'required',
+          error: policy.error,
           isLoading: false,
           serverUrl
         });
 
-        if (!isExpired && serverUrl) {
-          this.validateOnline();
+        startValidationSchedule(this);
+        if (serverUrl) {
+          if (isTauriRuntime() && !signedData.machineId) {
+            this.activate(license.key);
+          } else {
+            this.validateOnline();
+          }
         }
       } catch (e) {
         console.error('Failed to parse stored license:', e);
@@ -192,7 +325,7 @@ export const licenseActions = {
     licenseState.update(s => ({ ...s, isLoading: true, error: null }));
 
     try {
-      const machineId = getMachineId();
+      const machineId = await getMachineId();
       
       const response = await fetch(`${state.serverUrl}/api/license/activate`, {
         method: 'POST',
@@ -203,23 +336,28 @@ export const licenseActions = {
       const data = await response.json();
 
       if (data.success) {
+        const publicKey = trustedPublicKey(data.license.publicKey);
+        const verification = await verifyLicenseEnvelope(data.license, publicKey, machineId);
+        if (!verification.valid) {
+          throw new Error(verification.error);
+        }
+        const signedData = verification.data;
         const license = {
           key: data.license.key,
           email: data.license.email,
           plan: data.license.plan,
-          features: data.license.features,
-          expiresAt: data.license.expiresAt,
+          features: signedData.features || [],
+          expiresAt: signedData.expiresAt,
           payload: data.license.payload,
           signature: data.license.signature,
           machineId,
-          lastValidated: new Date().toISOString()
+          lastValidated: signedData.validatedAt,
+          offlineGraceUntil: signedData.offlineGraceUntil
         };
 
         localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(license));
         
-        if (data.license.publicKey) {
-          localStorage.setItem(PUBLIC_KEY_STORAGE_KEY, data.license.publicKey);
-        }
+        localStorage.setItem(PUBLIC_KEY_STORAGE_KEY, publicKey);
 
         licenseState.set({
           isActivated: true,
@@ -227,10 +365,13 @@ export const licenseActions = {
           features: license.features,
           expiresAt: license.expiresAt,
           lastValidated: license.lastValidated,
+          offlineGraceUntil: license.offlineGraceUntil,
+          validationStatus: 'online',
           error: null,
           isLoading: false,
           serverUrl: state.serverUrl
         });
+        startValidationSchedule(this);
 
         return { success: true };
       } else {
@@ -242,7 +383,7 @@ export const licenseActions = {
         return { success: false, error: data.error };
       }
     } catch (e) {
-      const error = 'Could not connect to license server';
+      const error = e?.message || 'Could not connect to license server';
       licenseState.update(s => ({ ...s, isLoading: false, error }));
       return { success: false, error };
     }
@@ -250,55 +391,83 @@ export const licenseActions = {
 
   async validateOnline() {
     if (!browser) return;
+    if (validationInFlight) return validationInFlight;
     
     const state = get(licenseState);
     if (!state.license || !state.serverUrl) return;
 
-    try {
-      const machineId = getMachineId();
+    validationInFlight = (async () => {
+      try {
+        const machineId = await getMachineId();
       
-      const response = await fetch(`${state.serverUrl}/api/license/validate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          licenseKey: state.license.key,
-          machineId,
-          payload: state.license.payload,
-          signature: state.license.signature
-        })
-      });
+        const response = await fetch(`${state.serverUrl}/api/license/validate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            licenseKey: state.license.key,
+            machineId,
+            payload: state.license.payload,
+            signature: state.license.signature
+          })
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.valid) {
-        const updatedLicense = {
-          ...state.license,
-          features: data.license.features,
-          expiresAt: data.license.expiresAt,
-          payload: data.license.payload,
-          signature: data.license.signature,
-          lastValidated: new Date().toISOString()
-        };
+        if (data.valid) {
+          const publicKey = trustedPublicKey(data.license.publicKey);
+          const verification = await verifyLicenseEnvelope(data.license, publicKey, machineId);
+          if (!verification.valid) throw new Error(verification.error);
+          const signedData = verification.data;
+          const updatedLicense = {
+            ...state.license,
+            machineId,
+            features: signedData.features || [],
+            expiresAt: signedData.expiresAt,
+            payload: data.license.payload,
+            signature: data.license.signature,
+            lastValidated: signedData.validatedAt,
+            offlineGraceUntil: signedData.offlineGraceUntil
+          };
 
-        localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(updatedLicense));
+          localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(updatedLicense));
+          localStorage.setItem(LAST_SEEN_STORAGE_KEY, signedData.validatedAt);
 
+          licenseState.update(s => ({
+            ...s,
+            isActivated: true,
+            license: updatedLicense,
+            features: updatedLicense.features,
+            expiresAt: updatedLicense.expiresAt,
+            lastValidated: updatedLicense.lastValidated,
+            offlineGraceUntil: updatedLicense.offlineGraceUntil,
+            validationStatus: 'online',
+            error: null
+          }));
+          return { success: true };
+        }
+        stopValidationSchedule();
         licenseState.update(s => ({
           ...s,
-          license: updatedLicense,
-          features: updatedLicense.features,
-          expiresAt: updatedLicense.expiresAt,
-          lastValidated: updatedLicense.lastValidated,
-          error: null
+          isActivated: false,
+          features: [],
+          validationStatus: 'invalid',
+          error: data.error || 'License validation failed'
         }));
-      } else {
-        if (data.error === 'License has been revoked') {
-          this.clear();
-        }
-        licenseState.update(s => ({ ...s, error: data.error }));
+        return { success: false, error: data.error };
+      } catch (e) {
+        console.warn('Offline validation mode - could not reach license server');
+        enforceLocalPolicy();
+        licenseState.update(s => ({
+          ...s,
+          validationStatus: s.isActivated ? 'offline-grace' : 'required',
+          error: s.isActivated ? null : s.error
+        }));
+        return { success: false, offline: true };
+      } finally {
+        validationInFlight = null;
       }
-    } catch (e) {
-      console.warn('Offline validation mode - could not reach license server');
-    }
+    })();
+    return validationInFlight;
   },
 
   async deactivate() {
@@ -311,7 +480,7 @@ export const licenseActions = {
     }
 
     try {
-      const machineId = getMachineId();
+      const machineId = await getMachineId();
       
       await fetch(`${state.serverUrl}/api/license/deactivate`, {
         method: 'POST',
@@ -331,6 +500,7 @@ export const licenseActions = {
 
   clear() {
     if (!browser) return;
+    stopValidationSchedule();
     localStorage.removeItem(LICENSE_STORAGE_KEY);
     const serverUrl = localStorage.getItem(LICENSE_SERVER_URL_KEY) || '';
     licenseState.set({ ...initialLicenseState, serverUrl });

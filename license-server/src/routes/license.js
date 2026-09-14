@@ -3,6 +3,10 @@ const router = express.Router();
 const licenseService = require('../services/license');
 const pool = require('../db/pool');
 
+router.get('/public-key', (_req, res) => {
+  res.json({ algorithm: 'Ed25519', publicKey: licenseService.getPublicKey() });
+});
+
 router.post('/activate', async (req, res) => {
   try {
     const { licenseKey, machineId } = req.body;
@@ -60,12 +64,17 @@ router.post('/validate', async (req, res) => {
       [licenseKey]
     );
 
+    const validatedAt = new Date();
+    const offlineGraceUntil = new Date(validatedAt.getTime() + 72 * 60 * 60 * 1000);
     const signedLicense = licenseService.signLicense({
       key: licenseKey,
       email: license.email,
       plan: license.plan_name,
       features: license.features,
       expiresAt: license.expires_at,
+      machineId,
+      validatedAt: validatedAt.toISOString(),
+      offlineGraceUntil: offlineGraceUntil.toISOString(),
     });
 
     res.json({
@@ -75,6 +84,8 @@ router.post('/validate', async (req, res) => {
         plan: license.plan_name,
         features: license.features,
         expiresAt: license.expires_at,
+        validatedAt: validatedAt.toISOString(),
+        offlineGraceUntil: offlineGraceUntil.toISOString(),
         ...signedLicense,
       },
     });

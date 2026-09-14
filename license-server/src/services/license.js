@@ -6,6 +6,19 @@ const pool = require('../db/pool');
 const fs = require('fs');
 const path = require('path');
 
+const OFFLINE_GRACE_HOURS = 72;
+
+function validationLease() {
+  const validatedAt = new Date();
+  const offlineGraceUntil = new Date(
+    validatedAt.getTime() + OFFLINE_GRACE_HOURS * 60 * 60 * 1000
+  );
+  return {
+    validatedAt: validatedAt.toISOString(),
+    offlineGraceUntil: offlineGraceUntil.toISOString(),
+  };
+}
+
 class LicenseService {
   constructor() {
     this.keyPair = null;
@@ -60,6 +73,9 @@ class LicenseService {
       plan: licenseData.plan,
       features: licenseData.features,
       expiresAt: licenseData.expiresAt,
+      machineId: licenseData.machineId || null,
+      validatedAt: licenseData.validatedAt || null,
+      offlineGraceUntil: licenseData.offlineGraceUntil || null,
       issuedAt: new Date().toISOString(),
     });
 
@@ -146,6 +162,16 @@ class LicenseService {
     }
 
     const isDeviceSwitch = license.machine_id && license.machine_id !== machineId;
+    const isLegacySoloMigration = isDeviceSwitch
+      && license.machine_id.startsWith('KP-')
+      && machineId.startsWith('KP2-');
+
+    if (isDeviceSwitch && !isLegacySoloMigration) {
+      return {
+        success: false,
+        error: 'License is already activated on another device. Deactivate it before moving it.',
+      };
+    }
 
     await pool.query(
       `UPDATE licenses 
@@ -154,12 +180,15 @@ class LicenseService {
       [machineId, licenseKey]
     );
 
+    const lease = validationLease();
     const signedLicense = this.signLicense({
       key: licenseKey,
       email: license.email,
       plan: license.plan_name,
       features: license.features,
       expiresAt: license.expires_at,
+      machineId,
+      ...lease,
     });
 
     return {
@@ -170,6 +199,7 @@ class LicenseService {
         plan: license.plan_name,
         features: license.features,
         expiresAt: license.expires_at,
+        ...lease,
         ...signedLicense,
       },
     };
@@ -182,6 +212,14 @@ class LicenseService {
       return { valid: false, error: verification.error };
     }
 
+    if (verification.data.key !== licenseKey) {
+      return { valid: false, error: 'Signed license key does not match request' };
+    }
+
+    if (verification.data.machineId && verification.data.machineId !== machineId) {
+      return { valid: false, error: 'Signed license is bound to another device' };
+    }
+
     const license = await this.getLicenseByKey(licenseKey);
     
     if (!license) {
@@ -190,6 +228,10 @@ class LicenseService {
 
     if (license.status === 'revoked') {
       return { valid: false, error: 'License has been revoked' };
+    }
+
+    if (new Date(license.expires_at) < new Date()) {
+      return { valid: false, error: 'License has expired' };
     }
 
     if (license.machine_id !== machineId) {
@@ -201,12 +243,15 @@ class LicenseService {
       [licenseKey]
     );
 
+    const lease = validationLease();
     const newSignedLicense = this.signLicense({
       key: licenseKey,
       email: license.email,
       plan: license.plan_name,
       features: license.features,
       expiresAt: license.expires_at,
+      machineId,
+      ...lease,
     });
 
     return {
@@ -216,6 +261,7 @@ class LicenseService {
         plan: license.plan_name,
         features: license.features,
         expiresAt: license.expires_at,
+        ...lease,
         ...newSignedLicense,
       },
     };

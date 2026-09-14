@@ -9,6 +9,7 @@
   import Sidebar from '$lib/components/ui/Sidebar.svelte';
   import ChatBubble from '$lib/components/ChatBubble.svelte';
   import IdleTimeoutWarning from '$lib/components/ui/IdleTimeoutWarning.svelte';
+  import BetaTermsGate from '$lib/components/legal/BetaTermsGate.svelte';
   import { authState, authActions } from '$lib/stores/authStore.js';
   import { idleTimeoutService } from '$lib/services/IdleTimeoutService';
   import { editionCapabilities } from '$lib/config/edition';
@@ -82,38 +83,40 @@
   <SplashScreen />
 {/if}
 
-<AuthGuard>
-  {#if isAuthPage}
-    <slot />
-  {:else}
-    <div class="app-layout">
-      <Sidebar collapsed={sidebarCollapsed} />
-      
-      <div class="main-content">
-        <Header 
-          title={pageTitle}
-          showUserInfo={true}
-          showNewReportButton={false}
-          {sidebarCollapsed}
-          on:toggleSidebar={handleToggleSidebar}
-        />
-        
-        <main class="content-area">
-          {#key $page.url.pathname}
-            <slot />
-          {/key}
-        </main>
+<BetaTermsGate>
+  <AuthGuard>
+    {#if isAuthPage}
+      <slot />
+    {:else}
+      <div class="app-layout">
+        <Sidebar collapsed={sidebarCollapsed} />
+
+        <div class="main-content">
+          <Header
+            title={pageTitle}
+            showUserInfo={true}
+            showNewReportButton={false}
+            {sidebarCollapsed}
+            on:toggleSidebar={handleToggleSidebar}
+          />
+
+          <main class="content-area">
+            {#key $page.url.pathname}
+              <slot />
+            {/key}
+          </main>
+        </div>
       </div>
-    </div>
-    
-    {#if isAuthenticated}
-      {#if editionCapabilities.collaboration}
-        <ChatBubble {currentUserId} />
+
+      {#if isAuthenticated}
+        {#if editionCapabilities.collaboration}
+          <ChatBubble {currentUserId} />
+        {/if}
+        <IdleTimeoutWarning />
       {/if}
-      <IdleTimeoutWarning />
     {/if}
-  {/if}
-</AuthGuard>
+  </AuthGuard>
+</BetaTermsGate>
 
 <style>
   .app-layout {

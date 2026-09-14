@@ -49,6 +49,7 @@ test('release bundles target Windows and macOS installers', async () => {
   assert.equal(config.bundle.windows.nsis.installMode, 'currentUser');
   assert.equal(config.bundle.macOS.hardenedRuntime, true);
   assert.equal(config.bundle.macOS.signingIdentity, '-');
+  assert.equal(config.bundle.licenseFile, 'beta-terms.rtf');
   assert.equal(packageJson.scripts['build:solo:installer'], 'tauri build');
   assert.match(workflow, /artifact: windows-x64\s+bundle: msi/);
   assert.match(workflow, /artifact: macos-apple-silicon\s+bundle: dmg/);
@@ -62,8 +63,78 @@ test('release bundles target Windows and macOS installers', async () => {
     workflow.indexOf('pnpm/action-setup@v4') < workflow.indexOf('cache: pnpm'),
     'CI must install pnpm before setup-node initializes the pnpm cache'
   );
-  assert.match(workflow, /if: always\(\)\s+uses: actions\/upload-artifact@v4/);
+  assert.match(workflow, /if: success\(\)\s+uses: actions\/upload-artifact@v4/);
   assert.doesNotMatch(workflow, /bundle\/nsis/);
+});
+
+test('Solo beta requires explicit acceptance before use', async () => {
+  const [gate, terms, layout, installerTerms] = await Promise.all([
+    read('src/lib/components/legal/BetaTermsGate.svelte'),
+    read('src/lib/config/betaTerms.js'),
+    read('src/routes/+layout.svelte'),
+    read('src-tauri/beta-terms.rtf')
+  ]);
+  assert.match(layout, /<BetaTermsGate>/);
+  assert.match(gate, /type="checkbox"/);
+  assert.match(gate, /disabled=\{!accepted\}/);
+  assert.match(gate, /localStorage\.setItem\(BETA_TERMS_STORAGE_KEY/);
+  assert.match(gate, /\{:else\}\s+<slot \/>/);
+  assert.match(terms, /testing only/i);
+  assert.match(terms, /de-identified test data/i);
+  assert.match(terms, /not yet code-signed or notarized/i);
+  assert.match(terms, /not the final commercial release/i);
+  assert.match(installerTerms, /KrisPoint Solo Beta Participation Terms/);
+  assert.match(installerTerms, /Do not use this beta for real patient care/);
+});
+
+test('tagged Solo releases require trusted signing and notarization', async () => {
+  const [workflow, windowsSigning, macSigning] = await Promise.all([
+    read('.github/workflows/solo-installers.yml'),
+    read('scripts/prepare-solo-windows-signing.ps1'),
+    read('scripts/prepare-solo-macos-signing.sh')
+  ]);
+  assert.match(workflow, /startsWith\(github\.ref, 'refs\/tags\/solo-v'\)/);
+  assert.match(workflow, /Get-AuthenticodeSignature/);
+  assert.match(workflow, /signtool verify \/pa \/all \/v/);
+  assert.match(workflow, /xcrun notarytool submit/);
+  assert.match(workflow, /xcrun stapler staple/);
+  assert.match(workflow, /xcrun stapler validate/);
+  assert.match(workflow, /file "\$\{executable\}" \| grep -q 'Mach-O'/);
+  assert.match(workflow, /codesign --verify --strict --verbose=2 "\$\{executable\}"/);
+  assert.match(windowsSigning, /Required release secret/);
+  assert.match(windowsSigning, /Import-PfxCertificate/);
+  assert.match(windowsSigning, /certificateThumbprint/);
+  assert.match(windowsSigning, /KRISPOINT_LICENSE_PUBLIC_KEY/);
+  assert.match(macSigning, /Developer ID|APPLE_SIGNING_IDENTITY/);
+  assert.match(macSigning, /security import/);
+  assert.match(macSigning, /tauri\.signed\.conf\.json/);
+  assert.match(macSigning, /KRISPOINT_LICENSE_PUBLIC_KEY/);
+});
+
+test('Solo licensing uses protected native identity and bounded online validation', async () => {
+  const [identity, nativeCommands, licenseStore, licenseService] = await Promise.all([
+    read('src-tauri/src/device_identity.rs'),
+    read('src-tauri/src/lib.rs'),
+    read('src/lib/stores/licenseStore.js'),
+    read('license-server/src/services/license.js')
+  ]);
+  assert.match(identity, /license-device-identity-v2/);
+  assert.match(identity, /read_credential/);
+  assert.match(identity, /set_credential/);
+  assert.match(identity, /KP2-/);
+  assert.match(nativeCommands, /device_identity::get_solo_machine_id/);
+  assert.match(licenseStore, /invoke\('get_solo_machine_id'\)/);
+  assert.match(licenseStore, /VALIDATION_INTERVAL_MS = 6 \* 60 \* 60 \* 1000/);
+  assert.match(licenseStore, /OFFLINE_GRACE_MS = 72 \* 60 \* 60 \* 1000/);
+  assert.match(licenseStore, /CLOCK_ROLLBACK_TOLERANCE_MS/);
+  assert.match(licenseStore, /setInterval\(\(\) => actions\.validateOnline\(\)/);
+  assert.match(licenseStore, /verifyLicenseEnvelope\(data\.license/);
+  assert.match(licenseStore, /VITE_KRISPOINT_LICENSE_PUBLIC_KEY/);
+  assert.match(licenseStore, /License authority key does not match this KrisPoint release/);
+  assert.match(licenseService, /machineId: licenseData\.machineId/);
+  assert.match(licenseService, /offlineGraceUntil/);
+  assert.match(licenseService, /License is already activated on another device/);
+  assert.match(licenseService, /isLegacySoloMigration/);
 });
 
 test('guided setup activates pinned pnpm before installing workspace dependencies', async () => {

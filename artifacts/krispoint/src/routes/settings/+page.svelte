@@ -1555,13 +1555,26 @@
               <div class="license-status license-inactive">
                 <div class="license-badge inactive">
                   <span class="badge-icon">!</span>
-                  <span class="badge-text">Free Version</span>
+                  <span class="badge-text">
+                    {$licenseState.license ? 'License Validation Required' : 'Free Version'}
+                  </span>
                 </div>
                 
                 <p class="license-description">
-                  Activate a license to unlock premium features including voice dictation, 
-                  AI report polishing, inter-user chat, templates, and macros.
+                  {#if $licenseState.license}
+                    Connect to the internet and revalidate or reactivate this license to restore
+                    licensed features.
+                  {:else}
+                    Activate a license to unlock premium features including voice dictation,
+                    AI report polishing, inter-user chat, templates, and macros.
+                  {/if}
                 </p>
+
+                {#if $licenseState.error}
+                  <div class="license-error">
+                    {$licenseState.error}
+                  </div>
+                {/if}
                 
                 {#if isAdmin}
                   <div class="setting-group">

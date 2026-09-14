@@ -81,6 +81,7 @@ CREATE INDEX IF NOT EXISTS idx_licenses_key ON licenses(license_key);
 CREATE INDEX IF NOT EXISTS idx_licenses_customer ON licenses(customer_id);
 CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email);
 CREATE INDEX IF NOT EXISTS idx_payments_reference ON payments(paystack_reference);
+CREATE INDEX IF NOT EXISTS idx_licenses_validation ON licenses(status, last_validated_at);
 `;
 
 async function migrate() {

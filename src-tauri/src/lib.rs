@@ -2,6 +2,7 @@ mod voice_server;
 mod http_proxy;
 mod backend;
 mod backup;
+mod device_identity;
 
 use std::time::Duration;
 use tauri::Manager;
@@ -95,6 +96,7 @@ pub fn run() {
       backup::export_solo_backup,
       backup::restore_solo_backup,
       backup::restart_solo_backend,
+      device_identity::get_solo_machine_id,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
