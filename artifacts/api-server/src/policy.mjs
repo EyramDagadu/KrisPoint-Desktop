@@ -12,7 +12,7 @@ const IDENTIFIER_RULES = [
 ];
 const CLINICAL_NAME_ALLOWLIST = new Set(
   `a an and acute abdomen abdominal abnormality abnormal abnormalities adrenal airway all also analysis appears
-  approach artery assessment atelectasis bilateral bile bladder bone bowel brain breast cardiac cardiopulmonary cardiomediastinal cava
+  approach artery assessment atresia atelectasis bilateral bile biliary bladder bone bowel brain breast cardiac cardiopulmonary cardiomediastinal cava
   cervical chest chronic clear comparison compatible conclusion consistent cortical demonstrate
   demonstrated demonstrates density diagnosis diaphragm diffuse disease distal ducts effusion esophagus
   evident examination findings follow-up fracture frontal gallbladder gastric head heart hepatic
