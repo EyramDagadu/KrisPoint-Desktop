@@ -17,4 +17,7 @@ without collecting a raw hardware serial number.
 testing. For public releases, update the pinned key in lockstep with any
 deliberate authority-key rotation, preserve periodic validation and the bounded
 offline lease, and require an audited device-transfer path rather than silently
-rebinding active licenses.
+rebinding active licenses. When reading legacy signed envelopes, derive the
+bounded lease from the signed issuance time if explicit validation timestamps
+are absent; otherwise the local policy timer can falsely mark a new activation
+overdue.
