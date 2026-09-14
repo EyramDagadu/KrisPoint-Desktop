@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "Rw2017FhTvi5AZjVqr_Hr"
+uri = "file://release-artifacts/SHA256SUMS.txt"
+type = "text"
+title = "KrisPoint Solo Beta checksums"
+description = "SHA-256 checksums for verifying the Windows MSI and Apple Silicon DMG."
+logical_id = "ad5f19f3-7dca-44a5-9399-b6d99a6be875"
+content_hash = "sha256:67c63b19a66b05a3204c09dea7f3760ca9e18071a6d0e6237d4c2363e963f13d"
+size = 296
+mtime_ms = 1789386015330
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:7fea0809-b720-448e-b7ee-3b2279905b61/ad5f19f3-7dca-44a5-9399-b6d99a6be875/72bfc63b-26c8-4516-b226-e4fcc6452372"
+storage_version_token = "1789386034746059"
+content_type = "text/plain"

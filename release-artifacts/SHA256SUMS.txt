@@ -1,0 +1,2 @@
+d2bc2a99edff6bb329e72458433fa3e3256714a3313c178a55b92758c8dd447c  release-artifacts/krispoint-solo-windows-x64/msi/KrisPoint_1.0.0_x64_en-US.msi
+8965501b8e189b0fe1e9c0d65beaec34ea65ba8f98213568665cec1242826750  release-artifacts/krispoint-solo-macos-apple-silicon/dmg/KrisPoint_1.0.0_aarch64.dmg
