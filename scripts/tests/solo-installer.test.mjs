@@ -290,3 +290,9 @@ test('voice stop cleanup does not block the asyncio event loop', async () => {
   assert.match(server, /asyncio\.wait_for\(asyncio\.to_thread\(engine\.stop_processing\)/);
   assert.match(server, /Timed out stopping/);
 });
+
+test('PDF list items advance by a full line so bullets cannot overlap', async () => {
+  const pdfService = await read('src/lib/services/ProfessionalPDFService.js');
+  assert.match(pdfService, /segment\.isListItemEnd[\s\S]{0,300}currentY -= this\.lineHeight \* 1\.05/);
+  assert.doesNotMatch(pdfService, /segment\.isListItemEnd[\s\S]{0,300}currentY -= this\.lineHeight \* 0\.5/);
+});

@@ -1249,8 +1249,9 @@ class ProfessionalPDFService {
                     // Space before non-major section headers
                     currentY -= this.subHeaderSpacing || 12;
                 } else if (segment.isListItemEnd) {
-                    // List items - tight spacing (6-8pt between items)
-                    currentY -= this.lineHeight * 0.5;
+                    // A list item needs at least one full baseline advance.
+                    // Half a line overlaps adjacent bullets when body text is 10-12pt.
+                    currentY -= this.lineHeight * 1.05;
                 } else {
                     // Normal line spacing
                     currentY -= this.lineHeight;
