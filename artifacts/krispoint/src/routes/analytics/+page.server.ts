@@ -2,6 +2,8 @@ import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import { validateSession } from '$lib/server/auth';
 
+const isSoloEdition = process.env.VITE_KRISPOINT_EDITION === 'solo';
+
 export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
   const token = cookies.get('session_token');
   
@@ -21,7 +23,8 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
     throw redirect(303, '/dashboard');
   }
 
-  const isAdmin = roleName === 'admin' || roleName === 'owner' || roleName === 'system owner';
+  const canViewOrganizationAnalytics = !isSoloEdition &&
+    (roleName === 'admin' || roleName === 'owner' || roleName === 'system owner');
 
   const startDate = url.searchParams.get('startDate') || getDefaultStartDate();
   const endDate = url.searchParams.get('endDate') || getDefaultEndDate();
@@ -39,7 +42,7 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
   const userAnalyticsResult = await userAnalyticsResponse.json();
 
   let adminAnalytics = null;
-  if (isAdmin) {
+  if (canViewOrganizationAnalytics) {
     let adminUrl = `/api/analytics/admin?period=custom&startDate=${startDate}&endDate=${endDate}`;
     if (preset === 'all') {
       adminUrl = '/api/analytics/admin?period=all';
@@ -64,7 +67,7 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
   return {
     userAnalytics: userAnalyticsResult.success ? userAnalyticsResult.data : null,
     adminAnalytics,
-    isAdmin,
+    canViewOrganizationAnalytics,
     filters: {
       startDate,
       endDate,

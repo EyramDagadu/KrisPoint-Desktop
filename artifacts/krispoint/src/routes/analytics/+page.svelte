@@ -11,7 +11,7 @@
 
   $: userAnalytics = data.userAnalytics;
   $: adminAnalytics = data.adminAnalytics;
-  $: isAdmin = data.isAdmin;
+  $: canViewOrganizationAnalytics = data.canViewOrganizationAnalytics;
   $: filters = data.filters;
 
   let activeTab: 'my' | 'organization' = 'my';
@@ -371,7 +371,7 @@
     </div>
   </div>
   
-  {#if isAdmin}
+  {#if canViewOrganizationAnalytics}
   <div class="tab-switcher">
     <button 
       class="tab-btn" 
