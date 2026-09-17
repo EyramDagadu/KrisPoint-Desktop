@@ -5,7 +5,35 @@ dmg="$(find src-tauri/target/release/bundle/dmg -name '*.dmg' -print -quit)"
 [ -n "$dmg" ] || { echo "DMG installer was not produced" >&2; exit 1; }
 mount_dir="$(mktemp -d)"
 install_dir="$RUNNER_TEMP/KrisPoint-install"
+app_pid=""
+app_descendants=""
+
+collect_descendants() {
+  local parent="$1"
+  local child
+  while IFS= read -r child; do
+    [ -n "$child" ] || continue
+    collect_descendants "$child"
+    printf '%s\n' "$child"
+  done < <(pgrep -P "$parent" 2>/dev/null || true)
+}
+
+stop_app_tree() {
+  [ -n "$app_pid" ] || return 0
+  app_descendants="$(collect_descendants "$app_pid")"
+  kill "$app_pid" $app_descendants 2>/dev/null || true
+  for _ in {1..50}; do
+    kill -0 "$app_pid" 2>/dev/null || break
+    sleep .1
+  done
+  kill -9 "$app_pid" $app_descendants 2>/dev/null || true
+  wait "$app_pid" 2>/dev/null || true
+  app_pid=""
+  app_descendants=""
+}
+
 cleanup() {
+  stop_app_tree
   sudo pfctl -a com.apple/krispoint-offline-smoke -F all 2>/dev/null || true
   if [ "${pf_was_enabled:-1}" = 0 ]; then sudo pfctl -d 2>/dev/null || true; fi
   hdiutil detach "$mount_dir" -quiet 2>/dev/null || true
@@ -34,8 +62,7 @@ env -i HOME="$HOME" PATH="/usr/bin:/bin" \
 app_pid=$!
 sleep 10
 kill -0 "$app_pid"
-kill "$app_pid" || true
-wait "$app_pid" 2>/dev/null || true
+stop_app_tree
 
 installed_voice="$(find "$install_dir/KrisPoint.app/Contents/Resources" -name krispoint-voice -type f -print -quit)"
 [ -n "$installed_voice" ] || { echo "Installed MedASR executable is missing" >&2; exit 1; }

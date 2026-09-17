@@ -215,6 +215,9 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(windows, /New-NetFirewallRule/);
   assert.match(macos, /block drop out all/);
   assert.match(macos, /codesign --verify --strict "\$app"/);
+  assert.match(macos, /collect_descendants/);
+  assert.match(macos, /stop_app_tree/);
+  assert.match(macos, /pgrep -P "\$parent"/);
   assert.doesNotMatch(macos, /codesign --verify --deep/);
   for (const script of [windows, macos]) {
     assert.match(script, /verify-installed-voice\.py/);
