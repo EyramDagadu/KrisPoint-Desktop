@@ -239,6 +239,9 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(smoke, /process_tree_memory/);
   assert.match(smoke, /"tauri", "node", "medasr", "other"/);
   assert.match(smoke, /args\.continuous_seconds/);
+  assert.match(smoke, /mark_steady_state/);
+  assert.match(smoke, /"phase": "warmup" if self\.baseline_index is None else "soak"/);
+  assert.match(smoke, /steady_growth=/);
   assert.match(smoke, /args\.repeat_sessions/);
   assert.match(smoke, /args\.reconnect_cycles/);
   assert.match(smoke, /monitor\.validate\(peak_limits, args\.max_growth_mib\)/);

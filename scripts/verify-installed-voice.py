@@ -128,6 +128,7 @@ class MemoryMonitor:
         self.output_path = output_path
         self.interval = interval
         self.samples = []
+        self.baseline_index = None
         self._stop = asyncio.Event()
 
     async def run(self):
@@ -137,6 +138,7 @@ class MemoryMonitor:
                     process_tree_memory, self.root_pid)
                 self.samples.append({
                     "elapsed_seconds": round(time.monotonic() - self.started, 2),
+                    "phase": "warmup" if self.baseline_index is None else "soak",
                     "bytes": totals,
                     "pids": pids,
                 })
@@ -162,24 +164,32 @@ class MemoryMonitor:
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
         with self.output_path.open("w", newline="") as stream:
             writer = csv.writer(stream)
-            writer.writerow(["elapsed_seconds", *[
+            writer.writerow(["elapsed_seconds", "phase", *[
                 f"{component}_rss_mib" for component in COMPONENTS]])
             for sample in self.samples:
-                writer.writerow([sample["elapsed_seconds"], *[
+                writer.writerow([sample["elapsed_seconds"], sample["phase"], *[
                     round(sample["bytes"][component] / MIB, 2)
                     for component in COMPONENTS]])
 
+    async def mark_steady_state(self):
+        self.baseline_index = len(self.samples)
+        await asyncio.sleep(self.interval)
+
     def validate(self, peak_limits_mib, growth_limit_mib):
-        if len(self.samples) < 2:
+        if self.baseline_index is None or len(self.samples) < self.baseline_index + 2:
             raise RuntimeError("Memory monitor did not collect enough samples")
         failures = []
         for component in COMPONENTS:
             values = [sample["bytes"][component] / MIB
                       for sample in self.samples]
+            steady_values = values[self.baseline_index:]
+            comparison_size = min(3, max(1, len(steady_values) // 3))
+            baseline = sum(steady_values[:comparison_size]) / comparison_size
+            final = sum(steady_values[-comparison_size:]) / comparison_size
             peak = max(values)
-            growth = values[-1] - min(values[:max(1, len(values) // 3)])
+            growth = final - baseline
             print(f"{component}: peak={peak:.1f} MiB, "
-                  f"observed_growth={growth:.1f} MiB")
+                  f"steady_growth={growth:.1f} MiB")
             limit = peak_limits_mib.get(component)
             if limit is not None and peak > limit:
                 failures.append(
@@ -306,8 +316,10 @@ async def verify(args):
             }
             async with MemoryMonitor(
                     process.pid, report_path, args.sample_interval) as monitor:
-                text = await stream_session(
-                    websocket, pcm, args.continuous_seconds)
+                text = await stream_session(websocket, pcm)
+                print(f"Warm-up transcription succeeded ({len(text)} characters)")
+                await monitor.mark_steady_state()
+                text = await stream_session(websocket, pcm, args.continuous_seconds)
                 print("Continuous installed MedASR transcription succeeded "
                       f"({len(text)} characters)")
                 for session in range(args.repeat_sessions):
