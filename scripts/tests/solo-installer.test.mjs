@@ -304,11 +304,16 @@ test('Solo and Hospital MedASR share pause-triggered endpoint detection', async 
 });
 
 test('MedASR releases transient inference memory after every segment', async () => {
-  const engine = await read('vosk-server/src/medasr_stream_engine.py');
+  const [engine, voiceServer] = await Promise.all([
+    read('vosk-server/src/medasr_stream_engine.py'),
+    read('src-tauri/src/voice_server.rs')
+  ]);
   assert.match(engine, /def release_inference_memory\(\)/);
   assert.match(engine, /malloc_zone_pressure_relief/);
+  assert.match(engine, /ctypes\.CDLL\(None\)/);
   assert.match(engine, /del ids, outputs, inputs, audio/);
   assert.match(engine, /release_inference_memory\(\)/);
+  assert.match(voiceServer, /command\.env\("MallocNanoZone", "0"\)/);
 });
 
 test('voice stop cleanup does not block the asyncio event loop', async () => {

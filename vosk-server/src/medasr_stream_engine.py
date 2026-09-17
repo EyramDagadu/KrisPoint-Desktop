@@ -23,7 +23,10 @@ def release_inference_memory():
     global _MACOS_LIBC
     try:
         if _MACOS_LIBC is None:
-            _MACOS_LIBC = ctypes.CDLL("libc.dylib")
+            # Resolve against the current process image. A named libc.dylib
+            # lookup may fail from a sealed PyInstaller bundle even though the
+            # allocator symbol is available through libSystem.
+            _MACOS_LIBC = ctypes.CDLL(None)
             _MACOS_LIBC.malloc_zone_pressure_relief.argtypes = [
                 ctypes.c_void_p, ctypes.c_size_t]
             _MACOS_LIBC.malloc_zone_pressure_relief.restype = ctypes.c_size_t
