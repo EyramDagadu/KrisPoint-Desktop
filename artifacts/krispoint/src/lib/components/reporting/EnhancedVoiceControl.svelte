@@ -459,7 +459,7 @@
       <div class="control-buttons">
         <Tooltip 
           text={isListening ? 'Stop voice dictation' : 'Start voice dictation'} 
-          shortcut="Ctrl+Shift+V"
+          shortcut="Ctrl+Space"
           position="bottom"
         >
           <button 

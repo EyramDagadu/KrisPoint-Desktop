@@ -27,21 +27,34 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
   let templatesLoading = false;
   let macrosLoading = false;
 
-  // Filter templates based on search
+  $: selectedModality = String($patientData.examType || '').trim().toLowerCase();
+
+  function matchesSelectedModality(item) {
+    if (!selectedModality) return true;
+    const itemModality = String(item.modality || '').trim().toLowerCase();
+    if (!itemModality || itemModality === 'all' || itemModality === 'general') return true;
+    return itemModality === selectedModality ||
+      itemModality.includes(selectedModality) ||
+      selectedModality.includes(itemModality);
+  }
+
+  // Filter templates by the active report modality, then by search.
   $: filteredTemplates = allTemplates.filter(template => {
     const searchLower = templateSearchTerm.toLowerCase();
-    return (template.name && template.name.toLowerCase().includes(searchLower)) ||
+    return matchesSelectedModality(template) && (
+           (template.name && template.name.toLowerCase().includes(searchLower)) ||
            (template.category && template.category.toLowerCase().includes(searchLower)) ||
            (template.modality && template.modality.toLowerCase().includes(searchLower)) ||
            (template.bodyRegion && template.bodyRegion.toLowerCase().includes(searchLower)) ||
-           (template.content && template.content.toLowerCase().includes(searchLower));
+           (template.content && template.content.toLowerCase().includes(searchLower)));
   });
   
   // Filter macros based on search
   $: filteredMacros = availableMacros.filter(macro =>
+    matchesSelectedModality(macro) && (
     (macro.name && macro.name.toLowerCase().includes(macroSearchTerm.toLowerCase())) ||
     (macro.category && macro.category.toLowerCase().includes(macroSearchTerm.toLowerCase())) ||
-    (macro.content && macro.content.toLowerCase().includes(macroSearchTerm.toLowerCase()))
+    (macro.content && macro.content.toLowerCase().includes(macroSearchTerm.toLowerCase())))
   );
   
   import { onMount } from 'svelte';

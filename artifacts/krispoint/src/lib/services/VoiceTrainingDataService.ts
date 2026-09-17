@@ -8,6 +8,7 @@ interface TrainingSession {
   startTime: number;
   rawTranscript: string;
   sampleRate: number;
+  sampleCount: number;
   reportId?: number;
   reportType?: string;
 }
@@ -35,6 +36,8 @@ const MIN_DURATION_MS = 1500;
 const MIN_VOLUME_THRESHOLD = 100;
 const MAX_SILENCE_PERCENT = 0.7;
 const SILENCE_THRESHOLD = 50;
+const MAX_SESSION_DURATION_SECONDS = 120;
+const MAX_PENDING_SAMPLES = 10;
 
 export class VoiceTrainingDataService {
   private isEnabled: boolean = false;
@@ -114,6 +117,7 @@ export class VoiceTrainingDataService {
       startTime: Date.now(),
       rawTranscript: '',
       sampleRate: this.sampleRate,
+      sampleCount: 0,
       reportId,
       reportType
     };
@@ -127,7 +131,14 @@ export class VoiceTrainingDataService {
 
   addAudioChunk(chunk: Int16Array) {
     if (!this.isEnabled || !this.currentSession) return;
+    const maxSamples = this.currentSession.sampleRate * MAX_SESSION_DURATION_SECONDS;
+    if (this.currentSession.sampleCount + chunk.length > maxSamples) {
+      console.warn('[VoiceTraining] Session exceeded the two-minute safety limit and was discarded');
+      this.currentSession = null;
+      return;
+    }
     this.currentSession.audioChunks.push(new Int16Array(chunk));
+    this.currentSession.sampleCount += chunk.length;
   }
 
   setRawTranscript(transcript: string) {
@@ -216,6 +227,10 @@ export class VoiceTrainingDataService {
     };
 
     this.pendingSamples.push(sample);
+    if (this.pendingSamples.length > MAX_PENDING_SAMPLES) {
+      this.pendingSamples.splice(0, this.pendingSamples.length - MAX_PENDING_SAMPLES);
+      console.warn('[VoiceTraining] Pending upload queue reached its memory limit; oldest samples were discarded');
+    }
     await this.uploadPendingSamples();
 
     return sample;
@@ -261,10 +276,7 @@ export class VoiceTrainingDataService {
     for (const sample of samplesToUpload) {
       try {
         console.log('[VoiceTraining] Uploading sample:', sample.sessionId, 'transcript length:', sample.rawTranscript.length);
-        const arrayBuffer = await sample.audioBlob.arrayBuffer();
-        const base64Audio = btoa(
-          new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
-        );
+        const base64Audio = await this.blobToBase64(sample.audioBlob);
 
         const response = await fetch('/api/voice-training/samples', {
           method: 'POST',
@@ -297,6 +309,18 @@ export class VoiceTrainingDataService {
         this.pendingSamples.push(sample);
       }
     }
+  }
+
+  private blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(reader.error || new Error('Unable to read training audio'));
+      reader.onload = () => {
+        const result = String(reader.result || '');
+        resolve(result.includes(',') ? result.slice(result.indexOf(',') + 1) : result);
+      };
+      reader.readAsDataURL(blob);
+    });
   }
 }
 

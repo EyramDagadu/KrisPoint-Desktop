@@ -40,7 +40,10 @@
         checkAuth();
     }
     
-    $: showLoading = $isLoading || !hasInitialized;
+    // Child forms provide their own submitting state. Replacing the entire
+    // route whenever an auth request is in flight destroys the form component
+    // and clears all values when server-side validation rejects a submission.
+    $: showLoading = !hasInitialized;
 </script>
 
 {#if showLoading}

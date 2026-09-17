@@ -294,7 +294,7 @@ export class EnhancedVoiceService {
 
             // Enhanced macro commands
             {
-                pattern: /macro\s+(.+)/i,
+                pattern: /macro[\s.,:;-]+(.+)/i,
                 action: async (matches) => {
                     const macroName = matches[1].toLowerCase().trim();
                     await this.insertMacroByName(macroName);
@@ -304,7 +304,7 @@ export class EnhancedVoiceService {
 
             // Template loading commands
             {
-                pattern: /template\s+(.+)/i,
+                pattern: /template[\s.,:;-]+(.+)/i,
                 action: async (matches) => {
                     const templateName = matches[1].toLowerCase().trim();
                     await this.loadTemplate(templateName);

@@ -129,8 +129,17 @@ export class WhisperVoiceService {
     }
 
     async initialize() {
-        if (!this.isSupported || this.isInitialized) {
+        if (!this.isSupported) {
             return false;
+        }
+        if (this.isInitialized && this.websocket?.readyState === WebSocket.OPEN) {
+            return true;
+        }
+        if (this.isInitialized || this.websocket) {
+            this.cleanup();
+            this.websocket?.close();
+            this.websocket = null;
+            this.isInitialized = false;
         }
 
         // Tauri starts the optional voice process asynchronously during app

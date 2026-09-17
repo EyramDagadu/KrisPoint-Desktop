@@ -579,6 +579,12 @@
       return;
     }
     
+    // Save a URL typed into the field before activation so users do not need
+    // an otherwise easy-to-miss separate first click.
+    if (licenseServerUrl.trim()) {
+      licenseActions.setServerUrl(licenseServerUrl);
+    }
+
     licenseActivating = true;
     licenseError = '';
     

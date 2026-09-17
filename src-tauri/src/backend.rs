@@ -13,6 +13,7 @@ use std::time::Duration;
 use tauri::{AppHandle, Manager};
 
 pub(crate) const KEY_SERVICE: &str = "com.krispoint.radiology.solo";
+const SOLO_BACKEND_PORT: u16 = 47832;
 
 pub struct BackendState(Mutex<Option<Child>>);
 
@@ -45,9 +46,16 @@ impl BackendState {
         let encryption_key = credential("encryption-key")?;
         let audit_key = credential("audit-key")?;
         let launch_secret = random_hex();
-        let listener = TcpListener::bind(("127.0.0.1", 0))
-            .map_err(|e| format!("Cannot reserve Solo backend port: {e}"))?;
-        let port = listener.local_addr().map_err(|e| e.to_string())?.port();
+        // Keep the webview origin stable across launches. Browser-local state
+        // (including the signed licence envelope) and microphone permission
+        // are origin-scoped, so a random port makes every launch look like a
+        // different application.
+        let listener = TcpListener::bind(("127.0.0.1", SOLO_BACKEND_PORT))
+            .map_err(|e| format!(
+                "Cannot reserve KrisPoint Solo backend port {SOLO_BACKEND_PORT}. \
+                 Close any other KrisPoint process and try again: {e}"
+            ))?;
+        let port = SOLO_BACKEND_PORT;
         drop(listener);
         let (runtime, entry) = backend_entry(app)?;
         let log_path = data_dir.join("backend.log");

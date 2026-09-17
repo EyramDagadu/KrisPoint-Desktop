@@ -117,6 +117,17 @@
   .sidebar.collapsed {
     width: 60px;
   }
+
+  .sidebar.collapsed .nav-item {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .sidebar.collapsed .sidebar-header,
+  .sidebar.collapsed .logo {
+    justify-content: center;
+  }
   
   .sidebar-header {
     display: flex;

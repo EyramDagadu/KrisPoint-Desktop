@@ -75,10 +75,20 @@
             formErrors.username = 'Username must be at least 3 characters';
         }
         
+        const passwordErrors = [];
         if (!formData.password) {
             formErrors.password = 'Password is required';
-        } else if (formData.password.length < 8) {
-            formErrors.password = 'Password must be at least 8 characters';
+        } else {
+            if (formData.password.length < 8) passwordErrors.push('at least 8 characters');
+            if (!/[A-Z]/.test(formData.password)) passwordErrors.push('an uppercase letter');
+            if (!/[a-z]/.test(formData.password)) passwordErrors.push('a lowercase letter');
+            if (!/\d/.test(formData.password)) passwordErrors.push('a number');
+            if (!/[!@#$%^&*(),.?":{}|<>[\]\\\/`~_+=;'-]/.test(formData.password)) {
+                passwordErrors.push('a special character');
+            }
+            if (passwordErrors.length) {
+                formErrors.password = `Password requires ${passwordErrors.join(', ')}`;
+            }
         }
         
         if (formData.password !== formData.confirmPassword) {
@@ -242,10 +252,13 @@
                         type="password" 
                         id="password" 
                         bind:value={formData.password}
-                        placeholder="Min. 8 characters"
+                        placeholder="Create a secure password"
                         class:error={formErrors.password}
                         disabled={isSubmitting}
                     />
+                    <span class="field-hint">
+                        Use at least 8 characters with uppercase, lowercase, a number, and a special character.
+                    </span>
                     {#if formErrors.password}
                         <span class="field-error">{formErrors.password}</span>
                     {/if}

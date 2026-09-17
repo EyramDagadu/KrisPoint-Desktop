@@ -154,7 +154,7 @@ class VoiceCommandService {
 
             // Template commands
             {
-                pattern: /template (.*)/i,
+                pattern: /template[\s.,:;-]+(.+)/i,
                 action: (matches) => {
                     const templateName = matches[1].toLowerCase();
                     this.loadTemplate(templateName);
@@ -163,7 +163,7 @@ class VoiceCommandService {
 
             // Macro commands
             {
-                pattern: /macro (.*)/i,
+                pattern: /macro[\s.,:;-]+(.+)/i,
                 action: (matches) => {
                     const macroName = matches[1].toLowerCase();
                     this.insertMacro(macroName);
