@@ -17,6 +17,7 @@ import time
 import os
 import ssl
 import sys
+import multiprocessing
 from pathlib import Path
 from dotenv import load_dotenv
 from urllib.parse import parse_qs, urlparse
@@ -497,4 +498,8 @@ def main():
     return 1
 
 if __name__ == "__main__":
+    # PyTorch and its native dependencies may use multiprocessing on macOS.
+    # In a PyInstaller executable, child workers otherwise re-enter main(),
+    # load another full model, and compete for the voice server port.
+    multiprocessing.freeze_support()
     sys.exit(main())

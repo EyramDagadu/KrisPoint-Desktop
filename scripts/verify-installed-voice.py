@@ -165,11 +165,13 @@ class MemoryMonitor:
         with self.output_path.open("w", newline="") as stream:
             writer = csv.writer(stream)
             writer.writerow(["elapsed_seconds", "phase", *[
-                f"{component}_rss_mib" for component in COMPONENTS]])
+                value for component in COMPONENTS for value in (
+                    f"{component}_rss_mib", f"{component}_processes")]])
             for sample in self.samples:
                 writer.writerow([sample["elapsed_seconds"], sample["phase"], *[
-                    round(sample["bytes"][component] / MIB, 2)
-                    for component in COMPONENTS]])
+                    value for component in COMPONENTS for value in (
+                        round(sample["bytes"][component] / MIB, 2),
+                        len(sample["pids"][component]))]])
 
     async def mark_steady_state(self):
         self.baseline_index = len(self.samples)
@@ -187,9 +189,12 @@ class MemoryMonitor:
             baseline = sum(steady_values[:comparison_size]) / comparison_size
             final = sum(steady_values[-comparison_size:]) / comparison_size
             peak = max(values)
+            peak_processes = max(
+                len(sample["pids"][component]) for sample in self.samples)
             growth = final - baseline
             print(f"{component}: peak={peak:.1f} MiB, "
-                  f"steady_growth={growth:.1f} MiB")
+                  f"steady_growth={growth:.1f} MiB, "
+                  f"peak_processes={peak_processes}")
             limit = peak_limits_mib.get(component)
             if limit is not None and peak > limit:
                 failures.append(
@@ -198,6 +203,9 @@ class MemoryMonitor:
                 failures.append(
                     f"{component} growth {growth:.1f} MiB exceeded "
                     f"{growth_limit_mib} MiB")
+            if component == "medasr" and peak_processes > 1:
+                failures.append(
+                    f"MedASR spawned {peak_processes} processes; expected one")
         if failures:
             raise RuntimeError("Memory ceiling failed: " + "; ".join(failures))
 

@@ -242,6 +242,8 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(smoke, /mark_steady_state/);
   assert.match(smoke, /"phase": "warmup" if self\.baseline_index is None else "soak"/);
   assert.match(smoke, /steady_growth=/);
+  assert.match(smoke, /peak_processes=/);
+  assert.match(smoke, /MedASR spawned \{peak_processes\} processes; expected one/);
   assert.match(smoke, /args\.repeat_sessions/);
   assert.match(smoke, /args\.reconnect_cycles/);
   assert.match(smoke, /monitor\.validate\(peak_limits, args\.max_growth_mib\)/);
@@ -320,6 +322,7 @@ test('voice stop cleanup does not block the asyncio event loop', async () => {
   const server = await read('vosk-server/src/websocket_server.py');
   assert.match(server, /asyncio\.wait_for\(asyncio\.to_thread\(engine\.stop_processing\)/);
   assert.match(server, /Timed out stopping/);
+  assert.match(server, /multiprocessing\.freeze_support\(\)/);
 });
 
 test('PDF list items advance by a full line so bullets cannot overlap', async () => {
