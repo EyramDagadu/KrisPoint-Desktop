@@ -206,10 +206,11 @@ test('Tauri clears stale voice state when the sidecar exits', async () => {
 });
 
 test('native installer verification includes an offline authenticated transcription', async () => {
-  const [windows, macos, smoke] = await Promise.all([
+  const [windows, macos, smoke, workflow] = await Promise.all([
     read('scripts/verify-solo-installer.ps1'),
     read('scripts/verify-solo-installer-macos.sh'),
-    read('scripts/verify-installed-voice.py')
+    read('scripts/verify-installed-voice.py'),
+    read('.github/workflows/solo-installers.yml')
   ]);
   assert.match(windows, /New-NetFirewallRule/);
   assert.match(macos, /block drop out all/);
@@ -231,6 +232,17 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(smoke, /KRISPOINT_OFFLINE_VOICE_SMOKE_LOG/);
   assert.match(smoke, /print_voice_log\(log_path\)/);
   assert.match(smoke, /packet_bytes = 16000 \* 2 \/\/ 10/);
+  assert.match(smoke, /class MemoryMonitor/);
+  assert.match(smoke, /process_tree_memory/);
+  assert.match(smoke, /"tauri", "node", "medasr", "other"/);
+  assert.match(smoke, /args\.continuous_seconds/);
+  assert.match(smoke, /args\.repeat_sessions/);
+  assert.match(smoke, /args\.reconnect_cycles/);
+  assert.match(smoke, /monitor\.validate\(peak_limits, args\.max_growth_mib\)/);
+  assert.match(windows, /krispoint-memory-soak-windows\.csv/);
+  assert.match(macos, /krispoint-memory-soak-macos\.csv/);
+  assert.match(workflow, /name: Upload memory soak measurements[\s\S]*if: always\(\)/);
+  assert.match(workflow, /krispoint-memory-soak-\$\{\{ matrix\.artifact \}\}/);
   assert.doesNotMatch(windows, /Start-Process \$installed\.FullName/);
   assert.doesNotMatch(windows, /Get-NetConnectionProfile/);
   assert.match(windows, /Get-NetFirewallProfile \| Where-Object \{ -not \$_.Enabled \}/);

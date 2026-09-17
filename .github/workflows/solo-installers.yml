@@ -79,6 +79,13 @@ jobs:
         run: ./scripts/verify-solo-installer.ps1
       - if: runner.os == 'macOS'
         run: ./scripts/verify-solo-installer-macos.sh
+      - name: Upload memory soak measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: krispoint-memory-soak-${{ matrix.artifact }}
+          path: ${{ runner.temp }}/krispoint-memory-soak-*.csv
+          if-no-files-found: warn
       - name: Verify Windows release signature
         if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/solo-v')
         shell: pwsh

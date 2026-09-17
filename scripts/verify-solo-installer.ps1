@@ -32,7 +32,10 @@ try {
   if (-not $rule.Enabled -or $rule.Profile -ne "Any") {
     throw "Offline firewall rule was not enabled"
   }
-  python scripts/verify-installed-voice.py --application $installed.FullName --audio scripts/fixtures/medasr-smoke.wav
+  python scripts/verify-installed-voice.py `
+    --application $installed.FullName `
+    --audio scripts/fixtures/medasr-smoke.wav `
+    --memory-report (Join-Path $env:RUNNER_TEMP "krispoint-memory-soak-windows.csv")
   if ($LASTEXITCODE -ne 0) {
     Get-ChildItem $env:LOCALAPPDATA -Include "backend.log", "voice.log" -File -Recurse -ErrorAction SilentlyContinue |
       ForEach-Object {
