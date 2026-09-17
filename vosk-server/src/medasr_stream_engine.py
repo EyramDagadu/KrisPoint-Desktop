@@ -5,10 +5,33 @@ import sys
 import threading
 import time
 import math
+import gc
+import ctypes
 from collections import deque
 from pathlib import Path
 
 import numpy as np
+
+_MACOS_LIBC = None
+
+
+def release_inference_memory():
+    """Return transient inference allocations to the OS where supported."""
+    gc.collect()
+    if sys.platform != "darwin":
+        return
+    global _MACOS_LIBC
+    try:
+        if _MACOS_LIBC is None:
+            _MACOS_LIBC = ctypes.CDLL("libc.dylib")
+            _MACOS_LIBC.malloc_zone_pressure_relief.argtypes = [
+                ctypes.c_void_p, ctypes.c_size_t]
+            _MACOS_LIBC.malloc_zone_pressure_relief.restype = ctypes.c_size_t
+        _MACOS_LIBC.malloc_zone_pressure_relief(None, 0)
+    except (AttributeError, OSError):
+        # Collection still happened; older macOS runtimes may not expose the
+        # allocator pressure API.
+        pass
 
 
 class MedASRStreamEngine:
@@ -572,13 +595,21 @@ class MedASRStreamEngine:
         started = time.time()
         inputs = self.processor(audio, sampling_rate=self.sample_rate,
                                 return_tensors="pt", padding=True).to(self.device)
+        outputs = None
         with torch.inference_mode():
             if hasattr(self.model, "generate"):
                 ids = self.model.generate(**inputs)
             else:
-                ids = torch.argmax(self.model(**inputs).logits, dim=-1)
+                outputs = self.model(**inputs)
+                ids = torch.argmax(outputs.logits, dim=-1)
         text = self._normalize_text(self.processor.batch_decode(ids)[0])
         self.latency_ms = round((time.time() - started) * 1000, 1)
+        # PyTorch's macOS CPU allocator can retain several gigabytes of
+        # transient logits and convolution workspaces across a long dictation.
+        # Drop every inference-owned reference before asking the allocator to
+        # return unused pages.
+        del ids, outputs, inputs, audio
+        release_inference_memory()
         if text:
             for callback in self.callbacks["final"]:
                 callback(text + " ", self.latency_ms)
