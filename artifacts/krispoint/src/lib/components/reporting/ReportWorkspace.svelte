@@ -26,7 +26,6 @@
   import EnhancedVoiceControl from './EnhancedVoiceControl.svelte';
   import AddendumWorkspace from './AddendumWorkspace.svelte';
   import KeyboardShortcutsPanel from '../ui/KeyboardShortcutsPanel.svelte';
-  import ThemeSelector from '../ui/ThemeSelector.svelte';
   import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
   
@@ -46,7 +45,6 @@
   
   // Service references (will be null during SSR)
   let keyboardShortcutService = null;
-  let themeService = null;
   let settingsService = null;
   let voiceControlComponent = null;
   
@@ -59,7 +57,6 @@
   let isSaved = true;
   let lastSaveTime = null;
   let showKeyboardShortcuts = false;
-  let showThemeSelector = false;
   let tipTapEditorComponent = null;
   let signedAddendums = [];
   

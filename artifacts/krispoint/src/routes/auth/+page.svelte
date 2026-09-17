@@ -115,11 +115,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: 
-            radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-            radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 50%, rgba(30, 41, 59, 0.8) 0%, transparent 70%),
-            linear-gradient(180deg, #0a0f1a 0%, #0f172a 50%, #1e293b 100%);
+        background:
+            radial-gradient(ellipse at 20% 20%, color-mix(in srgb, var(--color-primary) 15%, transparent) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 80%, color-mix(in srgb, var(--color-primary) 10%, transparent) 0%, transparent 50%),
+            linear-gradient(180deg, var(--color-background) 0%, var(--color-background-secondary) 100%);
         background-attachment: fixed;
         padding: 2rem 1rem;
         box-sizing: border-box;
@@ -192,7 +191,7 @@
     .loading-state {
         text-align: center;
         padding: 3rem;
-        background: rgba(30, 41, 59, 0.95);
+        background: var(--color-surface);
         border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(59, 130, 246, 0.1);
         backdrop-filter: blur(10px);
@@ -200,7 +199,7 @@
     
     .loading-state p {
         margin-top: 1rem;
-        color: #94a3b8;
+        color: var(--color-text-muted);
     }
     
     .loading-spinner {
@@ -217,22 +216,22 @@
         text-align: center;
         margin-top: 1.5rem;
         padding: 1rem;
-        background: rgba(30, 41, 59, 0.9);
+        background: var(--color-surface);
         border-radius: 8px;
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(71, 85, 105, 0.3);
+        border: 1px solid var(--color-border);
     }
     
     .auth-switch p {
         margin-bottom: 0.5rem;
-        color: #94a3b8;
+        color: var(--color-text-muted);
         font-size: 0.875rem;
     }
     
     .switch-btn {
         background: none;
         border: none;
-        color: #3b82f6;
+        color: var(--color-primary);
         font-weight: 500;
         text-decoration: underline;
         cursor: pointer;
@@ -240,7 +239,7 @@
     }
     
     .switch-btn:hover {
-        color: #60a5fa;
+        color: var(--color-primary-hover);
     }
     
     @keyframes spin {

@@ -4,11 +4,13 @@
   import { reportBadgeCounts } from '$lib/stores/reportBadgeStore.js';
   import { editionCapabilities } from '$lib/config/edition';
   import ConfirmDialog from './ConfirmDialog.svelte';
+  import ThemeSelector from './ThemeSelector.svelte';
   import { onMount } from 'svelte';
   
   export let collapsed = false;
   
   let showLogoutConfirm = false;
+  let showThemeSelector = false;
   
   onMount(() => {
     if (!editionCapabilities.collaboration) {
@@ -92,6 +94,25 @@
   </nav>
   
   <div class="sidebar-footer">
+    <button
+      class="nav-item appearance-btn"
+      on:click={() => showThemeSelector = true}
+      title="Appearance"
+      aria-label="Open appearance settings"
+    >
+      <span class="icon svg-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M12 3a9 9 0 1 0 9 9c0-1.1-.9-2-2-2h-1.2a2 2 0 0 1-1.8-2.9l.6-1.2A2 2 0 0 0 14.8 3H12Z"/>
+          <circle cx="7.5" cy="11.5" r=".75" fill="currentColor" stroke="none"/>
+          <circle cx="10" cy="7.5" r=".75" fill="currentColor" stroke="none"/>
+          <circle cx="15" cy="7" r=".75" fill="currentColor" stroke="none"/>
+          <circle cx="7.5" cy="16" r=".75" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      {#if !collapsed}
+        <span class="label">Appearance</span>
+      {/if}
+    </button>
     <button class="nav-item logout-btn" on:click={handleLogout} title="Logout">
       <span class="icon">🚪</span>
       {#if !collapsed}
@@ -210,6 +231,17 @@
     font-size: 1rem;
     flex-shrink: 0;
   }
+
+  .svg-icon svg {
+    display: block;
+    width: 1.1rem;
+    height: 1.1rem;
+    stroke-width: 1.8;
+  }
+
+  .appearance-btn {
+    margin-bottom: 0.25rem;
+  }
   
   .label {
     white-space: nowrap;
@@ -260,6 +292,8 @@
     border-top: 1px solid var(--color-border);
   }
 </style>
+
+<ThemeSelector bind:isOpen={showThemeSelector} />
 
 <ConfirmDialog
   bind:show={showLogoutConfirm}

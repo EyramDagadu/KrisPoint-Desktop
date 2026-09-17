@@ -11,6 +11,12 @@
   --color-text-muted: #94a3b8;
   --color-success: #22c55e;
   --color-danger: #ef4444;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e1;
+  --color-text-disabled: #64748b;
+  --color-surface-hover: #334155;
+  --color-error: #ef4444;
+  --color-error-light: #7f1d1d;
   --border-radius: 8px;
   
   /* Typography scale based on font size setting */

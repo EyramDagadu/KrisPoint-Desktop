@@ -139,6 +139,14 @@
       settingsService = ss;
       if (settingsService) {
         settings = settingsService.getAllSettings();
+        const { themeService } = await import('$lib/services/ThemeService.js');
+        const activeTheme = themeService?.getCurrentTheme()?.id;
+        if (activeTheme) {
+          settings = {
+            ...settings,
+            general: { ...settings.general, theme: activeTheme }
+          };
+        }
       }
     } catch (error) {
       console.error('Failed to load SettingsService:', error);
@@ -478,6 +486,12 @@
 
   function handleSettingChange() {
     unsavedChanges = true;
+  }
+
+  async function handleThemeChange() {
+    handleSettingChange();
+    const { themeService } = await import('$lib/services/ThemeService.js');
+    themeService?.setTheme(settings.general.theme);
   }
 
   // AI Configuration
@@ -1039,7 +1053,7 @@
             
             <div class="setting-group">
               <label for="theme-select">Theme</label>
-              <select id="theme-select" bind:value={settings.general.theme} on:change={handleSettingChange}>
+              <select id="theme-select" bind:value={settings.general.theme} on:change={handleThemeChange}>
                 <option value="light">Light Theme</option>
                 <option value="dark">Dark Theme</option>
               </select>

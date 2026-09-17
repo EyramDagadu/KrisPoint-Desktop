@@ -3,6 +3,8 @@
 import { browser } from '$app/environment';
 import { userStorageService } from './UserStorageService.js';
 
+const THEME_STORAGE_KEY = 'KRISPOINT_THEME';
+
 export class ThemeService {
   constructor() {
     this.currentTheme = 'light';
@@ -218,6 +220,27 @@ export class ThemeService {
       root.style.setProperty(`--color-${this.kebabCase(name)}`, value);
     });
 
+    // Keep older screens on the same palette while they migrate to --color-*.
+    const legacyColorAliases = {
+      '--background-primary': theme.colors.background,
+      '--background-secondary': theme.colors.surface,
+      '--background-tertiary': theme.colors.backgroundTertiary,
+      '--surface-color': theme.colors.surface,
+      '--input-bg': theme.colors.surface,
+      '--text-color': theme.colors.textPrimary,
+      '--text-primary': theme.colors.textPrimary,
+      '--text-secondary': theme.colors.textSecondary,
+      '--text-muted': theme.colors.textMuted,
+      '--border-color': theme.colors.border,
+      '--primary-color': theme.colors.primary,
+      '--primary-color-dark': theme.colors.primaryHover,
+      '--color-text': theme.colors.textPrimary,
+      '--color-text-primary-inverse': '#ffffff'
+    };
+    Object.entries(legacyColorAliases).forEach(([name, value]) => {
+      root.style.setProperty(name, value);
+    });
+
     // Apply font variables
     Object.entries(theme.fonts).forEach(([name, value]) => {
       root.style.setProperty(`--font-${this.kebabCase(name)}`, value);
@@ -253,7 +276,8 @@ export class ThemeService {
   applySystemPreferences() {
     if (!browser) return;
 
-    const savedTheme = userStorageService.getItem('krishPoint_theme');
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY)
+      || userStorageService.getItem('krishPoint_theme');
     if (!savedTheme && window.matchMedia) {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const prefersHighContrast = window.matchMedia('(prefers-contrast: high)').matches;
@@ -274,7 +298,8 @@ export class ThemeService {
 
     const handleSystemChange = () => {
       // Only auto-switch if user hasn't manually set a theme
-      const savedTheme = userStorageService.getItem('krishPoint_theme');
+      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY)
+        || userStorageService.getItem('krishPoint_theme');
       if (!savedTheme) {
         this.applySystemPreferences();
       }
@@ -471,6 +496,8 @@ export class ThemeService {
     
     try {
       userStorageService.setItem('krishPoint_theme', this.currentTheme);
+      // Appearance is device-level so it survives Solo relaunches and logout/login.
+      localStorage.setItem(THEME_STORAGE_KEY, this.currentTheme);
     } catch (error) {
       console.error('Error saving theme preference:', error);
     }
@@ -483,7 +510,8 @@ export class ThemeService {
     }
     
     try {
-      const saved = userStorageService.getItem('krishPoint_theme');
+      const saved = localStorage.getItem(THEME_STORAGE_KEY)
+        || userStorageService.getItem('krishPoint_theme');
       if (saved && this.getTheme(saved)) {
         this.setTheme(saved);
       } else {

@@ -10,12 +10,14 @@
   import ChatBubble from '$lib/components/ChatBubble.svelte';
   import IdleTimeoutWarning from '$lib/components/ui/IdleTimeoutWarning.svelte';
   import BetaTermsGate from '$lib/components/legal/BetaTermsGate.svelte';
+  import ThemeSelector from '$lib/components/ui/ThemeSelector.svelte';
   import { authState, authActions } from '$lib/stores/authStore.js';
   import { idleTimeoutService } from '$lib/services/IdleTimeoutService';
   import { editionCapabilities } from '$lib/config/edition';
   
   let mounted = false;
   let sidebarCollapsed = true;
+  let showThemeSelector = false;
   
   $: isAuthenticated = $authState.isAuthenticated;
   $: currentUserId = $authState.currentUser?.id || 0;
@@ -86,6 +88,22 @@
 <BetaTermsGate>
   <AuthGuard>
     {#if isAuthPage}
+      <div class="auth-appearance">
+        <button
+          class="appearance-trigger"
+          on:click={() => showThemeSelector = true}
+          aria-label="Open appearance settings"
+          title="Appearance"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M12 3a9 9 0 1 0 9 9c0-1.1-.9-2-2-2h-1.2a2 2 0 0 1-1.8-2.9l.6-1.2A2 2 0 0 0 14.8 3H12Z"/>
+            <circle cx="7.5" cy="11.5" r=".75" fill="currentColor" stroke="none"/>
+            <circle cx="10" cy="7.5" r=".75" fill="currentColor" stroke="none"/>
+            <circle cx="15" cy="7" r=".75" fill="currentColor" stroke="none"/>
+          </svg>
+          <span>Appearance</span>
+        </button>
+      </div>
       <slot />
     {:else}
       <div class="app-layout">
@@ -118,6 +136,8 @@
   </AuthGuard>
 </BetaTermsGate>
 
+<ThemeSelector bind:isOpen={showThemeSelector} />
+
 <style>
   .app-layout {
     display: flex;
@@ -126,6 +146,38 @@
     width: 100%;
     background: var(--color-background);
     overflow: hidden;
+  }
+
+  .auth-appearance {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 20;
+  }
+
+  .appearance-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md, 0.375rem);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-md);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .appearance-trigger:hover {
+    background: var(--color-surface-hover);
+  }
+
+  .appearance-trigger svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    stroke-width: 1.8;
   }
   
   .main-content {

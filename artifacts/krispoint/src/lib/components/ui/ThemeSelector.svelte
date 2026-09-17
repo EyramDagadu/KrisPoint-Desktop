@@ -170,27 +170,42 @@
     <button 
       class="theme-btn compact"
       on:click={toggleTheme}
-      title="Toggle theme (Light/Dark)"
+      title={currentTheme?.type === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-label={currentTheme?.type === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       {#if currentTheme?.type === 'dark'}
-        🌙
-      {:else if currentTheme?.type === 'high-contrast'}
-        🔳
-      {:else if currentTheme?.type === 'warm'}
-        🟡
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.64 5.64l1.42 1.42M16.94 16.94l1.42 1.42M18.36 5.64l-1.42 1.42M7.06 16.94l-1.42 1.42"/>
+          <circle cx="12" cy="12" r="4"/>
+        </svg>
       {:else}
-        ☀️
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z"/>
+        </svg>
       {/if}
     </button>
   </div>
 {:else if isOpen}
   <!-- Full Theme Selector Panel -->
-  <div class="theme-overlay" on:click={() => isOpen = false}>
-    <div class="theme-panel" on:click|stopPropagation>
+  <div
+    class="theme-overlay"
+    role="presentation"
+    on:click={() => isOpen = false}
+    on:keydown={(event) => event.key === 'Escape' && (isOpen = false)}
+  >
+    <div
+      class="theme-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="appearance-title"
+      tabindex="-1"
+      on:click|stopPropagation
+      on:keydown|stopPropagation
+    >
       <!-- Header -->
       <div class="panel-header">
         <div class="header-title">
-          <h2>🎨 Theme & Appearance</h2>
+          <h2 id="appearance-title">Theme &amp; Appearance</h2>
           <p>Customize the visual appearance for optimal comfort</p>
         </div>
         <div class="header-actions">
@@ -199,21 +214,37 @@
             on:click={() => showAccessibilityInfo = !showAccessibilityInfo}
             title="Toggle accessibility information"
           >
-            ♿ Accessibility
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <circle cx="12" cy="4" r="2"/>
+              <path d="M5 8h14M12 6v7M8 21l4-8 4 8"/>
+            </svg>
+            Accessibility
           </button>
-          <button class="export-btn" on:click={exportThemes}>📤 Export</button>
+          <button class="export-btn" on:click={exportThemes}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path d="M12 3v12M7 8l5-5 5 5M5 15v5h14v-5"/>
+            </svg>
+            Export
+          </button>
           <label class="import-btn">
-            📥 Import
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path d="M12 15V3M7 10l5 5 5-5M5 15v5h14v-5"/>
+            </svg>
+            Import
             <input type="file" accept=".json" on:change={importThemes} style="display: none;" />
           </label>
-          <button class="close-btn" on:click={() => isOpen = false}>✕</button>
+          <button class="close-btn" on:click={() => isOpen = false} aria-label="Close appearance settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path d="m6 6 12 12M18 6 6 18"/>
+            </svg>
+          </button>
         </div>
       </div>
 
       <!-- Accessibility Information -->
       {#if showAccessibilityInfo && accessibilityInfo}
         <div class="accessibility-section">
-          <h3>♿ Accessibility Information</h3>
+          <h3>Accessibility Information</h3>
           <div class="accessibility-grid">
             <div class="accessibility-item">
               <span class="label">Contrast Ratio:</span>
@@ -254,7 +285,17 @@
           {#each themes as theme}
             <div 
               class="theme-card {currentTheme?.id === theme.id ? 'active' : ''}"
+              role="button"
+              tabindex="0"
+              aria-pressed={currentTheme?.id === theme.id}
+              aria-label={`Use ${theme.name}`}
               on:click={() => selectTheme(theme.id)}
+              on:keydown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  selectTheme(theme.id);
+                }
+              }}
             >
               <div class="theme-preview" style="
                 background: {getThemePreview(theme).background};
@@ -278,7 +319,9 @@
                       on:click={(e) => deleteTheme(theme.id, e)}
                       title="Delete custom theme"
                     >
-                      🗑️
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                        <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/>
+                      </svg>
                     </button>
                   {/if}
                 </div>
@@ -308,8 +351,9 @@
           <div class="custom-creator">
             <div class="creator-form">
               <div class="form-group">
-                <label>Theme Name:</label>
+                <label for="custom-theme-name">Theme Name:</label>
                 <input 
+                  id="custom-theme-name"
                   type="text" 
                   bind:value={customThemeName}
                   placeholder="My Custom Theme"
@@ -317,8 +361,8 @@
               </div>
               
               <div class="form-group">
-                <label>Base Theme:</label>
-                <select bind:value={selectedBaseTheme}>
+                <label for="custom-base-theme">Base Theme:</label>
+                <select id="custom-base-theme" bind:value={selectedBaseTheme}>
                   {#each themes.filter(t => !t.isCustom) as theme}
                     <option value={theme.id}>{theme.name}</option>
                   {/each}
@@ -329,32 +373,36 @@
                 <h4>Color Customization</h4>
                 <div class="color-grid">
                   <div class="color-group">
-                    <label>Primary Color:</label>
+                    <label for="custom-primary-color">Primary Color:</label>
                     <input 
+                      id="custom-primary-color"
                       type="color" 
                       bind:value={customColors.primary}
                       placeholder={themes.find(t => t.id === selectedBaseTheme)?.colors.primary}
                     />
                   </div>
                   <div class="color-group">
-                    <label>Background:</label>
+                    <label for="custom-background-color">Background:</label>
                     <input 
+                      id="custom-background-color"
                       type="color" 
                       bind:value={customColors.background}
                       placeholder={themes.find(t => t.id === selectedBaseTheme)?.colors.background}
                     />
                   </div>
                   <div class="color-group">
-                    <label>Text Color:</label>
+                    <label for="custom-text-color">Text Color:</label>
                     <input 
+                      id="custom-text-color"
                       type="color" 
                       bind:value={customColors.textPrimary}
                       placeholder={themes.find(t => t.id === selectedBaseTheme)?.colors.textPrimary}
                     />
                   </div>
                   <div class="color-group">
-                    <label>Surface Color:</label>
+                    <label for="custom-surface-color">Surface Color:</label>
                     <input 
+                      id="custom-surface-color"
                       type="color" 
                       bind:value={customColors.surface}
                       placeholder={themes.find(t => t.id === selectedBaseTheme)?.colors.surface}
@@ -383,16 +431,17 @@
         <h3>Quick Actions</h3>
         <div class="actions-grid">
           <button class="action-btn" on:click={() => selectTheme('light')}>
-            ☀️ Light Mode
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>
+            </svg>
+            Light Mode
           </button>
           <button class="action-btn" on:click={() => selectTheme('dark')}>
-            🌙 Dark Mode
-          </button>
-          <button class="action-btn" on:click={() => selectTheme('highContrast')}>
-            🔳 High Contrast
-          </button>
-          <button class="action-btn" on:click={() => selectTheme('eyeComfort')}>
-            👁️ Eye Comfort
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z"/>
+            </svg>
+            Dark Mode
           </button>
         </div>
       </div>
@@ -413,8 +462,14 @@
     border-radius: 0.375rem;
     background: var(--color-surface, white);
     cursor: pointer;
-    font-size: 1.125rem;
     transition: all 0.2s;
+  }
+
+  .theme-btn.compact svg {
+    display: block;
+    width: 1.125rem;
+    height: 1.125rem;
+    stroke-width: 1.8;
   }
 
   .theme-btn.compact:hover {
@@ -486,6 +541,15 @@
     font-size: 0.875rem;
     transition: all 0.2s;
     color: var(--color-text-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .toggle-accessibility svg, .export-btn svg, .import-btn svg {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.8;
   }
 
   .toggle-accessibility:hover, .export-btn:hover, .import-btn:hover {
@@ -495,11 +559,17 @@
   .close-btn {
     background: none;
     border: none;
-    font-size: 1.5rem;
     cursor: pointer;
     color: var(--color-text-muted, #6b7280);
     padding: 0.5rem;
     border-radius: 0.375rem;
+  }
+
+  .close-btn svg {
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke-width: 2;
   }
 
   .close-btn:hover {
@@ -658,10 +728,16 @@
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 0.875rem;
     padding: 0.25rem;
     border-radius: 0.25rem;
     transition: all 0.2s;
+  }
+
+  .delete-btn svg {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.8;
   }
 
   .delete-btn:hover {
@@ -841,7 +917,7 @@
 
   .actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
     gap: 0.5rem;
   }
 
@@ -856,6 +932,16 @@
     transition: all 0.2s;
     text-align: center;
     color: var(--color-text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+  }
+
+  .action-btn svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    stroke-width: 1.8;
   }
 
   .action-btn:hover {
