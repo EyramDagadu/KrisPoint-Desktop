@@ -243,10 +243,10 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(smoke, /"phase": "warmup" if self\.baseline_index is None else "soak"/);
   assert.match(smoke, /steady_growth=/);
   assert.match(smoke, /peak_processes=/);
-  assert.match(smoke, /MedASR spawned \{peak_processes\} processes; expected one/);
+  assert.match(smoke, /args\.max_medasr_processes/);
+  assert.match(smoke, /MedASR spawned \{peak_processes\} processes; ceiling is/);
   assert.match(smoke, /args\.repeat_sessions/);
   assert.match(smoke, /args\.reconnect_cycles/);
-  assert.match(smoke, /monitor\.validate\(peak_limits, args\.max_growth_mib\)/);
   assert.match(windows, /krispoint-memory-soak-windows\.csv/);
   assert.match(macos, /krispoint-memory-soak-macos\.csv/);
   assert.match(workflow, /name: Upload memory soak measurements[\s\S]*if: always\(\)/);

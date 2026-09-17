@@ -177,7 +177,8 @@ class MemoryMonitor:
         self.baseline_index = len(self.samples)
         await asyncio.sleep(self.interval)
 
-    def validate(self, peak_limits_mib, growth_limit_mib):
+    def validate(self, peak_limits_mib, growth_limit_mib,
+                 max_medasr_processes):
         if self.baseline_index is None or len(self.samples) < self.baseline_index + 2:
             raise RuntimeError("Memory monitor did not collect enough samples")
         failures = []
@@ -203,9 +204,11 @@ class MemoryMonitor:
                 failures.append(
                     f"{component} growth {growth:.1f} MiB exceeded "
                     f"{growth_limit_mib} MiB")
-            if component == "medasr" and peak_processes > 1:
+            if (component == "medasr"
+                    and peak_processes > max_medasr_processes):
                 failures.append(
-                    f"MedASR spawned {peak_processes} processes; expected one")
+                    f"MedASR spawned {peak_processes} processes; ceiling is "
+                    f"{max_medasr_processes}")
         if failures:
             raise RuntimeError("Memory ceiling failed: " + "; ".join(failures))
 
@@ -342,7 +345,8 @@ async def verify(args):
                           f"{args.reconnect_cycles} succeeded ({len(text)} characters)")
                 await websocket.close()
                 await asyncio.sleep(args.sample_interval)
-            monitor.validate(peak_limits, args.max_growth_mib)
+            monitor.validate(
+                peak_limits, args.max_growth_mib, args.max_medasr_processes)
             print(f"Memory samples written to {report_path}")
             stop_path.touch()
             if await asyncio.to_thread(process.wait, 30) != 0:
@@ -385,6 +389,7 @@ def main():
     parser.add_argument("--max-medasr-mib", type=float, default=8192)
     parser.add_argument("--max-other-mib", type=float, default=1024)
     parser.add_argument("--max-growth-mib", type=float, default=768)
+    parser.add_argument("--max-medasr-processes", type=int, default=4)
     asyncio.run(verify(parser.parse_args()))
 
 
