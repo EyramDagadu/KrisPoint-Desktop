@@ -614,13 +614,18 @@ export class WhisperVoiceService {
             }
 
             if (this.scriptProcessor) {
+                // Break the callback's closure over its queued audio buffers
+                // immediately instead of waiting for browser garbage collection.
+                this.scriptProcessor.onaudioprocess = null;
                 this.scriptProcessor.disconnect();
                 this.scriptProcessor = null;
             }
 
             // Close audio context
             if (this.audioContext && this.audioContext.state !== 'closed') {
-                this.audioContext.close();
+                void this.audioContext.close().catch(error => {
+                    console.warn('Unable to close voice audio context:', error);
+                });
                 this.audioContext = null;
             }
 

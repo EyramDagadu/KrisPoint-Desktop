@@ -266,6 +266,8 @@ impl VoiceServerState {
             .stdin(Stdio::null())
             .stdout(Stdio::from(voice_log))
             .stderr(Stdio::from(voice_error_log));
+        #[cfg(target_os = "macos")]
+        command.env("MallocNanoZone", "0");
         #[cfg(windows)]
         command.creation_flags(0x08000000);
         let child = command

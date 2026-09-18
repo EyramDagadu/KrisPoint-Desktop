@@ -206,14 +206,18 @@ test('Tauri clears stale voice state when the sidecar exits', async () => {
 });
 
 test('native installer verification includes an offline authenticated transcription', async () => {
-  const [windows, macos, smoke] = await Promise.all([
+  const [windows, macos, smoke, workflow] = await Promise.all([
     read('scripts/verify-solo-installer.ps1'),
     read('scripts/verify-solo-installer-macos.sh'),
-    read('scripts/verify-installed-voice.py')
+    read('scripts/verify-installed-voice.py'),
+    read('.github/workflows/solo-installers.yml')
   ]);
   assert.match(windows, /New-NetFirewallRule/);
   assert.match(macos, /block drop out all/);
   assert.match(macos, /codesign --verify --strict "\$app"/);
+  assert.match(macos, /collect_descendants/);
+  assert.match(macos, /stop_app_tree/);
+  assert.match(macos, /pgrep -P "\$parent"/);
   assert.doesNotMatch(macos, /codesign --verify --deep/);
   for (const script of [windows, macos]) {
     assert.match(script, /verify-installed-voice\.py/);
@@ -231,6 +235,22 @@ test('native installer verification includes an offline authenticated transcript
   assert.match(smoke, /KRISPOINT_OFFLINE_VOICE_SMOKE_LOG/);
   assert.match(smoke, /print_voice_log\(log_path\)/);
   assert.match(smoke, /packet_bytes = 16000 \* 2 \/\/ 10/);
+  assert.match(smoke, /class MemoryMonitor/);
+  assert.match(smoke, /process_tree_memory/);
+  assert.match(smoke, /"tauri", "node", "medasr", "other"/);
+  assert.match(smoke, /args\.continuous_seconds/);
+  assert.match(smoke, /mark_steady_state/);
+  assert.match(smoke, /"phase": "warmup" if self\.baseline_index is None else "soak"/);
+  assert.match(smoke, /steady_growth=/);
+  assert.match(smoke, /peak_processes=/);
+  assert.match(smoke, /args\.max_medasr_processes/);
+  assert.match(smoke, /MedASR spawned \{peak_processes\} processes; ceiling is/);
+  assert.match(smoke, /args\.repeat_sessions/);
+  assert.match(smoke, /args\.reconnect_cycles/);
+  assert.match(windows, /krispoint-memory-soak-windows\.csv/);
+  assert.match(macos, /krispoint-memory-soak-macos\.csv/);
+  assert.match(workflow, /name: Upload memory soak measurements[\s\S]*if: always\(\)/);
+  assert.match(workflow, /krispoint-memory-soak-\$\{\{ matrix\.artifact \}\}/);
   assert.doesNotMatch(windows, /Start-Process \$installed\.FullName/);
   assert.doesNotMatch(windows, /Get-NetConnectionProfile/);
   assert.match(windows, /Get-NetFirewallProfile \| Where-Object \{ -not \$_.Enabled \}/);
@@ -285,10 +305,24 @@ test('Solo and Hospital MedASR share pause-triggered endpoint detection', async 
   assert.match(voicePackaging, /vosk-server['"], ['"]src/);
 });
 
+test('MedASR releases transient inference memory after every segment', async () => {
+  const [engine, voiceServer] = await Promise.all([
+    read('vosk-server/src/medasr_stream_engine.py'),
+    read('src-tauri/src/voice_server.rs')
+  ]);
+  assert.match(engine, /def release_inference_memory\(\)/);
+  assert.match(engine, /malloc_zone_pressure_relief/);
+  assert.match(engine, /ctypes\.CDLL\(None\)/);
+  assert.match(engine, /del ids, outputs, inputs, audio/);
+  assert.match(engine, /release_inference_memory\(\)/);
+  assert.match(voiceServer, /command\.env\("MallocNanoZone", "0"\)/);
+});
+
 test('voice stop cleanup does not block the asyncio event loop', async () => {
   const server = await read('vosk-server/src/websocket_server.py');
   assert.match(server, /asyncio\.wait_for\(asyncio\.to_thread\(engine\.stop_processing\)/);
   assert.match(server, /Timed out stopping/);
+  assert.match(server, /multiprocessing\.freeze_support\(\)/);
 });
 
 test('PDF list items advance by a full line so bullets cannot overlap', async () => {
