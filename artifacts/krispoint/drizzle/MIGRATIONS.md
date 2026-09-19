@@ -3,7 +3,7 @@
 This repository currently has no Drizzle migration journal (`drizzle/meta`)
 and does not invoke a Drizzle migrator during Hospital startup. The
 executable root script `npm run db:migrate:hospital` is therefore the
-authoritative rollout path for the active-template identity migration.
+authoritative rollout path for the schema additions in this SQL file.
 
 It uses the same `DATABASE_URL` PostgreSQL convention as `src/lib/server/db.ts`,
 runs both statements in one transaction, and uses PostgreSQL

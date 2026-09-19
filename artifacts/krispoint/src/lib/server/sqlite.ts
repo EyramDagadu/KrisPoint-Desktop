@@ -50,7 +50,7 @@ const initialize = () => {
     CREATE TABLE IF NOT EXISTS report_metrics_daily (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL, user_id INTEGER, user_role TEXT, modality TEXT, department TEXT, report_count INTEGER DEFAULT 0, total_reporting_time_ms INTEGER DEFAULT 0, avg_reporting_time_ms INTEGER DEFAULT 0, min_reporting_time_ms INTEGER, max_reporting_time_ms INTEGER, review_count INTEGER DEFAULT 0, total_review_time_ms INTEGER DEFAULT 0, avg_review_time_ms INTEGER DEFAULT 0, created_at TEXT, updated_at TEXT);
     CREATE TABLE IF NOT EXISTS worklist (id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER NOT NULL, modality TEXT NOT NULL, body_region TEXT, study_description TEXT, accession_number TEXT, study_date TEXT, priority TEXT DEFAULT 'ROUTINE', indication TEXT, referring_physician TEXT, status TEXT DEFAULT 'PENDING', report_id INTEGER, picked_up_by INTEGER, picked_up_at TEXT, created_by INTEGER NOT NULL, created_at TEXT, updated_at TEXT);
     CREATE TABLE IF NOT EXISTS templates (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, category TEXT, modality TEXT, body_region TEXT, comparison_html TEXT, technique_html TEXT, findings_html TEXT, impression_html TEXT, content TEXT NOT NULL, variables TEXT, voice_command TEXT, is_system INTEGER DEFAULT 0, is_global INTEGER DEFAULT 0, department_id TEXT, created_by INTEGER NOT NULL, is_active INTEGER DEFAULT 1, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
-    CREATE TABLE IF NOT EXISTS macros (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, voice_command TEXT, category TEXT, content TEXT NOT NULL, variables TEXT, is_system INTEGER DEFAULT 0, is_global INTEGER DEFAULT 0, created_by INTEGER NOT NULL, is_active INTEGER DEFAULT 1, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
+    CREATE TABLE IF NOT EXISTS macros (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, voice_command TEXT, category TEXT, modality TEXT, content TEXT NOT NULL, variables TEXT, is_system INTEGER DEFAULT 0, is_global INTEGER DEFAULT 0, created_by INTEGER NOT NULL, is_active INTEGER DEFAULT 1, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
     CREATE TABLE IF NOT EXISTS user_settings (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL UNIQUE, voice_command_pool TEXT DEFAULT 'system', preferences TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
     CREATE TABLE IF NOT EXISTS organization_settings (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT NOT NULL UNIQUE, value TEXT, description TEXT, updated_by INTEGER, created_at TEXT, updated_at TEXT);
     CREATE TABLE IF NOT EXISTS user_presence (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL UNIQUE, is_online INTEGER DEFAULT 0, last_seen_at TEXT, status TEXT DEFAULT 'available', created_at TEXT, updated_at TEXT);
@@ -83,6 +83,16 @@ const initialize = () => {
        'INSERT INTO krispoint_schema_versions (version, applied_at) VALUES (?, ?)'
      ).run(2, new Date().toISOString());
    }
+
+    if (current.version < 3) {
+      const columns = database.prepare('PRAGMA table_info(macros)').all() as Array<{ name: string }>;
+      if (!columns.some(column => column.name === 'modality')) {
+        database.exec('ALTER TABLE macros ADD COLUMN modality TEXT');
+      }
+      database.prepare(
+        'INSERT INTO krispoint_schema_versions (version, applied_at) VALUES (?, ?)'
+      ).run(3, new Date().toISOString());
+    }
 };
 
 export const createSqliteDb = () => {

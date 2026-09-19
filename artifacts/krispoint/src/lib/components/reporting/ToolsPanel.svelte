@@ -4,6 +4,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
   import { macroStore } from "$lib/stores/macroStore.js";
   import { hasFeature } from '$lib/stores/licenseStore.js';
   import { isSoloEdition } from '$lib/config/edition.js';
+  import { matchesModality, normalizeModality } from '$lib/utils/modality.js';
 
   $: hasTemplateAccess = hasFeature('templates');
   $: hasMacroAccess = hasFeature('macros');
@@ -27,15 +28,10 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
   let templatesLoading = false;
   let macrosLoading = false;
 
-  $: selectedModality = String($patientData.examType || '').trim().toLowerCase();
+  $: selectedModality = normalizeModality($patientData.examType);
 
   function matchesSelectedModality(item) {
-    if (!selectedModality) return true;
-    const itemModality = String(item.modality || '').trim().toLowerCase();
-    if (!itemModality || itemModality === 'all' || itemModality === 'general') return true;
-    return itemModality === selectedModality ||
-      itemModality.includes(selectedModality) ||
-      selectedModality.includes(itemModality);
+    return matchesModality(item.modality, selectedModality);
   }
 
   // Filter templates by the active report modality, then by search.

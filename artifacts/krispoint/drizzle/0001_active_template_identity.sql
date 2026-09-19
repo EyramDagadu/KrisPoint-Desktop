@@ -7,3 +7,7 @@ ALTER TABLE "reports"
 
 ALTER TABLE "reports"
   ADD COLUMN IF NOT EXISTS "active_template_name" varchar(255);
+
+-- Allow system and personal macros to target a report modality.
+ALTER TABLE "macros"
+  ADD COLUMN IF NOT EXISTS "modality" varchar(50);

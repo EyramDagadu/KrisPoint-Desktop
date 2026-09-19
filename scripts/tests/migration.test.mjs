@@ -22,7 +22,8 @@ test('active-template PostgreSQL migration upgrades an old reports schema and is
 
   assert.ok(columns.has('active_template_id'));
   assert.ok(columns.has('active_template_name'));
-  assert.equal(MIGRATION_STATEMENTS.length, 2);
+  assert.ok(columns.has('modality'));
+  assert.equal(MIGRATION_STATEMENTS.length, 3);
   assert.ok(MIGRATION_STATEMENTS.every(statement => /ADD COLUMN IF NOT EXISTS/.test(statement)));
   assert.equal(queries.filter(query => query === 'BEGIN').length, 2);
   assert.equal(queries.filter(query => query === 'COMMIT').length, 2);

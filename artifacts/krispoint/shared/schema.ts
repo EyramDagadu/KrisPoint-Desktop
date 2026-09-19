@@ -397,6 +397,7 @@ export const macros = pgTable('macros', {
   name: varchar('name', { length: 255 }).notNull(),
   voiceCommand: varchar('voice_command', { length: 255 }),
   category: varchar('category', { length: 100 }),
+  modality: varchar('modality', { length: 50 }),
   
   content: text('content').notNull(),
   variables: jsonb('variables'),

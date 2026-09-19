@@ -70,7 +70,7 @@ export const PUT: RequestHandler = async ({ request, params }) => {
     }
 
     const body = await request.json();
-    const { name, category, content, variables, voiceCommand } = body;
+    const { name, category, modality, content, variables, voiceCommand } = body;
 
     if (voiceCommand && voiceCommand.trim()) {
       const normalizedVoiceCommand = voiceCommand.trim().toLowerCase();
@@ -115,6 +115,7 @@ export const PUT: RequestHandler = async ({ request, params }) => {
       .set({
         name: name || existingMacro.name,
         category: category !== undefined ? category : existingMacro.category,
+        modality: modality !== undefined ? (modality?.trim().toLowerCase() || null) : existingMacro.modality,
         content: content || existingMacro.content,
         variables: variables !== undefined ? variables : existingMacro.variables,
         voiceCommand: voiceCommand !== undefined ? (voiceCommand?.trim() || null) : existingMacro.voiceCommand,

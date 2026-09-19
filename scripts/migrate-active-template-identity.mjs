@@ -8,7 +8,8 @@ import path from 'node:path';
 // migration journal or migrator entrypoint.
 export const MIGRATION_STATEMENTS = Object.freeze([
   `ALTER TABLE "reports" ADD COLUMN IF NOT EXISTS "active_template_id" integer`,
-  `ALTER TABLE "reports" ADD COLUMN IF NOT EXISTS "active_template_name" varchar(255)`
+  `ALTER TABLE "reports" ADD COLUMN IF NOT EXISTS "active_template_name" varchar(255)`,
+  `ALTER TABLE "macros" ADD COLUMN IF NOT EXISTS "modality" varchar(50)`
 ]);
 
 export async function migrateActiveTemplateIdentity(client) {
@@ -31,7 +32,7 @@ export async function run() {
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
   try {
     await migrateActiveTemplateIdentity(pool);
-    console.log('Hospital database migration complete: active template identity');
+    console.log('Hospital database migration complete');
   } finally {
     await pool.end();
   }

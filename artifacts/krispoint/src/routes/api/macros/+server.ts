@@ -64,7 +64,7 @@ export const POST: RequestHandler = async ({ request }) => {
     }
 
     const body = await request.json();
-    const { name, category, content, variables, voiceCommand, isSystem } = body;
+    const { name, category, modality, content, variables, voiceCommand, isSystem } = body;
 
     if (!name || !content) {
       return json({ success: false, error: 'Name and content are required' }, { status: 400 });
@@ -120,6 +120,7 @@ export const POST: RequestHandler = async ({ request }) => {
       .values({
         name,
         category: category || null,
+        modality: modality?.trim().toLowerCase() || null,
         content,
         variables: variables || null,
         voiceCommand: voiceCommand?.trim() || null,
@@ -140,7 +141,7 @@ export const POST: RequestHandler = async ({ request }) => {
       resourceType: 'MACRO',
       resourceId: String(newMacro.id),
       description: `${isSystem ? 'System' : 'Personal'} macro "${name}" created`,
-      metadata: { isSystem, category }
+      metadata: { isSystem, category, modality: modality?.trim().toLowerCase() || null }
     });
 
     return json({ success: true, macro: newMacro }, { status: 201 });

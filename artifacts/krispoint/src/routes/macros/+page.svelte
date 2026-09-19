@@ -28,7 +28,21 @@
     voiceCommand: '',
     content: '',
     category: 'General',
+    modality: '',
   };
+
+  const modalities = [
+    { id: '', label: 'All modalities' },
+    { id: 'ct', label: 'CT Scan' },
+    { id: 'mri', label: 'MRI' },
+    { id: 'xray', label: 'X-Ray' },
+    { id: 'us', label: 'Ultrasound' },
+    { id: 'mg', label: 'Mammography' },
+    { id: 'fl', label: 'Fluoroscopy' },
+    { id: 'nm', label: 'Nuclear Medicine' },
+    { id: 'petct', label: 'PET-CT' },
+    { id: 'general', label: 'General (all modalities)' }
+  ];
   
   const categories = [
     { id: 'All', label: 'All', icon: '📋' },
@@ -107,6 +121,7 @@
       voiceCommand: macro.voiceCommand || '',
       content: macro.content || '',
       category: macro.category || 'General',
+      modality: macro.modality || '',
       variables: macro.variables || []
     };
     showAddForm = true;
@@ -119,6 +134,7 @@
       voiceCommand: '',
       content: '',
       category: 'General',
+      modality: '',
       variables: []
     };
     showAddForm = false;
@@ -141,6 +157,7 @@
         voiceCommand: newMacro.voiceCommand || null,
         content: newMacro.content,
         category: newMacro.category || 'General',
+        modality: newMacro.modality || null,
         variables: newMacro.variables || null,
         isSystem: isSystem
       };
@@ -364,6 +381,10 @@
                 <span class="voice-text">"{macro.voiceCommand}"</span>
               </div>
             {/if}
+
+            <div class="modality-label">
+              {modalities.find(item => item.id === (macro.modality || ''))?.label || macro.modality}
+            </div>
             
             <div class="macro-content">
               {macro.content.length > 100 ? macro.content.substring(0, 100) + '...' : macro.content}
@@ -413,6 +434,16 @@
               <option value={cat.id}>{cat.icon} {cat.label}</option>
             {/each}
           </select>
+        </div>
+
+        <div class="form-group">
+          <label for="macroModality">Modality</label>
+          <select id="macroModality" bind:value={newMacro.modality}>
+            {#each modalities as modality}
+              <option value={modality.id}>{modality.label}</option>
+            {/each}
+          </select>
+          <span class="field-hint">General and all-modality macros appear for every report.</span>
         </div>
         
         <div class="form-group">
@@ -625,6 +656,16 @@
     color: var(--text-secondary, #64748b);
     line-height: 1.5;
     flex: 1;
+  }
+
+  .modality-label {
+    align-self: flex-start;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    background: var(--bg-secondary, #f1f5f9);
+    color: var(--text-secondary, #64748b);
+    font-size: 0.75rem;
+    font-weight: 600;
   }
 
   .macro-actions {
