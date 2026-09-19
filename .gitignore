@@ -31,6 +31,8 @@ node_modules
 /.sass-cache
 /connect.lock
 /coverage
+/artifacts/krispoint/test-results/
+/artifacts/krispoint/playwright-report/
 /libpeerconnection.log
 npm-debug.log
 yarn-error.log
