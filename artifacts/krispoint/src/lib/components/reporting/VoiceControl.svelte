@@ -6,8 +6,7 @@
   let lastCommand = '';
   
   // Core voice commands - medical phrases are handled via user-created macros
-  const voiceCommands = {
-    navigation: [
+  const voiceCommands = [
     { command: 'go to comparison', description: 'Navigate to Comparison section' },
     { command: 'go to findings', description: 'Navigate to Findings section' },
     { command: 'go to impression', description: 'Navigate to Impression section' },

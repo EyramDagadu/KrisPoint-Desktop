@@ -13,3 +13,4 @@
 - [Solo license trust policy](solo-license-trust-policy.md) — public releases pin the license authority and use short signed offline leases tied to protected device identity.
 - [Appearance persistence](appearance-persistence.md) — theme choice is device-level and must survive logout, login, and Solo desktop relaunches.
 - [Frozen MedASR multiprocessing](frozen-medasr-multiprocessing.md) — packaged macOS voice must intercept frozen worker startup or each worker reloads the model.
+- [Release type-check boundary](release-type-check-boundary.md) — keep the release check clean; expand strict typing incrementally instead of restoring the legacy error flood.

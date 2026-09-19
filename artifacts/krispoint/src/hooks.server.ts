@@ -24,7 +24,7 @@ const databaseReady = isSolo
 // Solo needs its owner role before first-run registration. Hospital retains
 // the existing non-destructive permission sync behavior.
 databaseReady.then(result => {
-  if (result.success && result.synced && result.synced > 0) {
+  if (result.success && 'synced' in result && typeof result.synced === 'number' && result.synced > 0) {
     console.log(`🔐 Permission sync: Added ${result.synced} missing role-permission links`);
   }
 }).catch(err => {

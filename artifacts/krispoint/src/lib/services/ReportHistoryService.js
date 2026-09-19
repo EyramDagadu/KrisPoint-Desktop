@@ -254,7 +254,7 @@ export class ReportHistoryService {
       reportsThisMonth: this.getReportsInDateRange(reports, 30),
       mostCommonTags: this.getMostCommonTags(reports),
       averageReportsPerDay: this.calculateAverageReportsPerDay(reports),
-      busiest Day: this.getBusiestDay(reports)
+      busiestDay: this.getBusiestDay(reports)
     };
   }
 

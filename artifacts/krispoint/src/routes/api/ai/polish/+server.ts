@@ -162,10 +162,11 @@ export const POST: RequestHandler = async ({ request, url }) => {
       return response({ success: false, error: 'Invalid request' }, 400);
     }
     const input = body as Record<string, unknown>;
-    const action = input.action === undefined ? 'polish' : input.action;
-    if (action !== 'polish' && action !== 'impression') {
+    const requestedAction = input.action === undefined ? 'polish' : input.action;
+    if (requestedAction !== 'polish' && requestedAction !== 'impression') {
       return response({ success: false, error: 'Unsupported AI action' }, 400);
     }
+    const action: 'polish' | 'impression' = requestedAction;
     const requestedProvider = typeof input.providerMode === 'string' ? input.providerMode : null;
     if (!requestedProvider) {
       return response({

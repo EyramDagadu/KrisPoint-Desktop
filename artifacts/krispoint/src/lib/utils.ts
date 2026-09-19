@@ -95,12 +95,16 @@ export async function generatePDF(report: any): Promise<Uint8Array> {
 async function addFormattedText(pdfDoc: PDFDocument, text: string, x: number, y: number, font: any) {
   // Simple text formatting implementation
   const lines = text.split('\n');
+  let page = pdfDoc.getPages().at(-1);
+  if (!page) {
+    page = pdfDoc.addPage([595, 842]);
+  }
   for (const line of lines) {
     if (y < 50) {
-      const newPage = pdfDoc.addPage([595, 842]);
+      page = pdfDoc.addPage([595, 842]);
       y = 842 - 50;
     }
-    newPage.drawText(line, { x, y, size: 12, font });
+    page.drawText(line, { x, y, size: 12, font });
     y -= 15;
   }
 }

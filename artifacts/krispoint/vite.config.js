@@ -5,9 +5,12 @@ import { verifyVoiceTicket } from './src/lib/server/voiceTicket.js'
 export default defineConfig(({ command }) => {
   const voiceClientToken = process.env.VOICE_CLIENT_TOKEN;
   const isHospitalEdition = process.env.VITE_KRISPOINT_EDITION !== 'solo';
+  const isStaticCheck = process.env.npm_lifecycle_event === 'check';
   const configuredPort = Number(process.env.PORT || 5000);
   const licenseServerTarget = process.env.LICENSE_SERVER_URL || 'http://localhost:3001';
-  if (command === 'serve' && isHospitalEdition && !voiceClientToken) {
+  // svelte-check loads Vite in serve mode to analyze components, but never
+  // starts the voice proxy. Keep the secret mandatory for real dev servers.
+  if (command === 'serve' && !isStaticCheck && isHospitalEdition && !voiceClientToken) {
     throw new Error(
       'VOICE_CLIENT_TOKEN is required for the Hospital /voice development proxy. ' +
       'Set it server-side; it must not be exposed to browser code.'

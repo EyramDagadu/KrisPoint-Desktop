@@ -7,6 +7,8 @@
   let recognition: any;
   let isCommandMode = false;
   let interimTranscript = '';
+  let macroName = '';
+  let macroText = '';
 
   // Initialize speech recognition
   onMount(async () => {
@@ -189,7 +191,7 @@
         {$isDictating ? 'Stop Dictation' : 'Start Dictation'}
       </button>
       
-      <select on:change={(e) => insertMacro(e.target.value)}>
+      <select on:change={(e) => insertMacro(e.currentTarget.value)}>
         <option value="">Insert Macro</option>
         {#each $macros as macro}
           <option value={macro.name}>{macro.name}</option>
