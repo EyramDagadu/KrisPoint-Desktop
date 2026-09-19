@@ -26,9 +26,7 @@ export default defineConfig({
   },
   webServer: {
     command: `VITE_KRISPOINT_EDITION=solo DATABASE_URL=sqlite://${databasePath} KRISPOINT_SOLO_DB_PATH=${databasePath} SOLO_ENCRYPTION_KEY=theme-test-encryption-key-32-chars SOLO_AUDIT_KEY=theme-test-audit-key-32-characters PORT=${port} pnpm --filter @workspace/krispoint run dev`,
-    // The health endpoint intentionally returns 503 until an empty Solo database
-    // finishes its first-request initialization, so readiness uses the auth page.
-    url: `http://127.0.0.1:${port}/auth`,
+    url: `http://127.0.0.1:${port}/api/health`,
     reuseExistingServer: false,
     timeout: 120_000,
   },

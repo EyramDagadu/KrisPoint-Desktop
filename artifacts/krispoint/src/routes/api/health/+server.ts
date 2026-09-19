@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { db, isSqlite } from '$lib/server/db';
+import { db, isSqlite, schema } from '$lib/server/db';
 import { sql } from 'drizzle-orm';
 import { decrypt, encrypt } from '$lib/server/encryption';
 import {
@@ -9,6 +9,7 @@ import {
 } from '$lib/server/validateEnvironment';
 
 type ComponentStatus = 'healthy' | 'degraded' | 'unhealthy';
+type ReadinessState = 'ready' | 'setup-ready' | 'broken';
 
 type HealthComponent = {
   status: ComponentStatus;
@@ -35,12 +36,14 @@ export const GET: RequestHandler = async () => {
     encryption: HealthComponent;
     environment: HealthComponent;
     licensing: HealthComponent;
+    workspace: HealthComponent;
   } = {
     database: { status: 'unhealthy', latencyMs: 0 },
     migration: { status: 'unhealthy', migration: 'active_template_identity' },
     encryption: { status: 'unhealthy' },
     environment: { status: 'healthy', issues: [] },
-    licensing: { status: 'healthy', skipped: true }
+    licensing: { status: 'healthy', skipped: true },
+    workspace: { status: 'healthy', setupRequired: false }
   };
 
   // Verify connectivity with the same query used by the Hospital runtime.
@@ -48,7 +51,7 @@ export const GET: RequestHandler = async () => {
   // useful for diagnosing a damaged local database.
   try {
     const startedAt = Date.now();
-    await db.execute(sql`SELECT 1`);
+    await readQuery(sql`SELECT 1`);
     checks.database = {
       status: 'healthy',
       latencyMs: Math.max(0, Date.now() - startedAt),
@@ -67,7 +70,7 @@ export const GET: RequestHandler = async () => {
   // schema version table and must have reached version 2.
   try {
     const columnResult = isSqlite
-      ? await db.execute(sql`SELECT name FROM pragma_table_info('reports')`)
+      ? await readQuery(sql`SELECT name FROM pragma_table_info('reports')`)
       : await db.execute(sql`
           SELECT column_name
           FROM information_schema.columns
@@ -85,7 +88,7 @@ export const GET: RequestHandler = async () => {
 
     let currentMigration = true;
     if (isSqlite) {
-      const versionResult = await db.execute(sql`
+      const versionResult = await readQuery(sql`
         SELECT version
         FROM krispoint_schema_versions
         ORDER BY version DESC
@@ -114,6 +117,19 @@ export const GET: RequestHandler = async () => {
       migration: 'active_template_identity',
       current: false
     };
+  }
+
+  if (isSolo && checks.database.status === 'healthy' && checks.migration.status === 'healthy') {
+    try {
+      const users = await db.select({ id: schema.users.id }).from(schema.users).limit(1);
+      checks.workspace = users.length === 0
+        ? { status: 'healthy', setupRequired: true }
+        : { status: 'healthy', setupRequired: false };
+    } catch {
+      checks.workspace = { status: 'unhealthy', setupRequired: false };
+    }
+  } else if (checks.database.status === 'unhealthy' || checks.migration.status === 'unhealthy') {
+    checks.workspace = { status: 'unhealthy', setupRequired: false };
   }
 
   // Exercise the actual crypto implementation with a process-local sentinel.
@@ -181,10 +197,16 @@ export const GET: RequestHandler = async () => {
     : componentStatuses.includes('degraded')
       ? 'degraded'
       : 'healthy';
+  const readiness: ReadinessState = status === 'unhealthy'
+    ? 'broken'
+    : isSolo && checks.workspace.setupRequired === true
+      ? 'setup-ready'
+      : 'ready';
 
   return json(
     {
       status,
+      readiness,
       timestamp: new Date().toISOString(),
       version: '1.0.0',
       checks
@@ -192,6 +214,10 @@ export const GET: RequestHandler = async () => {
     { status: status === 'unhealthy' ? 503 : 200 }
   );
 };
+
+function readQuery(query: ReturnType<typeof sql>): Promise<unknown> {
+  return isSqlite ? db.all(query) : db.execute(query);
+}
 
 async function checkLicenseServer(baseUrl: string): Promise<HealthComponent> {
   const endpoint = `${baseUrl.replace(/\/+$/, '')}/api/health`;
