@@ -19,6 +19,7 @@
     "test:migration": "node --test scripts/tests/migration.test.mjs",
     "test:voice": "node --test scripts/tests/voice-ticket.test.mjs && python3 -m unittest discover -s vosk-server/tests -p 'test_*.py'",
     "test:deployment": "node --test scripts/tests/hospital-deploy-contract.test.mjs && node --experimental-strip-types --test artifacts/krispoint/src/lib/server/validateEnvironment.test.ts",
+    "test:theme": "playwright test --config artifacts/krispoint/playwright.config.ts",
     "deploy:hospital:install": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/hospital-deploy/install.ps1",
     "deploy:hospital:update": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/hospital-deploy/update.ps1",
     "deploy:hospital:rollback": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/hospital-deploy/rollback.ps1",
@@ -34,6 +35,7 @@
     "ws": "^8.18.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tauri-apps/cli": "^2",
     "esbuild": "0.28.2",
     "prettier": "^3.9.6",
