@@ -398,7 +398,7 @@
   {:else if activeTab === 'my' && userAnalytics}
     <div class="analytics-grid">
       <div class="stat-card primary">
-        <div class="stat-icon">📊</div>
+        <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19V5M4 19h17M8 15v-4M13 15V8M18 15V5"/></svg></div>
         <div class="stat-content">
           <div class="stat-value">{userAnalytics.summary.totalReports}</div>
           <div class="stat-label">Total Reports</div>
@@ -406,7 +406,7 @@
       </div>
       
       <div class="stat-card success">
-        <div class="stat-icon">✅</div>
+        <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m5 12 4 4L19 6"/></svg></div>
         <div class="stat-content">
           <div class="stat-value">{userAnalytics.summary.signedReports}</div>
           <div class="stat-label">Signed Reports</div>
@@ -414,7 +414,7 @@
       </div>
       
       <div class="stat-card warning">
-        <div class="stat-icon">📝</div>
+        <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/></svg></div>
         <div class="stat-content">
           <div class="stat-value">{userAnalytics.summary.submittedReports}</div>
           <div class="stat-label">Pending Review</div>
@@ -422,7 +422,7 @@
       </div>
       
       <div class="stat-card info">
-        <div class="stat-icon">📄</div>
+        <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/></svg></div>
         <div class="stat-content">
           <div class="stat-value">{userAnalytics.summary.draftReports}</div>
           <div class="stat-label">Drafts</div>
@@ -430,7 +430,7 @@
       </div>
       
       <div class="stat-card accent">
-        <div class="stat-icon">⏱️</div>
+        <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M9 2h6"/></svg></div>
         <div class="stat-content">
           <div class="stat-value">{formatDuration(userAnalytics.timing.avgReportingTimeMs)}</div>
           <div class="stat-label">Avg. Reporting Time</div>
@@ -438,7 +438,7 @@
       </div>
       
       <div class="stat-card">
-        <div class="stat-icon">🎯</div>
+        <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m16 8 5-5"/></svg></div>
         <div class="stat-content">
           <div class="stat-value">{userAnalytics.summary.completionRate}%</div>
           <div class="stat-label">Completion Rate</div>
@@ -551,7 +551,7 @@
       
       <div class="analytics-grid reviews-grid">
         <div class="stat-card review">
-          <div class="stat-icon">👀</div>
+          <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></div>
           <div class="stat-content">
             <div class="stat-value">{userAnalytics.reviews.totalReviews}</div>
             <div class="stat-label">Reports Reviewed</div>
@@ -559,7 +559,7 @@
         </div>
         
         <div class="stat-card review">
-          <div class="stat-icon">⏱️</div>
+          <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M9 2h6"/></svg></div>
           <div class="stat-content">
             <div class="stat-value">{formatDuration(userAnalytics.reviews.timing.avgReviewTimeMs)}</div>
             <div class="stat-label">Avg. Review Time</div>
@@ -575,7 +575,7 @@
         </div>
         
         <div class="stat-card review">
-          <div class="stat-icon">🕐</div>
+          <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
           <div class="stat-content">
             <div class="stat-value">{formatDuration(userAnalytics.reviews.timing.totalReviewTimeMs)}</div>
             <div class="stat-label">Total Review Time</div>
@@ -698,7 +698,7 @@
     
     <div class="analytics-grid">
       <div class="stat-card primary">
-        <div class="stat-icon">🏥</div>
+        <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M5 21V5l7-3 7 3v16M9 9h.01M15 9h.01M9 13h.01M15 13h.01M10 21v-4h4v4"/></svg></div>
         <div class="stat-content">
           <div class="stat-value">{adminAnalytics.summary.totalReports}</div>
           <div class="stat-label">Total Reports</div>
@@ -706,7 +706,7 @@
       </div>
       
       <div class="stat-card success">
-        <div class="stat-icon">✅</div>
+        <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m5 12 4 4L19 6"/></svg></div>
         <div class="stat-content">
           <div class="stat-value">{adminAnalytics.summary.signedReports}</div>
           <div class="stat-label">Signed Reports</div>
@@ -714,7 +714,7 @@
       </div>
       
       <div class="stat-card warning">
-        <div class="stat-icon">📝</div>
+        <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/></svg></div>
         <div class="stat-content">
           <div class="stat-value">{adminAnalytics.summary.submittedReports}</div>
           <div class="stat-label">Pending Review</div>
@@ -722,7 +722,7 @@
       </div>
       
       <div class="stat-card">
-        <div class="stat-icon">🎯</div>
+        <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m16 8 5-5"/></svg></div>
         <div class="stat-content">
           <div class="stat-value">{adminAnalytics.summary.completionRate}%</div>
           <div class="stat-label">Completion Rate</div>
@@ -734,17 +734,17 @@
       <h3>Productivity Metrics</h3>
       <div class="productivity-grid">
         <div class="productivity-card">
-          <div class="prod-icon">📈</div>
+          <div class="prod-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19V5M4 19h17M8 15v-4M13 15V8M18 15V5"/></svg></div>
           <div class="prod-value">{adminAnalytics.productivity.reportsPerDay}</div>
           <div class="prod-label">Reports/Day</div>
         </div>
         <div class="productivity-card">
-          <div class="prod-icon">📅</div>
+          <div class="prod-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></div>
           <div class="prod-value">{adminAnalytics.productivity.reportsPerWeek}</div>
           <div class="prod-label">Reports/Week</div>
         </div>
         <div class="productivity-card">
-          <div class="prod-icon">⏱️</div>
+          <div class="prod-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M9 2h6"/></svg></div>
           <div class="prod-value">{formatDuration(adminAnalytics.productivity.avgReportingTimeMs)}</div>
           <div class="prod-label">Avg. Time/Report</div>
         </div>
@@ -759,7 +759,7 @@
           <div class="prod-label">Total Time Invested</div>
         </div>
         <div class="productivity-card">
-          <div class="prod-icon">📆</div>
+          <div class="prod-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01"/></svg></div>
           <div class="prod-value">{adminAnalytics.productivity.activeDays}</div>
           <div class="prod-label">Active Days</div>
         </div>
@@ -1744,5 +1744,30 @@
 
   :global([data-theme="dark"]) .modality-item.clickable:hover {
     background: #334155;
+  }
+
+  .stat-icon svg, .prod-icon svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    stroke-width: 1.8;
+  }
+
+  :global(button:focus-visible), :global(select:focus-visible), :global(input:focus-visible) {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .analytics-page {
+      padding: 1rem;
+    }
+
+    .analytics-header {
+      flex-direction: column;
+    }
+
+    .header-controls {
+      width: 100%;
+    }
   }
 </style>

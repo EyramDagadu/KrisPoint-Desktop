@@ -478,4 +478,28 @@
         transform: rotate(-45deg);
         white-space: nowrap;
     }
+
+    :global(button:focus-visible), :global(select:focus-visible), :global(input:focus-visible) {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+        .analytics-page {
+            padding: 1rem;
+        }
+
+        .filters {
+            gap: 0.75rem;
+        }
+
+        .filter-group {
+            flex: 1 1 9rem;
+            min-width: 0;
+        }
+
+        .filter-group input, .filter-group select {
+            max-width: 100%;
+        }
+    }
 </style>

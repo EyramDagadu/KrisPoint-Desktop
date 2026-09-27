@@ -972,4 +972,19 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .page-container, .training-data-page {
+      padding: 1rem;
+    }
+
+    .action-buttons {
+      align-items: stretch;
+    }
+  }
 </style>

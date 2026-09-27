@@ -65,7 +65,7 @@
 
 <div class="letterhead-manager">
     <div class="manager-header">
-        <h3>🏥 Letterhead Management</h3>
+        <h3><svg class="heading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 21h18M5 21V5l7-3 7 3v16M9 9h.01M15 9h.01M9 13h.01M15 13h.01M10 21v-4h4v4"/></svg> Letterhead Management</h3>
         <p>
             {#if isAdmin}
                 Upload and manage your hospital letterheads for professional reports
@@ -81,7 +81,7 @@
     <!-- Current Selection -->
     {#if $letterheadStore.currentLetterhead}
         <div class="current-selection">
-            <h4>📄 Current Letterhead</h4>
+            <h4><svg class="heading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 13h6"/></svg> Current Letterhead</h4>
             <div class="current-letterhead">
                 <img 
                     src={$letterheadStore.currentLetterhead.url} 
@@ -124,7 +124,7 @@
                     class="upload-btn"
                     on:click={() => showUpload = true}
                 >
-                    📁 Upload New Letterhead
+                    <svg class="heading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3zM3 6V4h7l2 2"/></svg> Upload New Letterhead
                 </button>
             {/if}
         </div>
@@ -159,8 +159,10 @@
                                 <button 
                                     class="delete-btn"
                                     on:click={() => handleLetterheadRemove(letterhead)}
+                                    aria-label={`Delete ${letterhead.name}`}
+                                    title="Delete letterhead"
                                 >
-                                    🗑️
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>
                                 </button>
                             </div>
                         </div>
@@ -179,6 +181,23 @@
 </div>
 
 <style>
+    .heading-icon {
+        width: 1.1rem;
+        height: 1.1rem;
+        vertical-align: -0.15em;
+        stroke-width: 1.8;
+    }
+
+    .delete-btn svg {
+        width: 1rem;
+        height: 1rem;
+        stroke-width: 1.8;
+    }
+
+    :global(button:focus-visible) {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
+    }
     .letterhead-manager {
         padding: 20px;
         max-width: 800px;

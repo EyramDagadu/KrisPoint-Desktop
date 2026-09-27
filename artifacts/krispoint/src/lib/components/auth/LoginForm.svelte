@@ -85,14 +85,16 @@
                     disabled={isSubmitting}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                    {showPassword ? '👁️' : '🙈'}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                        {#if showPassword}<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>{:else}<path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A11 11 0 0 1 12 5c6.5 0 10 7 10 7a15 15 0 0 1-3.2 3.9M6.2 6.2C3.5 8 2 12 2 12s3.5 7 10 7a10 10 0 0 0 4-.8"/>{/if}
+                    </svg>
                 </button>
             </div>
         </div>
 
         {#if formError || $authError}
             <div class="error-message">
-                <span class="error-icon">⚠️</span>
+                <span class="error-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3 2.8 19h18.4L12 3Z"/><path d="M12 9v4m0 3h.01"/></svg></span>
                 {formError || $authError}
             </div>
         {/if}
@@ -132,10 +134,10 @@
         max-width: 400px;
         margin: 0 auto;
         padding: 2rem;
-        background: var(--background-secondary, #ffffff);
+        background: var(--color-surface, #ffffff);
         border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        border: 1px solid var(--border-color, #e5e7eb);
+        border: 1px solid var(--color-border, #e5e7eb);
     }
 
     .form-header {
@@ -190,6 +192,24 @@
         outline: none;
         border-color: var(--primary-color, #3b82f6);
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .password-toggle svg, .error-icon svg {
+        width: 1.1rem;
+        height: 1.1rem;
+        stroke-width: 1.8;
+    }
+
+    .password-toggle:focus-visible, .login-btn:focus-visible, :global(button:focus-visible), :global(input:focus-visible) {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 480px) {
+        .login-form {
+            padding: 1.5rem 1.25rem;
+            border-radius: 0.875rem;
+        }
     }
 
     .form-group input:disabled {

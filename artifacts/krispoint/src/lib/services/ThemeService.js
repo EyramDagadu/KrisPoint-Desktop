@@ -36,56 +36,56 @@ export class ThemeService {
       type: 'light',
       colors: {
         // Primary colors
-        primary: '#3b82f6',
-        primaryHover: '#2563eb',
-        primaryLight: '#dbeafe',
+        primary: '#245d7e',
+        primaryHover: '#194760',
+        primaryLight: '#deedf2',
         
         // Background colors
-        background: '#ffffff',
-        backgroundSecondary: '#f8fafc',
-        backgroundTertiary: '#f1f5f9',
+        background: '#edf2f3',
+        backgroundSecondary: '#e6edef',
+        backgroundTertiary: '#dce6e9',
         
         // Surface colors
-        surface: '#ffffff',
-        surfaceElevated: '#ffffff',
-        surfaceHover: '#f8fafc',
+        surface: '#f8faf9',
+        surfaceElevated: '#f8faf9',
+        surfaceHover: '#e8f0f1',
         
         // Text colors
-        textPrimary: '#1e293b',
-        textSecondary: '#475569',
-        textMuted: '#64748b',
-        textDisabled: '#94a3b8',
+        textPrimary: '#142d3b',
+        textSecondary: '#3d5866',
+        textMuted: '#55707c',
+        textDisabled: '#718993',
         
         // Border colors
-        border: '#e2e8f0',
-        borderLight: '#f1f5f9',
-        borderFocus: '#3b82f6',
+        border: '#ccd9dd',
+        borderLight: '#dce6e9',
+        borderFocus: '#286283',
         
         // Status colors
-        success: '#10b981',
-        successLight: '#d1fae5',
-        warning: '#f59e0b',
-        warningLight: '#fef3c7',
-        error: '#ef4444',
-        errorLight: '#fef2f2',
-        info: '#3b82f6',
-        infoLight: '#dbeafe',
+        success: '#1d665c',
+        successLight: '#e2f2ee',
+        warning: '#875515',
+        warningLight: '#fbf0da',
+        error: '#a13f3d',
+        errorLight: '#f8e9e6',
+        info: '#245d7e',
+        infoLight: '#deedf2',
         
         // Medical specific colors
-        criticalHigh: '#dc2626',
-        criticalMedium: '#ea580c',
-        normal: '#10b981',
-        abnormal: '#f59e0b',
+        criticalHigh: '#a13f3d',
+        criticalMedium: '#875515',
+        normal: '#1d665c',
+        abnormal: '#875515',
         
         // Voice/AI colors
-        voiceActive: '#8b5cf6',
-        voiceInactive: '#64748b',
-        aiAssist: '#06b6d4'
+        voiceActive: '#245d7e',
+        voiceInactive: '#55707c',
+        aiAssist: '#267585'
       },
       fonts: {
-        primary: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
-        mono: '"JetBrains Mono", "Fira Code", "Consolas", monospace',
-        medical: '"Source Sans Pro", Arial, sans-serif'
+        primary: '"DM Sans", "Segoe UI", sans-serif',
+        mono: '"IBM Plex Mono", Consolas, monospace',
+        medical: '"DM Sans", "Segoe UI", sans-serif'
       },
       shadows: {
         sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
@@ -107,56 +107,56 @@ export class ThemeService {
       type: 'dark',
       colors: {
         // Primary colors
-        primary: '#60a5fa',
-        primaryHover: '#3b82f6',
-        primaryLight: '#1e3a8a',
+        primary: '#79bad5',
+        primaryHover: '#a3d2e3',
+        primaryLight: '#233f4d',
         
         // Background colors
-        background: '#0f172a',
-        backgroundSecondary: '#1e293b',
-        backgroundTertiary: '#334155',
+        background: '#111e26',
+        backgroundSecondary: '#172832',
+        backgroundTertiary: '#263944',
         
         // Surface colors
-        surface: '#1e293b',
-        surfaceElevated: '#334155',
-        surfaceHover: '#475569',
+        surface: '#1b2b35',
+        surfaceElevated: '#263944',
+        surfaceHover: '#2b414c',
         
         // Text colors
-        textPrimary: '#f8fafc',
-        textSecondary: '#cbd5e1',
-        textMuted: '#94a3b8',
-        textDisabled: '#64748b',
+        textPrimary: '#eaf3f3',
+        textSecondary: '#c3d3d8',
+        textMuted: '#a5bdc5',
+        textDisabled: '#839da6',
         
         // Border colors
-        border: '#334155',
-        borderLight: '#475569',
-        borderFocus: '#60a5fa',
+        border: '#38515d',
+        borderLight: '#304550',
+        borderFocus: '#79bad5',
         
         // Status colors
-        success: '#34d399',
-        successLight: '#064e3b',
-        warning: '#fbbf24',
-        warningLight: '#78350f',
-        error: '#f87171',
-        errorLight: '#7f1d1d',
-        info: '#60a5fa',
-        infoLight: '#1e3a8a',
+        success: '#79c7b5',
+        successLight: '#1c413f',
+        warning: '#e9bd78',
+        warningLight: '#493c2c',
+        error: '#ed9c98',
+        errorLight: '#4a3034',
+        info: '#79bad5',
+        infoLight: '#233f4d',
         
         // Medical specific colors
-        criticalHigh: '#f87171',
-        criticalMedium: '#fb923c',
-        normal: '#34d399',
-        abnormal: '#fbbf24',
+        criticalHigh: '#ed9c98',
+        criticalMedium: '#e9bd78',
+        normal: '#79c7b5',
+        abnormal: '#e9bd78',
         
         // Voice/AI colors
-        voiceActive: '#a78bfa',
-        voiceInactive: '#64748b',
-        aiAssist: '#22d3ee'
+        voiceActive: '#79bad5',
+        voiceInactive: '#a5bdc5',
+        aiAssist: '#8bcbd0'
       },
       fonts: {
-        primary: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
-        mono: '"JetBrains Mono", "Fira Code", "Consolas", monospace',
-        medical: '"Source Sans Pro", Arial, sans-serif'
+        primary: '"DM Sans", "Segoe UI", sans-serif',
+        mono: '"IBM Plex Mono", Consolas, monospace',
+        medical: '"DM Sans", "Segoe UI", sans-serif'
       },
       shadows: {
         sm: '0 1px 2px 0 rgba(0, 0, 0, 0.3)',
@@ -235,7 +235,9 @@ export class ThemeService {
       '--primary-color': theme.colors.primary,
       '--primary-color-dark': theme.colors.primaryHover,
       '--color-text': theme.colors.textPrimary,
-      '--color-text-primary-inverse': '#ffffff'
+      '--color-text-primary-inverse': theme.type === 'dark' ? '#111e26' : '#f8faf9',
+      '--color-surface-2': theme.colors.backgroundTertiary,
+      '--color-danger': theme.colors.error
     };
     Object.entries(legacyColorAliases).forEach(([name, value]) => {
       root.style.setProperty(name, value);

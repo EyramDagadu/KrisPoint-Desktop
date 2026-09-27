@@ -1210,4 +1210,24 @@
     .btn-confirm:hover {
         background: #2563eb;
     }
+
+    :global(button:focus-visible), :global(select:focus-visible), :global(input:focus-visible) {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+        .pending-reviews-page {
+            padding: 1rem;
+        }
+
+        .page-controls {
+            align-items: stretch;
+        }
+
+        .page-controls > * {
+            min-width: 0;
+            max-width: 100%;
+        }
+    }
 </style>

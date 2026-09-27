@@ -261,7 +261,7 @@
             <div class="accessibility-item">
               <span class="label">Color Blind Safe:</span>
               <span class="value {accessibilityInfo.colorBlindSafe ? 'good' : 'warning'}">
-                {accessibilityInfo.colorBlindSafe ? '✅ Yes' : '⚠️ No'}
+                {accessibilityInfo.colorBlindSafe ? 'Yes' : 'No'}
               </span>
             </div>
             <div class="accessibility-item">
@@ -271,7 +271,7 @@
             <div class="accessibility-item">
               <span class="label">Reduced Motion:</span>
               <span class="value {accessibilityInfo.reducedMotion ? 'good' : 'neutral'}">
-                {accessibilityInfo.reducedMotion ? '✅ Enabled' : '➖ Disabled'}
+                {accessibilityInfo.reducedMotion ? 'Enabled' : 'Disabled'}
               </span>
             </div>
           </div>
@@ -328,7 +328,7 @@
               </div>
               
               {#if currentTheme?.id === theme.id}
-                <div class="active-indicator">✓</div>
+                <div class="active-indicator" aria-label="Current theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></div>
               {/if}
             </div>
           {/each}
@@ -343,7 +343,9 @@
             class="toggle-btn {showCustomCreator ? 'active' : ''}"
             on:click={() => showCustomCreator = !showCustomCreator}
           >
-            {showCustomCreator ? '−' : '+'}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              {#if showCustomCreator}<path d="M5 12h14"/>{:else}<path d="M12 5v14M5 12h14"/>{/if}
+            </svg>
           </button>
         </div>
 
@@ -475,6 +477,14 @@
   .theme-btn.compact:hover {
     background: var(--color-surface-hover, #f9fafb);
     transform: scale(1.05);
+  }
+
+  .theme-btn:focus-visible, .toggle-accessibility:focus-visible, .export-btn:focus-visible,
+  .import-btn:focus-within, .close-btn:focus-visible, .theme-card:focus-visible,
+  .delete-btn:focus-visible, .toggle-btn:focus-visible, .cancel-btn:focus-visible,
+  .create-btn:focus-visible, .action-btn:focus-visible {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
   }
 
   /* Full Theme Panel */
@@ -760,6 +770,12 @@
     font-weight: 600;
   }
 
+  .active-indicator svg {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 2.2;
+  }
+
   .custom-section {
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--color-border, #e5e7eb);
@@ -791,6 +807,12 @@
     justify-content: center;
     font-size: 1rem;
     transition: all 0.2s;
+  }
+
+  .toggle-btn svg {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.8;
   }
 
   .toggle-btn:hover {
@@ -948,6 +970,35 @@
     background: var(--color-surface-hover, #f3f4f6);
     border-color: var(--color-primary, #3b82f6);
     transform: translateY(-1px);
+  }
+
+  @media (max-width: 680px) {
+    .theme-overlay {
+      padding: 0;
+      align-items: stretch;
+    }
+
+    .theme-panel {
+      width: 100%;
+      height: 100dvh;
+      max-width: none;
+      border-radius: 0;
+    }
+
+    .panel-header {
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .header-actions {
+      width: 100%;
+    }
+
+    .themes-section, .accessibility-section, .custom-section, .quick-actions {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
   }
 </style>
 

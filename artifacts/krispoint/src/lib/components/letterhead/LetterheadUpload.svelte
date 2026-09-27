@@ -177,7 +177,7 @@
 </script>
 
 <div class="letterhead-upload">
-    <h4>📁 Upload New Letterhead</h4>
+    <h4><svg class="heading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3zM3 6V4h7l2 2"/></svg> Upload New Letterhead</h4>
     
     <!-- File Upload Area -->
     <div 
@@ -201,7 +201,7 @@
             </div>
         {:else}
             <div class="upload-prompt">
-                <div class="upload-icon">📁</div>
+                <div class="upload-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h7l2 2h9v11H3zM3 6V4h7l2 2"/></svg></div>
                 <p class="upload-text">Click to select or drag & drop your letterhead image</p>
                 <p class="upload-hint">Supports JPG and PNG only (max 5MB)</p>
             </div>
@@ -234,7 +234,7 @@
     <!-- Error Display -->
     {#if $letterheadStore.uploadError}
         <div class="error-message">
-            ⚠️ {$letterheadStore.uploadError}
+            <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 3 2.8 19h18.4L12 3Z"/><path d="M12 9v4m0 3h.01"/></svg> {$letterheadStore.uploadError}
         </div>
     {/if}
     
@@ -271,6 +271,30 @@
 </div>
 
 <style>
+    .heading-icon {
+        width: 1.1rem;
+        height: 1.1rem;
+        vertical-align: -0.15em;
+        stroke-width: 1.8;
+    }
+
+    .upload-icon svg {
+        width: 2rem;
+        height: 2rem;
+        stroke-width: 1.7;
+    }
+
+    .error-icon {
+        width: 1rem;
+        height: 1rem;
+        vertical-align: -0.15em;
+        stroke-width: 1.8;
+    }
+
+    :global(button:focus-visible), :global(input:focus-visible), .upload-area:focus-visible {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
+    }
     .letterhead-upload {
         background: var(--background-secondary);
         border: 1px solid var(--border-color);

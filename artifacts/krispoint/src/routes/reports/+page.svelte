@@ -426,13 +426,13 @@
     <div class="reports-grid">
       {#if isLoading}
         <div class="loading-state">
-          <div class="loading-icon">⏳</div>
+          <div class="loading-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
           <h3>Loading reports...</h3>
           <p>Please wait while we load your saved reports.</p>
         </div>
       {:else if loadError}
         <div class="error-state">
-          <div class="error-icon">⚠️</div>
+          <div class="error-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3 2.8 19h18.4L12 3Z"/><path d="M12 9v4m0 3h.01"/></svg></div>
           <h3>Error loading reports</h3>
           <p>{loadError}</p>
           <button class="btn btn-primary" on:click={loadReports}>
@@ -495,7 +495,7 @@
                 on:click={(event) => viewReport(report.id, event)}
                 title="Open and edit report"
               >
-                📖 View
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg> View
               </button>
               {#if report.status === 'SIGNED'}
                 <button 
@@ -503,7 +503,7 @@
                   on:click={(event) => exportReport(report, event)}
                   title="Export to PDF"
                 >
-                  📤 Export
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M5 14v6h14v-6"/></svg> Export
                 </button>
               {/if}
             </div>
@@ -512,13 +512,13 @@
         
         {#if filteredReports.length === 0 && reports.length > 0}
           <div class="no-reports">
-            <div class="no-reports-icon">🔍</div>
+            <div class="no-reports-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></div>
             <h3>No reports match your filters</h3>
             <p>Try adjusting your search criteria to find reports.</p>
           </div>
         {:else if reports.length === 0}
           <div class="no-reports">
-            <div class="no-reports-icon">📄</div>
+            <div class="no-reports-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/></svg></div>
             <h3>No reports yet</h3>
             <p>You haven't created any reports yet. Create your first report to get started.</p>
             <button class="btn btn-primary" on:click={createNewReport}>
@@ -682,6 +682,32 @@
     outline: none;
     border-color: var(--color-primary, #3b82f6);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .btn svg, .no-reports-icon svg, .error-icon svg, .loading-icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    stroke-width: 1.8;
+  }
+
+  :global(button:focus-visible), :global(select:focus-visible), :global(input:focus-visible) {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .reports-page {
+      padding: 1rem;
+    }
+
+    .filters-section {
+      align-items: stretch;
+    }
+
+    .filters-section > * {
+      min-width: 0;
+      width: 100%;
+    }
   }
 
   .btn-clear {

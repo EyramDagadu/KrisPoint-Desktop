@@ -352,7 +352,7 @@
         </div>
         {#if canCreate}
           <button class="btn btn-primary" on:click={createTemplate}>
-            <span>+</span>
+            <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
             Create {isSoloEdition ? '' : activeTab === 'system' ? 'System ' : 'Personal '}Template
           </button>
         {/if}
@@ -418,24 +418,24 @@
                   </div>
                   {#if template.voiceCommand}
                     <div class="template-voice">
-                      🎤 "{template.voiceCommand}"
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4m-4 0h8"/></svg> "{template.voiceCommand}"
                     </div>
                   {/if}
                   <div class="template-actions">
                     <button class="btn btn-outline btn-icon" on:click={() => previewTemplate(template)} title="Preview template">
-                      👁️
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                     {#if canEditTemplate(template)}
                       <button class="btn btn-outline btn-icon" on:click={() => editTemplate(template)} title="Edit template">
-                        ✏️
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m14 5 5 5M4 20l4.5-1 10.8-10.8a2.1 2.1 0 0 0-3-3L5.5 16 4 20Z"/></svg>
                       </button>
                     {/if}
                     <button class="btn btn-secondary btn-icon" on:click={() => useTemplate(template)} title="Use template">
-                      📄
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/></svg>
                     </button>
                     {#if canDeleteTemplate(template)}
                       <button class="btn btn-danger btn-icon" on:click={() => confirmDeleteTemplate(template)} title="Delete template">
-                        🗑️
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>
                       </button>
                     {/if}
                   </div>
@@ -454,7 +454,7 @@
     <div class="modal-content preview-modal" on:click|stopPropagation>
       <div class="modal-header">
         <h3>{selectedTemplate.name}</h3>
-        <button class="close-btn" on:click={closePreview}>×</button>
+        <button class="close-btn" on:click={closePreview} aria-label="Close preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
       </div>
       <div class="modal-body">
         <div class="template-preview">
@@ -494,7 +494,7 @@
     <div class="modal-content create-modal" on:click|stopPropagation>
       <div class="modal-header">
         <h3>{isEditMode ? 'Edit Template' : `Create ${activeTab === 'system' ? 'System' : 'Personal'} Template`}</h3>
-        <button class="close-btn" on:click={closeCreateModal}>×</button>
+        <button class="close-btn" on:click={closeCreateModal} aria-label="Close template editor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
       </div>
       <div class="modal-body">
         <div class="form-grid">
@@ -838,6 +838,30 @@
     background: var(--bg-secondary, #f1f5f9);
     border-color: var(--primary-color, #3b82f6);
     color: var(--primary-color, #3b82f6);
+  }
+
+  .button-icon {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.8;
+  }
+
+  .template-voice svg {
+    width: 1rem;
+    height: 1rem;
+    vertical-align: -0.2em;
+    stroke-width: 1.8;
+  }
+
+  .btn-icon svg, .close-btn svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    stroke-width: 1.8;
+  }
+
+  :global(button:focus-visible), :global(select:focus-visible), :global(input:focus-visible), :global(textarea:focus-visible) {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
   }
 
   .btn-icon.btn-secondary {

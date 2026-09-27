@@ -132,7 +132,7 @@
   function handleSaveDraft() {
     // Allow saving for DRAFT reports only (SIGNED reports are read-only)
     if (!isDraft && !isSubmitted) {
-      exportMessage = '⚠️ Cannot save - report is signed and read-only';
+      exportMessage = 'Cannot save - report is signed and read-only';
       setTimeout(() => { exportMessage = ''; }, 3000);
       return;
     }
@@ -618,8 +618,16 @@
 <div class="footer-bar">
   <div class="status-section">
     <div class="save-status">
-      <span class="status-indicator {getStatusClass()}">
-        {#if isSigned}✅{:else if isSubmitted && isAssignedSpecialist}{#if isSaved}✓{:else}●{/if}{:else if isSubmitted}⏳{:else if isSaved}✓{:else}●{/if}
+      <span class="status-indicator {getStatusClass()}" aria-hidden="true">
+        {#if isSigned}
+          <svg viewBox="0 0 20 20" fill="none"><path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        {:else if isSubmitted && !isAssignedSpecialist}
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l2.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        {:else if isSaved}
+          <svg viewBox="0 0 20 20" fill="none"><path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        {:else}
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="6" stroke="currentColor" stroke-width="1.5"/></svg>
+        {/if}
       </span>
       <span class="status-text">{getStatusText()}</span>
       {#if lastSaveTime && (isDraft || (isSubmitted && isAssignedSpecialist))}
@@ -627,14 +635,14 @@
       {/if}
       {#if isSigned && canUndoSign && undoRemainingTime}
         <span class="undo-window-indicator" title="You can undo your sign-off and make changes">
-          ⏱️ {undoRemainingTime}
+          {undoRemainingTime}
         </span>
       {/if}
     </div>
     
     {#if exportMessage}
-      <div class="export-message {exportMessage.includes('✓') ? 'success' : exportMessage.includes('✗') ? 'error' : 'info'}">
-        {exportMessage}
+      <div class="export-message {exportMessage.includes('✓') ? 'success' : exportMessage.includes('✗') ? 'error' : 'info'}" role="status" aria-live="polite">
+        {exportMessage.replace(/^[✓✗]\s*/, '')}
       </div>
     {/if}
   </div>
@@ -650,7 +658,9 @@
       </div>
       <span class="completion-text">{completionPercent}% complete</span>
       {#if missingItems.length > 0}
-        <div class="missing-indicator" title="Missing: {missingItems.join(', ')}">⚠️</div>
+        <div class="missing-indicator" title="Missing: {missingItems.join(', ')}" aria-label="Report incomplete">
+          <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M10 3 18 17H2L10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 8v4m0 2v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
       {/if}
     </div>
   </div>
@@ -669,7 +679,7 @@
             on:click={handleUndoSign}
             disabled={isUndoing}
           >
-            <span class="btn-icon">↩️</span>
+            <svg class="btn-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M8 5 4 9l4 4M4.5 9H11a5 5 0 1 1 0 10" transform="translate(0 -2)" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             {isUndoing ? 'Undoing...' : 'Undo Sign Off'}
           </button>
         </Tooltip>
@@ -679,7 +689,7 @@
         <!-- Resident-signed report can request specialist review (only for non-specialists) -->
         <Tooltip text="Request a specialist to review and co-sign this report" position="top">
           <button class="btn btn-submit" on:click={openRequestReviewModal}>
-            <span class="btn-icon">📤</span>
+            <svg class="btn-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 12v4a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Request Specialist Review
           </button>
         </Tooltip>
@@ -691,7 +701,7 @@
           on:click={handleExportClick}
           disabled={!hasContent}
         >
-          <span class="btn-icon">📋</span>
+          <svg class="btn-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M6 3.5h8a1.5 1.5 0 0 1 1.5 1.5v11a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 16V5A1.5 1.5 0 0 1 6 3.5Z" stroke="currentColor" stroke-width="1.5"/><path d="M7.5 7h5M7.5 10h5M7.5 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           Export PDF
         </button>
       </Tooltip>
@@ -701,7 +711,7 @@
       {#if canReturnReport}
         <Tooltip text="Return report to resident for revisions" position="top">
           <button class="btn btn-return" on:click={openReturnModal}>
-            <span class="btn-icon">↩️</span>
+            <svg class="btn-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M8 5 4 9l4 4M4.5 9H11a5 5 0 1 1 0 10" transform="translate(0 -2)" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Return to Resident
           </button>
         </Tooltip>
@@ -714,7 +724,7 @@
             on:click={handleSignReport}
             disabled={isSigning}
           >
-            <span class="btn-icon">✍️</span>
+            <svg class="btn-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m4 14-.8 3 3-.8L16 6.4a1.8 1.8 0 0 0-2.5-2.5L4 14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m12.5 5.5 2 2" stroke="currentColor" stroke-width="1.5"/></svg>
             {isSigning ? 'Signing...' : 'Sign & Finalize'}
           </button>
         </Tooltip>
@@ -737,7 +747,7 @@
       {#if editionCapabilities.collaboration && canSubmitForReview && reportId}
         <Tooltip text="Submit this report to a specialist for review and sign-off" position="top">
           <button class="btn btn-submit" on:click={openSubmitModal}>
-            <span class="btn-icon">📤</span>
+            <svg class="btn-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 12v4a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Submit for Review
           </button>
         </Tooltip>
@@ -751,7 +761,7 @@
             on:click={handleResidentSignOff}
             disabled={isSigning}
           >
-            <span class="btn-icon">✍️</span>
+            <svg class="btn-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m4 14-.8 3 3-.8L16 6.4a1.8 1.8 0 0 0-2.5-2.5L4 14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m12.5 5.5 2 2" stroke="currentColor" stroke-width="1.5"/></svg>
             {isSigning ? 'Signing...' : 'Sign Off'}
           </button>
         </Tooltip>
@@ -765,7 +775,7 @@
             on:click={handleSignReport}
             disabled={isSigning}
           >
-            <span class="btn-icon">✍️</span>
+            <svg class="btn-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m4 14-.8 3 3-.8L16 6.4a1.8 1.8 0 0 0-2.5-2.5L4 14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m12.5 5.5 2 2" stroke="currentColor" stroke-width="1.5"/></svg>
             {isSigning ? 'Signing...' : 'Sign & Finalize'}
           </button>
         </Tooltip>
@@ -779,7 +789,7 @@
             on:click={openCancelModal}
             disabled={isCancelling}
           >
-            <span class="btn-icon">↩️</span>
+            <svg class="btn-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M8 5 4 9l4 4M4.5 9H11a5 5 0 1 1 0 10" transform="translate(0 -2)" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Release Case
           </button>
         </Tooltip>
@@ -806,7 +816,7 @@
     <div class="submit-modal" on:click|stopPropagation>
       <div class="modal-header">
         <h3>Submit Report for Review</h3>
-        <button class="close-btn" on:click={closeSubmitModal}>×</button>
+        <button class="close-btn" aria-label="Close submit dialog" on:click={closeSubmitModal}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
       <div class="modal-body">
         <p class="modal-desc">Select a specialist to review and sign off on this report:</p>
@@ -855,7 +865,7 @@
     <div class="submit-modal" on:click|stopPropagation>
       <div class="modal-header">
         <h3>Request Specialist Review</h3>
-        <button class="close-btn" on:click={closeRequestReviewModal}>×</button>
+        <button class="close-btn" aria-label="Close review request dialog" on:click={closeRequestReviewModal}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
       <div class="modal-body">
         <p class="modal-desc">Select a specialist to review and co-sign this report:</p>
@@ -904,7 +914,7 @@
     <div class="submit-modal" on:click|stopPropagation>
       <div class="modal-header">
         <h3>Return Report to Resident</h3>
-        <button class="close-btn" on:click={closeReturnModal}>×</button>
+        <button class="close-btn" aria-label="Close return dialog" on:click={closeReturnModal}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
       <div class="modal-body">
         <p class="modal-desc">Provide feedback for the resident (optional):</p>
@@ -935,7 +945,7 @@
     <div class="submit-modal" on:click|stopPropagation>
       <div class="modal-header">
         <h3>Release Case</h3>
-        <button class="close-btn" on:click={closeCancelModal}>×</button>
+        <button class="close-btn" aria-label="Close release dialog" on:click={closeCancelModal}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
       <div class="modal-body">
         <p class="modal-desc">This will release the case back to the worklist so another doctor can pick it up. Any work you've done on this report will be cleared.</p>
@@ -1478,5 +1488,71 @@
       width: 100%;
       justify-content: center;
     }
+  }
+  .footer-bar {
+    color: var(--color-text-primary, #1e293b);
+    gap: .8rem;
+    padding: .65rem 1rem;
+    background: var(--color-surface, #fff);
+    border-color: var(--color-border, #dbe2ea);
+  }
+  .status-section { min-width: min(220px, 26vw); }
+  .save-status { gap: .4rem; flex-wrap: wrap; }
+  .status-indicator { width: 1.1rem; height: 1.1rem; flex: 0 0 auto; }
+  .status-indicator svg { display: block; width: 100%; height: 100%; }
+  .status-text { color: var(--color-text-primary, #1e293b); font-weight: 650; }
+  .save-time { color: var(--color-text-secondary, #64748b); }
+  .stats-section { min-width: 120px; }
+  .count-number { color: var(--color-text-primary, #1e293b); }
+  .count-label, .completion-text { color: var(--color-text-secondary, #64748b); }
+  .completion-text { font-size: .68rem; }
+  .missing-indicator { display: inline-flex; color: #b45309; }
+  .missing-indicator svg { width: 1rem; height: 1rem; }
+  .actions-section { flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
+  .btn {
+    min-height: 40px;
+    padding: .5rem .85rem;
+    border-radius: .5rem;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  .btn-icon { display: block; width: 1.05rem; height: 1.05rem; flex: 0 0 auto; }
+  .btn-sign, .btn-sign-off, .btn-export { color: #fff; }
+  :global([data-theme="dark"]) .btn-sign,
+  :global([data-theme="dark"]) .btn-sign-off,
+  :global([data-theme="dark"]) .btn-export { color: #fff; }
+  .btn-submit { background: var(--color-primary, #2563eb); }
+  .btn-sign { background: #047857; }
+  .btn-sign:hover:not(:disabled) { background: #065f46; }
+  .btn-sign-off { background: #0e7490; }
+  .btn-sign-off:hover:not(:disabled) { background: #155e75; }
+  .btn-export { background: #047857; }
+  .btn-export:hover:not(.disabled) { background: #065f46; }
+  .btn-return { background: #a16207; color: #fff; }
+  .pending-notice { color: var(--color-text-primary, #1e293b); background: var(--color-background-secondary, #eff6ff); }
+  :global([data-theme="dark"]) .footer-bar { background: var(--color-surface, #1e293b); border-color: var(--color-border, #475569); }
+  :global([data-theme="dark"]) .status-text,
+  :global([data-theme="dark"]) .count-number { color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) .save-time,
+  :global([data-theme="dark"]) .count-label,
+  :global([data-theme="dark"]) .completion-text { color: var(--color-text-secondary, #cbd5e1); }
+  :global([data-theme="dark"]) .pending-notice { color: var(--color-text-primary, #e2e8f0); background: var(--color-background-secondary, #334155); }
+  :global([data-theme="dark"]) .btn-outline { background: var(--color-surface, #1e293b); color: var(--color-text-primary, #f1f5f9); }
+  :global(:focus-visible) { outline: 3px solid var(--color-primary, #3b82f6); outline-offset: 2px; }
+  @media (max-width: 768px) {
+    .footer-bar { align-items: stretch; gap: .65rem; padding: .8rem; }
+    .status-section, .stats-section, .actions-section { width: 100%; min-width: 0; text-align: left; justify-content: flex-start; }
+    .stats-section { flex-direction: row; justify-content: space-between; }
+    .completion-indicator { flex-direction: row; }
+    .actions-section { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .actions-section .btn { width: 100%; white-space: normal; }
+  }
+  @media (max-width: 420px) {
+    .actions-section { grid-template-columns: 1fr; }
+    .save-status { font-size: .8rem; }
+    .undo-window-indicator { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   }
 </style>

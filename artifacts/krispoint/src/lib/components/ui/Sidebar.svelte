@@ -5,6 +5,7 @@
   import { editionCapabilities } from '$lib/config/edition';
   import ConfirmDialog from './ConfirmDialog.svelte';
   import ThemeSelector from './ThemeSelector.svelte';
+  import Icon from './Icon.svelte';
   import { onMount } from 'svelte';
   
   export let collapsed = false;
@@ -43,19 +44,19 @@
   $: returnedReportsBadge = $reportBadgeCounts.returnedReports;
   
   $: menuItems = [
-    { id: '', label: 'Home', icon: '🏠', badge: 0 },
-    ...(canViewWorklist ? [{ id: 'worklist', label: 'Worklist', icon: '📋', badge: 0 }] : []),
-    ...(canCreateReports ? [{ id: 'reporting', label: 'Continue Reporting', icon: '📝', badge: 0 }] : []),
-    ...(canReviewReports && editionCapabilities.collaboration ? [{ id: 'reports/pending-reviews', label: 'Pending Reviews', icon: '✓', badge: pendingReviewsBadge }] : []),
-    ...(canSubmitReports && editionCapabilities.collaboration ? [{ id: 'reports/returned', label: 'Returned Reports', icon: '↩️', badge: returnedReportsBadge }] : []),
-    ...(canCreateReports ? [{ id: 'reports', label: 'All Reports', icon: '📚', badge: 0 }] : []),
-    ...(canViewTemplates ? [{ id: 'templates', label: 'Templates', icon: '📄', badge: 0 }] : []),
-    ...(canCreateReports ? [{ id: 'macros', label: 'Macros', icon: '⚡', badge: 0 }] : []),
-    ...(canViewAnalytics ? [{ id: 'analytics', label: 'Analytics', icon: '📊', badge: 0 }] : []),
-    ...(canManageUsers && editionCapabilities.multiUserAdministration ? [{ id: 'admin/users', label: 'Users', icon: '👥', badge: 0 }] : []),
-    ...(canManageUsers ? [{ id: 'admin/audit-logs', label: 'Audit Logs', icon: '🔒', badge: 0 }] : []),
-    ...(canManageUsers ? [{ id: 'admin/training-data', label: 'Training Data', icon: '🎙️', badge: 0 }] : []),
-    { id: 'settings', label: 'Settings', icon: '⚙️', badge: 0 }
+    { id: '', label: 'Home', icon: 'home', badge: 0 },
+    ...(canViewWorklist ? [{ id: 'worklist', label: 'Worklist', icon: 'worklist', badge: 0 }] : []),
+    ...(canCreateReports ? [{ id: 'reporting', label: 'Continue Reporting', icon: 'edit', badge: 0 }] : []),
+    ...(canReviewReports && editionCapabilities.collaboration ? [{ id: 'reports/pending-reviews', label: 'Pending Reviews', icon: 'check', badge: pendingReviewsBadge }] : []),
+    ...(canSubmitReports && editionCapabilities.collaboration ? [{ id: 'reports/returned', label: 'Returned Reports', icon: 'return', badge: returnedReportsBadge }] : []),
+    ...(canCreateReports ? [{ id: 'reports', label: 'All Reports', icon: 'reports', badge: 0 }] : []),
+    ...(canViewTemplates ? [{ id: 'templates', label: 'Templates', icon: 'template', badge: 0 }] : []),
+    ...(canCreateReports ? [{ id: 'macros', label: 'Macros', icon: 'bolt', badge: 0 }] : []),
+    ...(canViewAnalytics ? [{ id: 'analytics', label: 'Analytics', icon: 'analytics', badge: 0 }] : []),
+    ...(canManageUsers && editionCapabilities.multiUserAdministration ? [{ id: 'admin/users', label: 'Users', icon: 'users', badge: 0 }] : []),
+    ...(canManageUsers ? [{ id: 'admin/audit-logs', label: 'Audit Logs', icon: 'lock', badge: 0 }] : []),
+    ...(canManageUsers ? [{ id: 'admin/training-data', label: 'Training Data', icon: 'mic', badge: 0 }] : []),
+    { id: 'settings', label: 'Settings', icon: 'settings', badge: 0 }
   ];
 </script>
 
@@ -69,16 +70,17 @@
     </div>
   </div>
   
-  <nav class="sidebar-nav">
+  <nav class="sidebar-nav" aria-label="Main navigation">
     {#each menuItems as item}
       <a
         href="/{item.id}"
         class:active={$page.url.pathname === `/${item.id}`}
+        aria-current={$page.url.pathname === `/${item.id}` ? 'page' : undefined}
         class="nav-item"
         title={item.label}
       >
         <span class="icon-wrapper">
-          <span class="icon">{item.icon}</span>
+          <span class="icon"><Icon name={item.icon} size={19} /></span>
           {#if item.badge > 0 && collapsed}
             <span class="badge-dot"></span>
           {/if}
@@ -100,21 +102,13 @@
       title="Appearance"
       aria-label="Open appearance settings"
     >
-      <span class="icon svg-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M12 3a9 9 0 1 0 9 9c0-1.1-.9-2-2-2h-1.2a2 2 0 0 1-1.8-2.9l.6-1.2A2 2 0 0 0 14.8 3H12Z"/>
-          <circle cx="7.5" cy="11.5" r=".75" fill="currentColor" stroke="none"/>
-          <circle cx="10" cy="7.5" r=".75" fill="currentColor" stroke="none"/>
-          <circle cx="15" cy="7" r=".75" fill="currentColor" stroke="none"/>
-          <circle cx="7.5" cy="16" r=".75" fill="currentColor" stroke="none"/>
-        </svg>
-      </span>
+      <span class="icon"><Icon name="palette" size={19} /></span>
       {#if !collapsed}
         <span class="label">Appearance</span>
       {/if}
     </button>
-    <button class="nav-item logout-btn" on:click={handleLogout} title="Logout">
-      <span class="icon">🚪</span>
+    <button class="nav-item logout-btn" on:click={handleLogout} title="Logout" aria-label="Logout">
+      <span class="icon"><Icon name="logout" size={19} /></span>
       {#if !collapsed}
         <span class="label">Logout</span>
       {/if}
@@ -124,19 +118,20 @@
 
 <style>
   .sidebar {
-    width: 250px;
+    width: 252px;
     height: 100%;
     background: var(--color-surface);
     color: var(--color-text-primary);
-    padding: 1rem;
+    padding: 1.1rem .75rem .75rem;
     display: flex;
     flex-direction: column;
-    transition: width 0.3s ease;
+    transition: width .18s ease;
     flex-shrink: 0;
+    border-right: 1px solid var(--color-border);
   }
   
   .sidebar.collapsed {
-    width: 60px;
+    width: 68px;
   }
 
   .sidebar.collapsed .nav-item {
@@ -154,28 +149,29 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
+    padding: .1rem .55rem 1rem;
+    margin-bottom: .85rem;
     border-bottom: 1px solid var(--color-border);
   }
   
   .logo {
     display: flex;
     align-items: center;
-    gap: 0.875rem;
+    gap: .55rem;
   }
 
   .logo-image {
-    width: 45px;
-    height: 45px;
+    width: 38px;
+    height: 38px;
     object-fit: contain;
     flex-shrink: 0;
   }
 
   .logo h1 {
     margin: 0;
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 1.13rem;
+    font-weight: 700;
+    letter-spacing: -.03em;
     line-height: 1;
   }
   
@@ -184,23 +180,27 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    overflow-y: auto;
+    min-height: 0;
   }
   
   .nav-item {
     display: flex;
     align-items: center;
-    padding: 0.5rem 0.625rem;
-    border-radius: 0.375rem;
-    color: var(--color-text-primary);
+    padding: .65rem .75rem;
+    min-height: 42px;
+    border-radius: .4rem;
+    color: var(--color-text-secondary);
     text-decoration: none;
     transition: background-color 0.2s;
-    gap: 0.5rem;
+    gap: .75rem;
     width: 100%;
     border: none;
     background: none;
     cursor: pointer;
     text-align: left;
-    font-size: 0.875rem;
+    font-size: .85rem;
+    font-weight: 600;
     font-family: inherit;
   }
   
@@ -209,7 +209,8 @@
   }
   
   .nav-item.active {
-    background: var(--color-primary);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
   }
   
   .logout-btn {
@@ -228,15 +229,8 @@
   }
   
   .icon {
-    font-size: 1rem;
+    display: inline-flex;
     flex-shrink: 0;
-  }
-
-  .svg-icon svg {
-    display: block;
-    width: 1.1rem;
-    height: 1.1rem;
-    stroke-width: 1.8;
   }
 
   .appearance-btn {
@@ -249,8 +243,8 @@
   }
   
   .badge {
-    background: var(--color-primary, #3b82f6);
-    color: white;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
     font-size: 0.7rem;
     font-weight: 600;
     padding: 0.15rem 0.4rem;
@@ -268,7 +262,7 @@
     right: -2px;
     width: 8px;
     height: 8px;
-    background: var(--color-primary, #3b82f6);
+    background: var(--color-primary);
     border-radius: 50%;
     border: 2px solid var(--color-surface);
     animation: badge-pop 0.2s ease-out;
@@ -290,6 +284,20 @@
     margin-top: auto;
     padding-top: 1rem;
     border-top: 1px solid var(--color-border);
+  }
+  @media (max-width: 768px) {
+    .sidebar, .sidebar.collapsed {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 45;
+      width: min(280px, 84vw);
+      height: 100dvh;
+      transform: translateX(0);
+      transition: transform .18s ease;
+      box-shadow: 12px 0 32px rgba(8, 31, 43, .12);
+    }
+    .sidebar.collapsed { transform: translateX(-105%); }
+    .sidebar.collapsed .nav-item { justify-content: flex-start; padding: .65rem .75rem; }
   }
 </style>
 

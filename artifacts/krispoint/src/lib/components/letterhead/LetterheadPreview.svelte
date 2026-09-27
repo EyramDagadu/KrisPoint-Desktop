@@ -1,6 +1,7 @@
 <script>
     export let letterhead;
     import { letterheadStore, letterheadActions } from '../../stores/letterheadStore.js';
+    import Icon from '../ui/Icon.svelte';
     
     let previewContainer;
     
@@ -22,7 +23,7 @@ Radiologist`;
 </script>
 
 <div class="letterhead-preview">
-    <h4>📄 PDF Preview</h4>
+    <h4><Icon name="reports" size={18} /> PDF Preview</h4>
     <p class="preview-description">Preview how your letterhead will appear on medical reports</p>
     
     <div class="preview-layout">
@@ -68,7 +69,7 @@ Radiologist`;
         
         <!-- Settings Panel -->
     <div class="settings-panel">
-        <h5>⚙️ Letterhead Settings</h5>
+        <h5><Icon name="settings" size={18} /> Letterhead Settings</h5>
         
         <div class="setting-group">
             <label for="height-slider">Height: {$letterheadStore.settings.height}px</label>
@@ -140,6 +141,15 @@ Radiologist`;
 </div>
 
 <style>
+    h4 :global(svg), h5 :global(svg) {
+        display: inline-block;
+        vertical-align: -0.2em;
+    }
+
+    :global(button:focus-visible), :global(input:focus-visible) {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
+    }
     .letterhead-preview {
         background: var(--background-secondary);
         border: 1px solid var(--border-color);

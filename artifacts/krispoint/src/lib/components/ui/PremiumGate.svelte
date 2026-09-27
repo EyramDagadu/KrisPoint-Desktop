@@ -36,7 +36,13 @@
   <slot />
 {:else if showUpgradePrompt}
   <div class="premium-gate" class:compact>
-    <div class="premium-icon">{$isLicenseExpired ? '⏰' : '🔒'}</div>
+    <div class="premium-icon" aria-hidden="true">
+      {#if $isLicenseExpired}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M9 2h6"/></svg>
+      {:else}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></svg>
+      {/if}
+    </div>
     <div class="premium-content">
       <h4>{featureNames[feature] || 'Premium Feature'}</h4>
       {#if $isLicenseExpired}
@@ -75,11 +81,26 @@
   }
   
   .premium-icon {
-    font-size: 2rem;
+    display: grid;
+    place-items: center;
+    color: var(--color-primary, #2563eb);
+  }
+
+  .premium-icon svg {
+    width: 2rem;
+    height: 2rem;
+    stroke-width: 1.7;
   }
   
   .compact .premium-icon {
-    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: 0 0 1.5rem;
+  }
+
+  .compact .premium-icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
   }
   
   .premium-content h4 {
@@ -125,5 +146,10 @@
 
   .renew-btn {
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  .upgrade-btn:focus-visible {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
   }
 </style>

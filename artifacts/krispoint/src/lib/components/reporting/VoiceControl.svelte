@@ -51,7 +51,7 @@
       on:click={toggleVoice}
       title={isListening ? 'Stop listening' : 'Start voice commands'}
     >
-      <span class="mic-icon">🎤</span>
+      <svg class="mic-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><rect x="7" y="2.5" width="6" height="10" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v2.5m-3 0h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       {isListening ? 'Listening...' : 'Voice Control'}
     </button>
   </div>
@@ -199,4 +199,19 @@
       grid-template-columns: 1fr;
     }
   }
+  .voice-control { color: var(--color-text-primary, #1e293b); }
+  .voice-header h3, .commands-list h4 { color: var(--color-text-primary, #1e293b); }
+  .voice-header, .commands-list, .command-item { background: var(--color-surface, #fff); border-color: var(--color-border, #dbe2ea); }
+  .command-item { color: var(--color-text-primary, #1e293b); }
+  .command-item:hover { background: var(--color-surface-hover, #f1f5f9); }
+  .mic-icon { width: 1rem; height: 1rem; }
+  :global(:focus-visible) { outline: 3px solid var(--color-primary, #3b82f6); outline-offset: 2px; }
+  :global([data-theme="dark"]) .voice-header h3,
+  :global([data-theme="dark"]) .commands-list h4,
+  :global([data-theme="dark"]) .command-item { color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) .voice-header,
+  :global([data-theme="dark"]) .commands-list,
+  :global([data-theme="dark"]) .command-item { background: var(--color-surface, #1e293b); border-color: var(--color-border, #475569); }
+  :global([data-theme="dark"]) .command-item:hover { background: var(--color-surface-hover, #334155); }
+  @media (max-width: 600px) { .voice-header { align-items: flex-start; flex-direction: column; gap: .75rem; } .command-grid { grid-template-columns: 1fr; } }
 </style>

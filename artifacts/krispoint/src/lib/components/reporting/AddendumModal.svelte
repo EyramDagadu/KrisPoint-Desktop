@@ -235,7 +235,7 @@
     <div class="addendum-modal" on:click|stopPropagation>
       <div class="modal-header">
         <h3>Report Addendums</h3>
-        <button class="close-btn" on:click={close}>×</button>
+        <button class="close-btn" aria-label="Close addendums" on:click={close}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
       
       <div class="modal-body">
@@ -302,7 +302,8 @@
         
         {#if canAddAddendum && !showCreateForm}
           <button class="btn btn-add" on:click={() => showCreateForm = true}>
-            + Add New Addendum
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Add New Addendum
           </button>
         {/if}
         
@@ -335,7 +336,7 @@
     <div class="submit-modal" on:click|stopPropagation>
       <div class="modal-header">
         <h3>Submit Addendum for Review</h3>
-        <button class="close-btn" on:click={closeSubmitModal}>×</button>
+        <button class="close-btn" aria-label="Close submit dialog" on:click={closeSubmitModal}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
       <div class="modal-body">
         <p>Select a specialist to review and sign this addendum:</p>
@@ -682,5 +683,27 @@
     text-align: center;
     padding: 1rem;
     color: var(--text-secondary);
+  }
+  .addendum-modal, .submit-modal { background: var(--color-surface, #fff); color: var(--color-text-primary, #1e293b); }
+  .modal-header, .modal-footer { border-color: var(--color-border, #dbe2ea); }
+  .form-group label { color: var(--color-text-primary, #334155); }
+  .form-group input, .form-group textarea, .specialist-select {
+    min-height: 42px;
+    background: var(--color-background, #fff);
+    color: var(--color-text-primary, #1e293b);
+    border-color: var(--color-border, #cbd5e1);
+  }
+  .btn-add svg, .close-btn svg { display: block; width: 1.1rem; height: 1.1rem; }
+  :global(:focus-visible) { outline: 3px solid var(--color-primary, #3b82f6); outline-offset: 2px; }
+  :global([data-theme="dark"]) .addendum-modal,
+  :global([data-theme="dark"]) .submit-modal { background: var(--color-surface, #1e293b); color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) .form-group label { color: var(--color-text-primary, #e2e8f0); }
+  :global([data-theme="dark"]) .form-group input,
+  :global([data-theme="dark"]) .form-group textarea,
+  :global([data-theme="dark"]) .specialist-select { background: var(--color-background, #0f172a); color: var(--color-text-primary, #f1f5f9); border-color: var(--color-border, #475569); }
+  @media (max-width: 600px) {
+    .modal-overlay { padding: .5rem; align-items: flex-end; }
+    .addendum-modal, .submit-modal { width: 100%; max-width: none; max-height: 92dvh; overflow-y: auto; border-radius: .9rem .9rem .4rem .4rem; }
+    .form-actions { display: grid; grid-template-columns: 1fr 1fr; }
   }
 </style>

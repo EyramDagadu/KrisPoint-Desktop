@@ -109,7 +109,7 @@
   <div class="modal-overlay" on:click={handleOverlayClick}>
     <div class="modal-content" on:click|stopPropagation>
       <div class="modal-header">
-        <h2>📥 Restore Backup</h2>
+        <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 15V3m-5 5 5-5 5 5M5 15v5h14v-5"/></svg> Restore Backup</h2>
       </div>
       
       <div class="modal-body">
@@ -129,7 +129,7 @@
           
           {#if selectedFile}
             <div class="file-selected">
-              <span class="file-icon">📄</span>
+              <span class="file-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 13h6"/></svg></span>
               <span class="file-name">{selectedFile.name}</span>
               <span class="file-size">({(selectedFile.size / 1024).toFixed(1)} KB)</span>
             </div>
@@ -140,32 +140,32 @@
           <div class="backup-preview">
             <p><strong>Backup Preview:</strong></p>
             <ul>
-              <li>📊 Total items: {backupMetadata.totalItems}</li>
+              <li>Total items: {backupMetadata.totalItems}</li>
               {#if backupMetadata.users?.length > 0}
-                <li>👤 Users: {backupMetadata.users.map(u => u.username).join(', ')}</li>
+                <li>Users: {backupMetadata.users.map(u => u.username).join(', ')}</li>
               {/if}
-              <li>📄 Reports: {backupMetadata.reportCount}</li>
-              <li>⚙️ Settings: {backupMetadata.hasSettings ? 'Yes' : 'No'}</li>
-              <li>🔧 Macros: {backupMetadata.hasMacros ? 'Yes' : 'No'}</li>
-              <li>✍️ Signature: {backupMetadata.hasSignature ? 'Yes' : 'No'}</li>
+              <li>Reports: {backupMetadata.reportCount}</li>
+              <li>Settings: {backupMetadata.hasSettings ? 'Yes' : 'No'}</li>
+              <li>Macros: {backupMetadata.hasMacros ? 'Yes' : 'No'}</li>
+              <li>Signature: {backupMetadata.hasSignature ? 'Yes' : 'No'}</li>
             </ul>
           </div>
         {/if}
         
         <div class="warning-box">
-          <p><strong>⚠️ Warning:</strong></p>
+          <p><strong>Warning:</strong></p>
           <p>Restoring a backup will <strong>replace ALL current data</strong> in this application with the data from the backup file.</p>
         </div>
         
         {#if successMessage}
           <div class="success-message">
-            ✅ {successMessage}
+            {successMessage}
           </div>
         {/if}
         
         {#if error}
           <div class="error-message">
-            ⚠️ {error}
+            {error}
           </div>
         {/if}
       </div>
@@ -187,7 +187,7 @@
             <span class="spinner"></span>
             Restoring...
           {:else}
-            📥 Restore Backup
+            <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 15V3m-5 5 5-5 5 5M5 15v5h14v-5"/></svg> Restore Backup
           {/if}
         </button>
       </div>
@@ -211,19 +211,43 @@
   }
   
   .modal-content {
-    background: var(--color-bg-secondary, #1f2937);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--color-surface, #ffffff);
+    border: 1px solid var(--color-border, #d1d5db);
     border-radius: 12px;
     max-width: 550px;
     width: 90%;
     max-height: 85vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--shadow-xl, 0 20px 60px rgba(0, 0, 0, 0.3));
   }
   
   .modal-header {
     padding: 24px 24px 16px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+  }
+
+  .modal-header h2 {
+    color: var(--color-text-primary, #111827);
+  }
+
+  .modal-header h2 svg, .file-icon svg, .button-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+    vertical-align: -0.2em;
+    stroke-width: 1.8;
+  }
+
+  .modal-body, .modal-footer {
+    color: var(--color-text-primary, #111827);
+  }
+
+  .modal-footer {
+    border-top: 1px solid var(--color-border, #e5e7eb);
+  }
+
+  :global(button:focus-visible), :global(input:focus-visible) {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
   }
   
   .modal-header h2 {

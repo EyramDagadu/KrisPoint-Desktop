@@ -97,7 +97,8 @@
     
     <div class="editor-actions">
       <button class="btn btn-primary" on:click={saveReport}>
-        💾 Save
+        <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M4 3.5h10l2 2v11H4a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.5"/><path d="M6 3.8v4h7v-4M6 16.5v-5h8v5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        Save
       </button>
     </div>
   </div>
@@ -118,7 +119,8 @@
   <div class="quick-insert">
     {#each Object.entries(sections) as [key, title]}
       <button class="insert-btn" on:click={() => insertSectionHeader(key)}>
-        + {title}
+        <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        {title}
       </button>
     {/each}
   </div>
@@ -199,4 +201,13 @@
   .insert-btn:hover {
     background: #e9ecef;
   }
+  .btn-primary, .insert-btn { display: inline-flex; align-items: center; gap: .4rem; }
+  .btn-primary svg, .insert-btn svg { width: 1rem; height: 1rem; }
+  .report-editor { background: var(--color-surface, #fff); color: var(--color-text-primary, #1e293b); }
+  .editor-header { background: var(--color-background-secondary, #f8fafc); border-color: var(--color-border, #dbe2ea); }
+  .report-textarea { background: var(--color-surface, #fff); color: var(--color-text-primary, #1e293b); border-color: var(--color-border, #cbd5e1); }
+  :global(:focus-visible) { outline: 3px solid var(--color-primary, #3b82f6); outline-offset: 2px; }
+  :global([data-theme="dark"]) .report-editor, :global([data-theme="dark"]) .report-textarea { background: var(--color-surface, #1e293b); color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) .editor-header { background: var(--color-background-secondary, #0f172a); border-color: var(--color-border, #475569); }
+  @media (max-width: 640px) { .editor-header { align-items: flex-start; flex-direction: column; gap: .75rem; } .section-tabs { max-width: 100%; overflow-x: auto; } .quick-insert { flex-wrap: wrap; } }
 </style>

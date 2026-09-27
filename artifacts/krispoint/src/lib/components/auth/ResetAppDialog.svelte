@@ -113,7 +113,7 @@
     <div class="modal-content" on:click|stopPropagation>
       {#if step === 1}
         <div class="modal-header">
-          <h2>💾 Backup Your Data</h2>
+          <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 4h13l3 3v13H4zM8 4v6h8V4M8 20v-6h8v6"/></svg> Backup Your Data</h2>
         </div>
         
         <div class="modal-body">
@@ -133,13 +133,13 @@
           
           {#if backupDownloaded}
             <div class="success-message">
-              ✅ Backup downloaded successfully! Proceeding to reset confirmation...
+              Backup downloaded successfully! Proceeding to reset confirmation...
             </div>
           {/if}
           
           {#if error}
             <div class="error-message">
-              ⚠️ {error}
+              {error}
             </div>
           {/if}
         </div>
@@ -161,13 +161,13 @@
               <span class="spinner"></span>
               Downloading...
             {:else}
-              💾 Download Backup
+              <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 4h13l3 3v13H4zM8 4v6h8V4"/></svg> Download Backup
             {/if}
           </button>
         </div>
       {:else if step === 2}
         <div class="modal-header warning">
-          <h2>⚠️ Reset App - Final Confirmation</h2>
+          <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 3 2.8 19h18.4L12 3Z"/><path d="M12 9v4m0 3h.01"/></svg> Reset App - Final Confirmation</h2>
         </div>
         
         <div class="modal-body">
@@ -181,21 +181,21 @@
           
           <div class="danger-list">
             <ul>
-              <li>🗑️ All user accounts and profiles</li>
-              <li>🗑️ All reports (drafts and finalized)</li>
-              <li>🗑️ All settings and preferences</li>
-              <li>🗑️ All signatures and letterheads</li>
-              <li>🗑️ All custom macros and templates</li>
+              <li>All user accounts and profiles</li>
+              <li>All reports (drafts and finalized)</li>
+              <li>All settings and preferences</li>
+              <li>All signatures and letterheads</li>
+              <li>All custom macros and templates</li>
             </ul>
           </div>
           
           <p class="final-warning">
-            <strong>⛔ This action CANNOT be undone!</strong>
+            <strong>This action CANNOT be undone!</strong>
           </p>
           
           {#if error}
             <div class="error-message">
-              ⚠️ {error}
+              {error}
             </div>
           {/if}
         </div>
@@ -217,7 +217,7 @@
               <span class="spinner"></span>
               Resetting...
             {:else}
-              🗑️ Reset App
+              <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></svg> Reset App
             {/if}
           </button>
         </div>
@@ -242,19 +242,39 @@
   }
   
   .modal-content {
-    background: var(--color-bg-secondary, #1f2937);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--color-surface, #ffffff);
+    border: 1px solid var(--color-border, #d1d5db);
     border-radius: 12px;
     max-width: 550px;
     width: 90%;
     max-height: 85vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--shadow-xl, 0 20px 60px rgba(0, 0, 0, 0.3));
   }
   
   .modal-header {
     padding: 24px 24px 16px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+  }
+
+  .modal-header h2 {
+    color: var(--color-text-primary, #111827);
+  }
+
+  .modal-header h2 svg, .button-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+    vertical-align: -0.2em;
+    stroke-width: 1.8;
+  }
+
+  .modal-body, .modal-footer {
+    color: var(--color-text-primary, #111827);
+  }
+
+  :global(button:focus-visible) {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
   }
   
   .modal-header.warning {

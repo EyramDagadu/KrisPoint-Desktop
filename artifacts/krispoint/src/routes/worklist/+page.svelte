@@ -686,11 +686,17 @@
 
 <div class="worklist-page">
     <div class="page-header">
+        <div class="page-title">
+            <p class="eyebrow">RADIOLOGY OPERATIONS</p>
+            <h1>Worklist</h1>
+            <p class="page-description">Review study priority, reporting status, and the next available action.</p>
+        </div>
         <div class="header-actions">
             <input 
                 type="text" 
                 class="search-input" 
                 placeholder="Search patient name or hospital no..." 
+                aria-label="Search patient name or hospital number"
                 bind:value={searchQuery}
             />
             <DateFilterDropdown 
@@ -722,7 +728,8 @@
             {/if}
             {#if canCreateWorklist}
                 <button class="btn-primary" on:click={openAddModal}>
-                    + Add Patient
+                    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    Add Patient
                 </button>
             {/if}
         </div>
@@ -745,6 +752,7 @@
         </div>
     {:else}
         <div class="worklist-table-container">
+            <div class="results-count" aria-live="polite">{filteredItems.length} {filteredItems.length === 1 ? 'study' : 'studies'}<span class="scroll-hint">Scroll horizontally for more study details</span></div>
             <table class="worklist-table">
                 <thead>
                     <tr>
@@ -787,24 +795,29 @@
                                 <div class="action-buttons">
                                     {#if item.status === 'PENDING' && canPickup}
                                         <button class="btn-action btn-pickup" on:click={() => pickupItem(item.id)} title="Start Report">
+                                            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M10 3v9m0 0 3.5-3.5M10 12 6.5 8.5M4 14v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                             Start Report
                                         </button>
                                     {:else if item.status === 'IN_PROGRESS' && item.reportId}
                                         <button class="btn-action btn-view" on:click={() => goto(`/reporting?reportId=${item.reportId}`)} title="View Report">
+                                            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M2.5 10s2.7-5 7.5-5 7.5 5 7.5 5-2.7 5-7.5 5-7.5-5-7.5-5Z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
                                             View Report
                                         </button>
                                     {:else if item.status === 'COMPLETED' && item.reportId}
                                         <button class="btn-action btn-view" on:click={() => goto(`/reporting?reportId=${item.reportId}`)} title="View Report">
+                                            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M2.5 10s2.7-5 7.5-5 7.5 5 7.5 5-2.7 5-7.5 5-7.5-5-7.5-5Z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
                                             View Report
                                         </button>
                                     {/if}
                                     {#if item.status === 'PENDING' && canEditWorklist}
                                         <button class="btn-action btn-edit" on:click={() => openEditModal(item)} title="Edit">
+                                            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m13.5 3.5 3 3M4 16l3.3-.7L16 6.6a1.4 1.4 0 0 0-2-2l-8.7 8.7L4 16Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                             Edit
                                         </button>
                                     {/if}
                                     {#if item.status === 'PENDING' && canDeleteWorklist}
                                         <button class="btn-action btn-delete" on:click={() => confirmDelete(item)} title="Delete">
+                                            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2m3 0-.7 10H5.7L5 6m3 3v4m4-4v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                             Delete
                                         </button>
                                     {/if}
@@ -823,7 +836,7 @@
         <div class="modal-container">
             <div class="modal-header">
                 <h2 id="modal-title">Add Patient to Worklist</h2>
-                <button class="modal-close" on:click={closeModal} aria-label="Close modal">&times;</button>
+                <button class="modal-close" on:click={closeModal} aria-label="Close modal"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button>
             </div>
             
             <div class="modal-body">
@@ -1008,7 +1021,7 @@
         <div class="modal-container custom-modal">
             <div class="modal-header">
                 <h2>Custom Entry</h2>
-                <button class="modal-close" on:click={closeCustomModal} aria-label="Close modal">&times;</button>
+                <button class="modal-close" on:click={closeCustomModal} aria-label="Close modal"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button>
             </div>
             
             <div class="modal-body">
@@ -1067,7 +1080,7 @@
         <div class="modal-container edit-modal">
             <div class="modal-header">
                 <h2>Edit Worklist Entry</h2>
-                <button class="modal-close" on:click={closeEditModal} aria-label="Close modal">&times;</button>
+                <button class="modal-close" on:click={closeEditModal} aria-label="Close modal"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button>
             </div>
             
             <div class="modal-body">
@@ -1147,7 +1160,7 @@
         <div class="modal-container delete-confirm-modal">
             <div class="modal-header delete-header">
                 <h2>Confirm Delete</h2>
-                <button class="modal-close" on:click={cancelDelete} aria-label="Close modal">&times;</button>
+                <button class="modal-close" on:click={cancelDelete} aria-label="Close modal"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button>
             </div>
             
             <div class="modal-body">
@@ -1445,17 +1458,17 @@
         font-weight: 600;
     }
     
-    .priority-stat {
+    .priority-badge.priority-stat {
         background: #fef2f2;
         color: #dc2626;
     }
     
-    .priority-urgent {
+    .priority-badge.priority-urgent {
         background: #fffbeb;
         color: #d97706;
     }
     
-    .priority-routine {
+    .priority-badge.priority-routine {
         background: #f0fdf4;
         color: #16a34a;
     }
@@ -1987,5 +2000,302 @@
 
     :global([data-theme="dark"]) .validation-errors ul {
         color: #fca5a5;
+    }
+
+    /* Workspace refinement: token-based surfaces stay correct across themes. */
+    .worklist-page {
+        width: min(100%, 1560px);
+        padding: clamp(1rem, 2.5vw, 2rem);
+        color: var(--color-text-primary, #1e293b);
+    }
+
+    .page-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .page-title { min-width: 190px; }
+    .page-title .eyebrow {
+        margin: 0 0 .35rem;
+        color: var(--color-primary, #2563eb);
+        font-size: .7rem;
+        font-weight: 750;
+        letter-spacing: .12em;
+    }
+    .page-title h1 {
+        margin: 0;
+        color: var(--color-text-primary, #1e293b);
+        font-size: clamp(1.55rem, 2.2vw, 2rem);
+        letter-spacing: -.035em;
+    }
+    .page-description {
+        margin: .3rem 0 0;
+        color: var(--color-text-secondary, #64748b);
+        font-size: .88rem;
+    }
+    .header-actions {
+        display: flex;
+        flex: 1;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: .55rem;
+        min-width: 0;
+    }
+    .header-actions > * { min-height: 42px; }
+    .header-actions .search-input { flex: 1 1 220px; min-width: min(220px, 100%); }
+    .header-actions select,
+    .header-actions .search-input {
+        border: 1px solid var(--color-border, #cbd5e1);
+        border-radius: .55rem;
+        background: var(--color-surface, #fff);
+        color: var(--color-text-primary, #1e293b);
+        font: inherit;
+    }
+    .header-actions select { padding: .55rem .75rem; }
+    .header-actions select option { background: var(--color-surface, #fff); color: var(--color-text-primary, #1e293b); }
+    .header-actions .search-input { padding: .55rem .8rem; }
+    .btn-primary, .btn-clear, .btn-secondary, .btn-danger, .btn-action {
+        min-height: 40px;
+        border-radius: .55rem;
+        font: inherit;
+        font-weight: 650;
+        transition: background-color .16s ease, border-color .16s ease, transform .16s ease;
+    }
+    .header-actions .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .45rem;
+        white-space: nowrap;
+        padding: .55rem 1rem;
+        background: var(--color-primary, #2563eb);
+    }
+    .header-actions .btn-primary svg,
+    .btn-action svg { width: 1rem; height: 1rem; flex: 0 0 auto; }
+    .header-actions .btn-primary:hover,
+    .btn-action:hover { transform: translateY(-1px); }
+    .results-count {
+        margin: 0 0 .6rem .1rem;
+        color: var(--color-text-secondary, #64748b);
+        font-size: .8rem;
+        font-weight: 650;
+    }
+    .scroll-hint { display: none; margin-left: 1rem; font-weight: 400; }
+    .worklist-table-container {
+        overflow: auto;
+        border: 1px solid var(--color-border, #dbe2ea);
+        border-radius: .8rem;
+        background: var(--color-surface, #fff);
+        box-shadow: 0 5px 20px rgb(15 23 42 / .045);
+    }
+    .worklist-table {
+        min-width: 1050px;
+        border-radius: .8rem;
+        overflow: visible;
+        box-shadow: none;
+        color: var(--color-text-primary, #1e293b);
+        background: var(--color-surface, #fff);
+    }
+    .worklist-table th,
+    .worklist-table td {
+        padding: .85rem .9rem;
+        border-bottom-color: var(--color-border, #e2e8f0);
+        vertical-align: middle;
+    }
+    .worklist-table th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: var(--color-background-secondary, #f8fafc);
+        color: var(--color-text-secondary, #475569);
+        font-size: .69rem;
+        letter-spacing: .055em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .worklist-table td { font-size: .84rem; }
+    .worklist-table tbody tr { border-left: 3px solid transparent; }
+    .worklist-table tbody tr.priority-stat { border-left-color: #dc2626; }
+    .worklist-table tbody tr.priority-urgent { border-left-color: #d97706; }
+    .worklist-table tbody tr.priority-routine { border-left-color: #16a34a; }
+    .worklist-table tbody tr:hover,
+    :global([data-theme="dark"]) .worklist-table tbody tr:hover,
+    :global([data-theme="dark"]) .worklist-table tbody tr:hover td {
+        background: var(--color-surface-hover, #f1f5f9);
+        color: var(--color-text-primary, #1e293b);
+    }
+    :global([data-theme="dark"]) .worklist-table tbody tr:hover td { color: var(--color-text-primary, #f1f5f9); }
+    .report-id-cell { color: var(--color-text-secondary, #64748b); white-space: nowrap; }
+    .priority-badge, .status-badge { padding: .3rem .55rem; border-radius: 999px; letter-spacing: .015em; }
+    .priority-badge.priority-stat { background: #fee2e2; color: #991b1b; }
+    .priority-badge.priority-urgent { background: #fef3c7; color: #92400e; }
+    .priority-badge.priority-routine { background: #dcfce7; color: #166534; }
+    .status-pending { background: #fef3c7; color: #854d0e; }
+    .status-in-progress { background: #dbeafe; color: #1e40af; }
+    .status-submitted { background: #e0e7ff; color: #3730a3; }
+    .status-completed, .status-signed { background: #dcfce7; color: #166534; }
+    .status-default { background: var(--color-background-secondary, #f1f5f9); color: var(--color-text-secondary, #475569); }
+    :global([data-theme="dark"]) .priority-badge.priority-stat { background: #521b27; color: #fecaca; }
+    :global([data-theme="dark"]) .priority-badge.priority-urgent,
+    :global([data-theme="dark"]) .status-pending { background: #4b3513; color: #fde68a; }
+    :global([data-theme="dark"]) .priority-badge.priority-routine,
+    :global([data-theme="dark"]) .status-completed,
+    :global([data-theme="dark"]) .status-signed { background: #123b2c; color: #bbf7d0; }
+    :global([data-theme="dark"]) .status-in-progress { background: #173455; color: #bfdbfe; }
+    :global([data-theme="dark"]) .status-submitted { background: #30285c; color: #ddd6fe; }
+    :global([data-theme="dark"]) .status-default { background: #334155; color: #e2e8f0; }
+    .actions-cell { min-width: 190px; }
+    .worklist-table th:last-child, .worklist-table .actions-cell {
+        position: sticky;
+        right: 0;
+        z-index: 2;
+        background: var(--color-surface, #fff);
+        box-shadow: -8px 0 14px -12px rgb(0 0 0 / .4);
+    }
+    .worklist-table th:last-child { background: var(--color-background-secondary, #f8fafc); z-index: 3; }
+    .action-buttons { gap: .4rem; }
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .35rem;
+        padding: .4rem .65rem;
+        white-space: nowrap;
+    }
+    .btn-pickup { background: var(--color-primary, #2563eb); }
+    .btn-view { background: #475569; color: white; }
+    .btn-edit { background: #a16207; color: white; }
+    .btn-delete { background: #b91c1c; color: white; }
+    .error-message {
+        border: 1px solid #fecaca;
+        background: #fef2f2;
+        color: #991b1b;
+    }
+    :global([data-theme="dark"]) .error-message { border-color: #7f1d1d; background: #450a0a; color: #fecaca; }
+    .modal-container, .modal-header { background: var(--color-surface, #fff); }
+    .modal-container { color: var(--color-text-primary, #1e293b); }
+    .modal-header h2, .form-section h3, .delete-warning { color: var(--color-text-primary, #1e293b); }
+    .form-group label { color: var(--color-text-primary, #334155); }
+    .form-group input, .form-group select, .form-group textarea {
+        min-height: 42px;
+        background: var(--color-background, #fff);
+        color: var(--color-text-primary, #1e293b);
+        border-color: var(--color-border, #cbd5e1);
+    }
+    .form-group select option { background: var(--color-surface, #fff); color: var(--color-text-primary, #1e293b); }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus,
+    .header-actions input:focus, .header-actions select:focus {
+        outline: 3px solid color-mix(in srgb, var(--color-primary, #2563eb) 30%, transparent);
+        outline-offset: 1px;
+        border-color: var(--color-primary, #2563eb);
+    }
+    .modal-footer { background: var(--color-background-secondary, #f8fafc); }
+    .delete-details { background: var(--color-background-secondary, #f8fafc); }
+    :global([data-theme="dark"]) .modal-container,
+    :global([data-theme="dark"]) .modal-header,
+    :global([data-theme="dark"]) .modal-footer .btn-secondary,
+    :global([data-theme="dark"]) .form-group input,
+    :global([data-theme="dark"]) .form-group select,
+    :global([data-theme="dark"]) .form-group textarea,
+    :global([data-theme="dark"]) .modality-checkboxes {
+        background: var(--color-surface, #1e293b);
+        color: var(--color-text-primary, #f1f5f9);
+        border-color: var(--color-border, #475569);
+    }
+    :global([data-theme="dark"]) .form-group input:disabled,
+    :global([data-theme="dark"]) .form-group select:disabled { background: var(--color-background-secondary, #334155); }
+    :global([data-theme="dark"]) .form-group label,
+    :global([data-theme="dark"]) .modal-header h2,
+    :global([data-theme="dark"]) .form-section h3,
+    :global([data-theme="dark"]) .delete-warning { color: var(--color-text-primary, #f1f5f9); }
+    :global([data-theme="dark"]) .delete-details { background: var(--color-background-secondary, #334155); }
+    :global([data-theme="dark"]) .worklist-table-container { border-color: var(--color-border, #334155); }
+    :global([data-theme="dark"]) .worklist-table { background: var(--color-surface, #1e293b); }
+    :global([data-theme="dark"]) .worklist-table th { background: var(--color-background-secondary, #0f172a); color: var(--color-text-primary, #e2e8f0); }
+    :global([data-theme="dark"]) .worklist-table td { color: var(--color-text-primary, #e2e8f0); }
+    :global([data-theme="dark"]) .worklist-table tbody tr:hover,
+    :global([data-theme="dark"]) .worklist-table tbody tr:hover td { background: var(--color-surface-hover, #334155); }
+    :global(:focus-visible) {
+        outline: 3px solid var(--color-primary, #3b82f6);
+        outline-offset: 2px;
+    }
+    @media (max-width: 1050px) {
+        .page-header { align-items: stretch; flex-direction: column; gap: 1rem; }
+        .header-actions { justify-content: flex-start; }
+    }
+    @media (min-width: 901px) and (max-width: 1550px) {
+        .scroll-hint { display: inline; }
+    }
+    @media (max-width: 900px) {
+        .worklist-table .actions-cell { position: static; box-shadow: none; }
+        .worklist-page { padding: 1rem .75rem; }
+        .page-description { max-width: 40ch; line-height: 1.45; }
+        .header-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .header-actions .search-input { grid-column: 1 / -1; width: 100%; }
+        .header-actions select { min-width: 0; width: 100%; }
+        .header-actions :global(*) { max-width: 100%; }
+        .header-actions .btn-primary { grid-column: 1 / -1; }
+        .worklist-table-container { overflow: visible; border: 0; background: transparent; box-shadow: none; }
+        .worklist-table { display: block; min-width: 0; background: transparent; }
+        .worklist-table thead { display: none; }
+        .worklist-table tbody { display: grid; gap: .75rem; }
+        .worklist-table tbody tr {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .15rem .75rem;
+            padding: .65rem .8rem;
+            border: 1px solid var(--color-border, #dbe2ea);
+            border-left: 3px solid var(--color-primary, #2563eb);
+            border-radius: .7rem;
+            background: var(--color-surface, #fff);
+        }
+        .worklist-table tbody tr.priority-stat { border-left-color: #dc2626; }
+        .worklist-table tbody tr.priority-urgent { border-left-color: #d97706; }
+        .worklist-table tbody tr.priority-routine { border-left-color: #16a34a; }
+        .worklist-table td {
+            display: block;
+            min-width: 0;
+            padding: .4rem 0;
+            border: 0;
+            overflow-wrap: anywhere;
+        }
+        .worklist-table td:nth-child(4), .worklist-table td:nth-child(11) { grid-column: 1 / -1; }
+        .worklist-table td:nth-child(1)::before { content: "Report"; }
+        .worklist-table td:nth-child(2)::before { content: "Priority"; }
+        .worklist-table td:nth-child(3)::before { content: "Status"; }
+        .worklist-table td:nth-child(4)::before { content: "Patient"; }
+        .worklist-table td:nth-child(5)::before { content: "Hospital number"; }
+        .worklist-table td:nth-child(6)::before { content: "Modality"; }
+        .worklist-table td:nth-child(7)::before { content: "Body region"; }
+        .worklist-table td:nth-child(8)::before { content: "Study date"; }
+        .worklist-table td:nth-child(9)::before { content: "Picked up by"; }
+        .worklist-table td:nth-child(10)::before { content: "Signed off by"; }
+        .worklist-table td::before {
+            display: block;
+            margin-bottom: .14rem;
+            color: var(--color-text-secondary, #64748b);
+            font-size: .64rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+        .worklist-table td:nth-child(4) { font-size: 1rem; font-weight: 700; }
+        .worklist-table td:nth-child(11)::before { content: "Next action"; }
+        .worklist-table .actions-cell { min-width: 0; }
+        .worklist-table .action-buttons { display: flex; }
+        .action-buttons .btn-action { flex: 1; }
+        .results-count { margin-left: .1rem; }
+        .modal-overlay { padding: .5rem; align-items: flex-end; }
+        .modal-container { max-height: min(92dvh, 850px); border-radius: .9rem .9rem .4rem .4rem; }
+        .modal-header { padding: 1rem 1.1rem; }
+        .modal-body { padding: 1rem; }
+        .modal-footer { padding: .8rem 1rem; }
+        .form-grid { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
 </style>

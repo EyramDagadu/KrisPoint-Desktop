@@ -133,7 +133,7 @@
         <div class="custom-picker">
             <div class="custom-picker-header">
                 <h4>{customMode === 'day' ? 'Select Date' : 'Select Date Range'}</h4>
-                <button class="close-btn" on:click={cancelCustom}>&times;</button>
+                <button class="close-btn" on:click={cancelCustom} aria-label="Close custom date filter"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button>
             </div>
             <div class="custom-picker-body">
                 {#if customMode === 'day'}

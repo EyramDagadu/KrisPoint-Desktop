@@ -45,14 +45,14 @@
   ];
   
   const categories = [
-    { id: 'All', label: 'All', icon: '📋' },
-    { id: 'General', label: 'General', icon: '📝' },
-    { id: 'Neuro', label: 'Neuro', icon: '🧠' },
-    { id: 'Chest', label: 'Chest', icon: '🫁' },
-    { id: 'Abdomen', label: 'Abdomen', icon: '🫃' },
-    { id: 'MSK', label: 'MSK', icon: '🦴' },
-    { id: 'Procedures', label: 'Procedures', icon: '💉' },
-    { id: 'Impressions', label: 'Impressions', icon: '💭' }
+    { id: 'All', label: 'All' },
+    { id: 'General', label: 'General' },
+    { id: 'Neuro', label: 'Neuro' },
+    { id: 'Chest', label: 'Chest' },
+    { id: 'Abdomen', label: 'Abdomen' },
+    { id: 'MSK', label: 'MSK' },
+    { id: 'Procedures', label: 'Procedures' },
+    { id: 'Impressions', label: 'Impressions' }
   ];
   
   onMount(async () => {
@@ -102,11 +102,6 @@
   function switchTab(tab) {
     activeTab = tab;
     loadMacros();
-  }
-
-  function getCategoryIcon(categoryId) {
-    const cat = categories.find(c => c.id === categoryId);
-    return cat ? cat.icon : '📄';
   }
 
   function startAddMacro() {
@@ -307,13 +302,13 @@
         
         <select bind:value={selectedCategory} class="category-filter">
           {#each categories as cat}
-            <option value={cat.id}>{cat.icon} {cat.label}</option>
+            <option value={cat.id}>{cat.label}</option>
           {/each}
         </select>
         
         {#if canCreate}
           <button class="btn btn-primary" on:click={startAddMacro}>
-            <span>+</span>
+            <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
             Create {isSoloEdition ? '' : activeTab === 'system' ? 'System ' : 'Personal '}Macro
           </button>
         {/if}
@@ -371,13 +366,13 @@
         {#each filteredMacros as macro}
           <div class="macro-card">
             <div class="macro-header">
-              <span class="category-icon">{getCategoryIcon(macro.category)}</span>
+              <span class="category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 5h16v14H4zM8 9h8M8 13h5"/></svg></span>
               <h3>{macro.name}</h3>
             </div>
             
             {#if macro.voiceCommand}
               <div class="voice-command">
-                <span class="voice-icon">🎤</span>
+                <span class="voice-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4m-4 0h8"/></svg></span>
                 <span class="voice-text">"{macro.voiceCommand}"</span>
               </div>
             {/if}
@@ -393,12 +388,12 @@
             <div class="macro-actions">
               {#if canEditMacro(macro)}
                 <button class="btn btn-outline btn-icon" on:click={() => editMacro(macro)} title="Edit macro">
-                  ✏️
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m14 5 5 5M4 20l4.5-1 10.8-10.8a2.1 2.1 0 0 0-3-3L5.5 16 4 20Z"/></svg>
                 </button>
               {/if}
               {#if canDeleteMacro(macro)}
                 <button class="btn btn-danger btn-icon" on:click={() => confirmDeleteMacro(macro)} title="Delete macro">
-                  🗑️
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>
                 </button>
               {/if}
             </div>
@@ -414,7 +409,7 @@
     <div class="modal-content" on:click|stopPropagation>
       <div class="modal-header">
         <h3>{editingMacro ? 'Edit Macro' : isSoloEdition ? 'Create Macro' : `Create ${activeTab === 'system' ? 'System' : 'Personal'} Macro`}</h3>
-        <button class="close-btn" on:click={resetForm}>×</button>
+        <button class="close-btn" on:click={resetForm} aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -622,7 +617,50 @@
   }
 
   .category-icon {
-    font-size: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 2rem;
+    color: var(--color-primary, #2563eb);
+    background: var(--color-primary-light, #eff6ff);
+    border-radius: 0.625rem;
+  }
+
+  .category-icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    stroke-width: 1.7;
+  }
+
+  .button-icon {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.8;
+  }
+
+  .voice-icon svg {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.8;
+  }
+
+  .btn-icon svg {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.8;
+  }
+
+  .close-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke-width: 1.8;
+  }
+
+  :global(button:focus-visible), :global(select:focus-visible), :global(input:focus-visible), :global(textarea:focus-visible) {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
   }
 
   .macro-header h3 {

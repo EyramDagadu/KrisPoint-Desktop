@@ -666,7 +666,7 @@
   <div class="modal" on:click|stopPropagation>
     <div class="modal-header">
       <h3>Custom Entry</h3>
-      <button class="modal-close" on:click={() => showCustomModal = false}>×</button>
+      <button class="modal-close" aria-label="Close custom entry dialog" on:click={() => showCustomModal = false}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
     </div>
     
     <div class="modal-body">
@@ -1188,5 +1188,39 @@
   :global([data-theme="dark"]) .modality-checkboxes {
     background: #1e293b;
     border-color: #475569;
+  }
+  .patient-header { color: var(--color-text-primary, #1e293b); }
+  .section-header h3, .form-section h3, .form-group label { color: var(--color-text-primary, #1e293b); }
+  .form-group input, .form-group select, .form-group textarea {
+    min-height: 42px;
+    background: var(--color-background, #fff);
+    color: var(--color-text-primary, #1e293b);
+    border-color: var(--color-border, #cbd5e1);
+  }
+  .form-group select option { background: var(--color-surface, #fff); color: var(--color-text-primary, #1e293b); }
+  .report-id-badge { background: var(--color-background-secondary, #eff6ff); color: var(--color-primary, #1d4ed8); }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: 3px solid color-mix(in srgb, var(--color-primary, #2563eb) 25%, transparent);
+    outline-offset: 1px;
+  }
+  .form-actions { gap: .65rem; }
+  .form-actions .btn { min-height: 42px; border-radius: .5rem; font-weight: 650; }
+  :global(:focus-visible) { outline: 3px solid var(--color-primary, #3b82f6); outline-offset: 2px; }
+  :global([data-theme="dark"]) .section-header h3,
+  :global([data-theme="dark"]) .form-section h3,
+  :global([data-theme="dark"]) .form-group label { color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) .form-group input,
+  :global([data-theme="dark"]) .form-group select,
+  :global([data-theme="dark"]) .form-group textarea {
+    background: var(--color-background, #0f172a);
+    color: var(--color-text-primary, #f1f5f9);
+    border-color: var(--color-border, #475569);
+  }
+  :global([data-theme="dark"]) .report-id-badge { background: var(--color-background-secondary, #334155); color: #bfdbfe; }
+  @media (max-width: 560px) {
+    .form-grid { grid-template-columns: minmax(0, 1fr); }
+    .form-actions { display: grid; grid-template-columns: 1fr 1.4fr; }
+    .form-actions .btn { width: 100%; }
+    .section-header { align-items: flex-start; flex-direction: column; }
   }
 </style>

@@ -348,13 +348,13 @@
     }
     
     if (!passwordChangeData.currentPassword || !passwordChangeData.newPassword || !passwordChangeData.confirmPassword) {
-      passwordStatus = '❌ Please fill in all password fields';
+      passwordStatus = 'Please fill in all password fields';
       setTimeout(() => passwordStatus = '', 4000);
       return;
     }
 
     if (passwordChangeData.newPassword !== passwordChangeData.confirmPassword) {
-      passwordStatus = '❌ New password and confirm password do not match';
+      passwordStatus = 'New password and confirm password do not match';
       setTimeout(() => passwordStatus = '', 4000);
       return;
     }
@@ -540,10 +540,10 @@
       
       if (available) {
         connectionStatus = 'success';
-        toastSuccess(`✅ Connected to Ollama! Model: ${settings.ai.ollamaModel}`);
+        toastSuccess(`Connected to Ollama! Model: ${settings.ai.ollamaModel}`);
       } else {
         connectionStatus = 'error';
-        toastError('❌ Cannot connect to Ollama. Make sure Ollama is running.');
+        toastError('Cannot connect to Ollama. Make sure Ollama is running.');
       }
     } catch (error) {
       connectionStatus = 'error';
@@ -697,30 +697,30 @@
 
   // Full tabs for admins only (includes system configuration)
   const adminTabs = [
-    { id: 'profile', label: 'Admin Profile', icon: '👨‍⚕️' },
-    { id: 'general', label: 'General', icon: '⚙️' },
-    { id: 'voice', label: 'Voice Recognition', icon: '🎤' },
-    { id: 'ai', label: 'AI Assistant', icon: '✨' },
-    { id: 'letterheads', label: 'Letterheads', icon: '🏥' },
-    { id: 'clinical', label: 'External Integrations', icon: '🔗' },
-    { id: 'license', label: 'License', icon: '🔑' },
-    ...(isSoloEdition ? [{ id: 'backup', label: 'Backup & Restore', icon: '💾' }] : [])
+    { id: 'profile', label: 'Admin Profile', icon: 'profile' },
+    { id: 'general', label: 'General', icon: 'settings' },
+    { id: 'voice', label: 'Voice Recognition', icon: 'voice' },
+    { id: 'ai', label: 'AI Assistant', icon: 'spark' },
+    { id: 'letterheads', label: 'Letterheads', icon: 'building' },
+    { id: 'clinical', label: 'External Integrations', icon: 'link' },
+    { id: 'license', label: 'License', icon: 'key' },
+    ...(isSoloEdition ? [{ id: 'backup', label: 'Backup & Restore', icon: 'backup' }] : [])
   ];
   
   // Tabs for medical staff (doctors, residents) - no system config
   // Includes voice tab for training data opt-in (personal consent setting)
   const medicalStaffTabs = [
-    { id: 'profile', label: 'Doctor Profile', icon: '👨‍⚕️' },
-    { id: 'general', label: 'General', icon: '⚙️' },
-    { id: 'voice', label: 'Voice Settings', icon: '🎤' },
-    { id: 'license', label: 'License', icon: '🔑' }
+    { id: 'profile', label: 'Doctor Profile', icon: 'profile' },
+    { id: 'general', label: 'General', icon: 'settings' },
+    { id: 'voice', label: 'Voice Settings', icon: 'voice' },
+    { id: 'license', label: 'License', icon: 'key' }
   ];
   
   // Limited tabs for Front Desk users
   const frontDeskTabs = [
-    { id: 'profile', label: 'Profile', icon: '👤' },
-    { id: 'general', label: 'General', icon: '⚙️' },
-    { id: 'license', label: 'License', icon: '🔑' }
+    { id: 'profile', label: 'Profile', icon: 'profile' },
+    { id: 'general', label: 'General', icon: 'settings' },
+    { id: 'license', label: 'License', icon: 'key' }
   ];
   
   // Choose tabs based on role
@@ -752,7 +752,23 @@
               class:active={activeTab === tab.id}
               on:click={() => activeTab = tab.id}
             >
-              <span class="nav-icon">{tab.icon}</span>
+              <span class="nav-icon" aria-hidden="true">
+                {#if tab.icon === 'profile'}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="3.5"/><path d="M5 21a7 7 0 0 1 14 0"/></svg>
+                {:else if tab.icon === 'settings'}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1a1.7 1.7 0 0 1-2.4 2.4l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a1.7 1.7 0 0 1-3.4 0v-.2a1.7 1.7 0 0 0-2.9-1.2l-.1.1a1.7 1.7 0 0 1-2.4-2.4l.1-.1A1.7 1.7 0 0 0 4.2 12H4a1.7 1.7 0 0 1 0-3.4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a1.7 1.7 0 0 1 2.4-2.4l.1.1a1.7 1.7 0 0 0 2.9-1.2v-.2a1.7 1.7 0 0 1 3.4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a1.7 1.7 0 0 1 2.4 2.4l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a1.7 1.7 0 0 1 0 3.4h-.2a1.7 1.7 0 0 0-1.2 2.9Z"/></svg>
+                {:else if tab.icon === 'voice'}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4m-4 0h8"/></svg>
+                {:else if tab.icon === 'building'}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M5 21V5l7-3 7 3v16M9 9h.01M15 9h.01M9 13h.01M15 13h.01M10 21v-4h4v4"/></svg>
+                {:else if tab.icon === 'link'}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 13a5 5 0 0 0 7.1 0l3-3A5 5 0 0 0 13 2.9l-1.7 1.7M14 11a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"/></svg>
+                {:else if tab.icon === 'backup'}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h13l3 3v13H4zM8 4v6h8V4M8 20v-6h8v6"/></svg>
+                {:else}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="8"/><path d="M12 8v8m-4-4h8"/></svg>
+                {/if}
+              </span>
               <span class="nav-label">{tab.label}</span>
             </button>
           {/each}
@@ -762,7 +778,7 @@
       <div class="settings-content">
         {#if activeTab === 'profile'}
           <div class="settings-section">
-            <h2>{isFrontDeskOnly ? '👤 Profile' : (isAdmin ? '👨‍⚕️ Admin Profile' : '👨‍⚕️ Doctor Profile')}</h2>
+            <h2>{isFrontDeskOnly ? 'Profile' : (isAdmin ? 'Admin Profile' : 'Doctor Profile')}</h2>
             
             <div class="profile-info">
               <div class="setting-group">
@@ -900,7 +916,7 @@
             
             {#if !isFrontDeskOnly}
             <div class="signature-section">
-              <h3>🖋️ Digital Signature</h3>
+              <h3>Digital Signature</h3>
               <p class="setting-description">
                 Upload your signature image. White backgrounds are automatically removed for professional PDF reports.
               </p>
@@ -910,7 +926,7 @@
             {/if}
             
             <div class="password-section">
-              <h3>🔒 Change Password</h3>
+              <h3>Change Password</h3>
               <p class="setting-description">
                 Update your password to keep your account secure. Requirements: at least 8 characters, including uppercase, lowercase, number, and special character.
               </p>
@@ -959,12 +975,12 @@
                     <span class="loading-spinner"></span>
                     Changing Password...
                   {:else}
-                    🔑 Change Password
+                    Change Password
                   {/if}
                 </button>
                 
                 {#if passwordStatus}
-                  <div class="password-status" class:success={passwordStatus.includes('✅')} class:error={passwordStatus.includes('❌')}>
+                  <div class="password-status" class:error={Boolean(passwordStatus)}>
                     {passwordStatus}
                   </div>
                 {/if}
@@ -972,10 +988,10 @@
             </div>
             
             <div class="security-question-section">
-              <h3>🔐 Password Recovery Setup</h3>
+              <h3>Password Recovery Setup</h3>
               <p class="setting-description">
                 {#if hasSecurityQuestion}
-                  ✅ You have a security question set up. You can update it below if needed.
+                  You have a security question set up. You can update it below if needed.
                 {:else}
                   Set up a security question to recover your password if you forget it. This works completely offline - no email required!
                 {/if}
@@ -1006,7 +1022,7 @@
                     disabled={securityQuestionSaving}
                   />
                   <p class="setting-description-small">
-                    💡 Answers are case-insensitive. "John Smith" and "john smith" will both work.
+                    Answers are case-insensitive. "John Smith" and "john smith" will both work.
                   </p>
                 </div>
                 
@@ -1020,7 +1036,7 @@
                     <span class="loading-spinner"></span>
                     Saving...
                   {:else}
-                    {hasSecurityQuestion ? '🔄 Update Security Question' : '✅ Set Up Security Question'}
+                    {hasSecurityQuestion ? 'Update Security Question' : 'Set Up Security Question'}
                   {/if}
                 </button>
               </div>
@@ -1036,12 +1052,12 @@
                   <span class="loading-spinner"></span>
                   Updating...
                 {:else}
-                  💾 Save Profile
+                  Save Profile
                 {/if}
               </button>
               
               <button class="btn btn-outline btn-logout" on:click={logout}>
-                🚪 Logout
+                Logout
               </button>
             </div>
           </div>
@@ -1194,7 +1210,7 @@
 
         {#if activeTab === 'ai'}
           <div class="settings-section">
-            <h2>✨ AI Assistant Settings</h2>
+            <h2>AI Assistant Settings</h2>
             <p class="section-info">
               Choose how optional AI drafting assistance is provided. Reports,
               dictation, templates, and ordinary reporting controls work without
@@ -1213,7 +1229,15 @@
 
              {#if settings.ai.providerMode === 'hosted'}
                <div class="connection-status {hostedGatewayStatus === 'ready' ? 'success' : hostedGatewayStatus === 'not-ready' ? 'error' : ''}">
-                 {#if hostedGatewayStatus === 'ready'}✅{:else if hostedGatewayStatus === 'not-ready'}⚠️{:else}⏳{/if}
+                 <span class="status-indicator" aria-hidden="true">
+                   {#if hostedGatewayStatus === 'ready'}
+                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m5 12 4 4L19 6"/></svg>
+                   {:else if hostedGatewayStatus === 'not-ready'}
+                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3 2.8 19h18.4L12 3Z"/><path d="M12 9v4m0 3h.01"/></svg>
+                   {:else}
+                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                   {/if}
+                 </span>
                  {hostedGatewayMessage || 'Checking hosted AI gateway…'}
                </div>
                <p class="setting-description">
@@ -1269,23 +1293,23 @@
                 {#if testingConnection}
                   <span class="spinner"></span> Testing Connection...
                 {:else}
-                  🔗 Test Connection
+                  Test Connection
                 {/if}
               </button>
               
               {#if connectionStatus === 'success'}
                 <div class="connection-status success">
-                  ✅ Successfully connected to Ollama!
+                  Successfully connected to Ollama!
                 </div>
               {:else if connectionStatus === 'error'}
                 <div class="connection-status error">
-                  ❌ Connection failed. Make sure Ollama is running and the model is downloaded.
+                  Connection failed. Make sure Ollama is running and the model is downloaded.
                 </div>
               {/if}
             </div>
             
             <div class="ai-info">
-              <h3>📖 Quick Start Guide</h3>
+              <h3>Quick Start Guide</h3>
               <ol>
                 <li>Install Ollama from <a href="https://ollama.com" target="_blank" rel="noopener">ollama.com</a></li>
                 <li>Open terminal and run: <code>ollama pull {settings.ai.ollamaModel || 'mistral:7b'}</code></li>
@@ -1345,12 +1369,12 @@
 
         {#if activeTab === 'license'}
           <div class="settings-section">
-            <h2>🔑 License Management</h2>
+            <h2>License Management</h2>
             
             {#if $isLicenseActive}
               <div class="license-status license-active">
                 <div class="license-badge">
-                  <span class="badge-icon">✓</span>
+                  <span class="badge-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m5 12 4 4L19 6"/></svg></span>
                   <span class="badge-text">Premium Active</span>
                 </div>
                 
@@ -1656,15 +1680,15 @@
     <!-- Save Controls at Bottom -->
     <div class="save-controls">
       <button class="btn btn-primary save-button" on:click={saveSettings}>
-        <span class="save-icon">💾</span> Save Changes
+        <span class="save-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h13l3 3v13H4zM8 4v6h8V4M8 20v-6h8v6"/></svg></span> Save Changes
       </button>
       {#if unsavedChanges}
         <div class="unsaved-indicator">
-          ⚠️ You have unsaved changes
+          You have unsaved changes
         </div>
       {:else}
         <div class="saved-indicator">
-          ✅ All Changes Saved
+          All Changes Saved
         </div>
       {/if}
       {#if saveStatus}
@@ -2505,6 +2529,66 @@
 
   .setting-description.warning {
     color: #c53030;
+  }
+
+  .nav-icon svg, .save-icon svg {
+    display: block;
+    width: 1.15rem;
+    height: 1.15rem;
+    stroke-width: 1.8;
+  }
+
+  .badge-icon svg {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 2;
+  }
+
+  .status-indicator {
+    display: inline-flex;
+    vertical-align: middle;
+    margin-right: 0.35rem;
+  }
+
+  .status-indicator svg {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.8;
+  }
+
+  .nav-item:focus-visible, :global(button:focus-visible), :global(input:focus-visible), :global(select:focus-visible), :global(textarea:focus-visible) {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 800px) {
+    .settings-page {
+      padding: 1rem;
+    }
+
+    .settings-container {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+    }
+
+    .settings-nav {
+      display: flex;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding: 0.4rem;
+      scrollbar-width: thin;
+    }
+
+    .nav-item {
+      width: auto;
+      min-width: max-content;
+      padding: 0.65rem 0.75rem;
+    }
+
+    .settings-content {
+      min-width: 0;
+      padding: 1rem;
+    }
   }
 </style>
 

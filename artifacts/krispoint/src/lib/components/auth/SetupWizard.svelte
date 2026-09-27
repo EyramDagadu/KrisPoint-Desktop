@@ -49,7 +49,7 @@
 
 <div class="setup-wizard">
     <div class="wizard-card">
-        <div class="welcome-icon">🏥</div>
+        <div class="welcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M5 21V5l7-3 7 3v16M9 9h.01M15 9h.01M9 13h.01M15 13h.01M10 21v-4h4v4"/></svg></div>
         <h1>Welcome to KrisPoint Medical</h1>
         <p class="subtitle">Your radiology reporting system is almost ready</p>
         
@@ -110,8 +110,31 @@
     }
     
     .welcome-icon {
-        font-size: 4rem;
+        display: grid;
+        place-items: center;
+        width: 4rem;
+        height: 4rem;
         margin-bottom: 1rem;
+        margin-inline: auto;
+        border-radius: 1rem;
+        color: var(--color-primary, #2563eb);
+        background: var(--color-primary-light, #eff6ff);
+    }
+
+    .welcome-icon svg {
+        width: 2.25rem;
+        height: 2.25rem;
+        stroke-width: 1.7;
+    }
+
+    @media (max-width: 480px) {
+        .setup-wizard {
+            padding: 1rem;
+        }
+
+        .wizard-card {
+            padding: 1.5rem 1.25rem;
+        }
     }
     
     h1 {

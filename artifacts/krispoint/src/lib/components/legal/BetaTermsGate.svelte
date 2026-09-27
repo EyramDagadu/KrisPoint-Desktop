@@ -33,7 +33,7 @@
   <div class="terms-loading" aria-label="Loading KrisPoint"></div>
 {:else if isSoloEdition && !hasAccepted}
   <div class="terms-backdrop" role="presentation">
-    <section
+     <div
       class="terms-dialog"
       role="dialog"
       aria-modal="true"
@@ -53,7 +53,7 @@
         This beta must not be used for real patient care.
       </div>
 
-      <div class="terms-content" tabindex="0">
+       <div class="terms-content" role="region" aria-label="Beta participation terms" tabindex="0">
         {#each BETA_TERMS_SECTIONS as section, index}
           <article>
             <h2>{index + 1}. {section.title}</h2>
@@ -77,7 +77,7 @@
         </button>
         <small>Terms version {BETA_TERMS_VERSION}</small>
       </footer>
-    </section>
+     </div>
   </div>
 {:else}
   <slot />

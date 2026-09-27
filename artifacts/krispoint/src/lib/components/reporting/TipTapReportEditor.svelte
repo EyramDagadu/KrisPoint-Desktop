@@ -513,7 +513,7 @@
             class="tool-btn" 
             on:click={clearFormatting}
           >
-            🧹
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M3.5 6h13M8 6V4h4v2m3 0-.7 10H5.7L5 6m3 3v4m4-4v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </Tooltip>
         <Tooltip text="Red text (for emphasis)" position="bottom">
@@ -575,7 +575,7 @@
             on:click={toggleBulletList}
             class:active={editor?.isActive('bulletList')}
           >
-            •
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><circle cx="4" cy="5" r="1" fill="currentColor"/><circle cx="4" cy="10" r="1" fill="currentColor"/><circle cx="4" cy="15" r="1" fill="currentColor"/><path d="M8 5h9M8 10h9M8 15h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </Tooltip>
         <Tooltip text="Numbered list" position="bottom">
@@ -584,7 +584,7 @@
             on:click={toggleOrderedList}
             class:active={editor?.isActive('orderedList')}
           >
-            1.
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M3 5h2v4M3 9h3M8 6h9M8 10h9M8 14h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </Tooltip>
       </div>
@@ -597,7 +597,7 @@
             on:click={() => setTextAlign('left')}
             class:active={editor?.isActive({ textAlign: 'left' })}
           >
-            ⬅
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 9h9M3 13h14M3 17h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </Tooltip>
         <Tooltip text="Center align" position="bottom">
@@ -606,7 +606,7 @@
             on:click={() => setTextAlign('center')}
             class:active={editor?.isActive({ textAlign: 'center' })}
           >
-            ⬌
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M5 9h10M3 13h14M5 17h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </Tooltip>
         <Tooltip text="Align right" position="bottom">
@@ -615,7 +615,7 @@
             on:click={() => setTextAlign('right')}
             class:active={editor?.isActive({ textAlign: 'right' })}
           >
-            ➡
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M8 9h9M3 13h14M8 17h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </Tooltip>
       </div>
@@ -650,7 +650,7 @@
             <button class="tool-btn danger" on:click={deleteRow}>-Row</button>
           </Tooltip>
           <Tooltip text="Delete table" position="bottom">
-            <button class="tool-btn danger" on:click={deleteTable}>🗑️</button>
+            <button class="tool-btn danger" on:click={deleteTable} aria-label="Delete table"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2m3 0-.7 10H5.7L5 6m3 3v4m4-4v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           </Tooltip>
         {/if}
       </div>
@@ -662,7 +662,7 @@
             class="tool-btn" 
             on:click={undo}
           >
-            ↶
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M8 5 4 9l4 4M4.5 9H11a5 5 0 1 1 0 10" transform="translate(0 -2)" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </Tooltip>
         <Tooltip text="Redo last action" shortcut="Ctrl+Y" position="bottom">
@@ -670,7 +670,7 @@
             class="tool-btn" 
             on:click={redo}
           >
-            ↷
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m12 5 4 4-4 4m3.5-4H9a5 5 0 1 0 0 10" transform="translate(0 -2)" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </Tooltip>
       </div>
@@ -713,7 +713,7 @@
     <div class="table-modal" on:click|stopPropagation>
       <div class="table-modal-header">
         <h3>Insert Table</h3>
-        <button class="modal-close-btn" on:click={cancelTableModal}>×</button>
+        <button class="modal-close-btn" aria-label="Close insert table dialog" on:click={cancelTableModal}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
       <div class="table-modal-body">
         <div class="table-size-inputs">
@@ -1288,5 +1288,81 @@
 
   .btn-insert:hover {
     background: var(--color-primary-hover, #2563eb);
+  }
+
+  .tiptap-report-editor {
+    min-width: 0;
+    background: var(--color-surface, #fff);
+    color: var(--color-text-primary, #1e293b);
+    border: 1px solid var(--color-border, #dbe2ea);
+    border-radius: .75rem;
+    box-shadow: 0 4px 16px rgb(15 23 42 / .045);
+  }
+  .editor-header {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    padding: .8rem 1rem;
+    background: var(--color-background-secondary, #f8fafc);
+    border-color: var(--color-border, #dbe2ea);
+  }
+  .section-title { color: var(--color-text-primary, #1e293b); font-size: 1.05rem; }
+  .editor-toolbar { gap: .4rem; }
+  .tool-group {
+    gap: .15rem;
+    background: var(--color-surface, #fff);
+    border-color: var(--color-border, #cbd5e1);
+  }
+  .tool-btn {
+    min-width: 2.35rem;
+    min-height: 2.35rem;
+    color: var(--color-text-secondary, #475569);
+  }
+  .tool-btn svg { width: 1rem; height: 1rem; }
+  .tool-btn:hover { background: var(--color-surface-hover, #e2e8f0); color: var(--color-text-primary, #1e293b); }
+  .tool-btn.active { background: var(--color-primary, #2563eb); color: #fff; }
+  .editor-container { padding: clamp(1rem, 2vw, 1.75rem); background: var(--color-surface, #fff); }
+  :global(.tiptap-editor) {
+    min-height: 48vh;
+    max-width: 80ch;
+    margin: 0 auto;
+    color: var(--color-text-primary, #1e293b);
+    line-height: 1.7;
+    font-size: 1rem;
+  }
+  :global(.tiptap-editor p) { margin-bottom: .7em; line-height: 1.65; }
+  :global(.tiptap-editor h1),
+  :global(.tiptap-editor h2),
+  :global(.tiptap-editor h3) {
+    color: var(--color-text-primary, #1e293b);
+    line-height: 1.3;
+  }
+  :global(.tiptap-editor strong) { color: var(--color-text-primary, #0f172a); }
+  :global(.tiptap-editor table) { border-color: var(--color-border, #cbd5e1); }
+  :global(.tiptap-editor th) { background: var(--color-background-secondary, #f1f5f9); color: var(--color-text-primary, #1e293b); }
+  :global(.tiptap-editor td), :global(.tiptap-editor th) { border-color: var(--color-border, #cbd5e1); }
+  .font-size-select { background: var(--color-surface, #fff); color: var(--color-text-primary, #1e293b); border-color: var(--color-border, #cbd5e1); }
+  :global(:focus-visible) { outline: 3px solid var(--color-primary, #3b82f6); outline-offset: 2px; }
+  :global([data-theme="dark"]) .tiptap-report-editor { background: var(--color-surface, #1e293b); border-color: var(--color-border, #475569); }
+  :global([data-theme="dark"]) .editor-header,
+  :global([data-theme="dark"]) .tool-group,
+  :global([data-theme="dark"]) .editor-container { background: var(--color-background-secondary, #0f172a); }
+  :global([data-theme="dark"]) .section-title,
+  :global([data-theme="dark"]) .tool-btn { color: var(--color-text-primary, #e2e8f0); }
+  :global([data-theme="dark"]) .tool-group { border-color: var(--color-border, #475569); }
+  :global([data-theme="dark"]) .tool-btn:hover { background: var(--color-surface-hover, #334155); }
+  :global([data-theme="dark"]) :global(.tiptap-editor),
+  :global([data-theme="dark"]) :global(.tiptap-editor strong),
+  :global([data-theme="dark"]) :global(.tiptap-editor h1),
+  :global([data-theme="dark"]) :global(.tiptap-editor h2),
+  :global([data-theme="dark"]) :global(.tiptap-editor h3) { color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) :global(.tiptap-editor th) { background: var(--color-background-secondary, #334155); color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) :global(.tiptap-editor td),
+  :global([data-theme="dark"]) :global(.tiptap-editor th) { border-color: var(--color-border, #475569); }
+  @media (max-width: 700px) {
+    .editor-header { align-items: flex-start; }
+    .editor-toolbar { width: 100%; }
+    .tool-group { flex-wrap: wrap; }
+    :global(.tiptap-editor) { min-height: 40vh; }
   }
 </style>

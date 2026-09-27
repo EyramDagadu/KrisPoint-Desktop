@@ -259,8 +259,9 @@
     on:mousedown={startDrag}
     on:touchstart={startDragTouch}
     on:click={toggleChat}
-    on:keydown={(e) => e.key === 'Enter' && toggleChat()}
+    on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleChat(); } }}
     role="button"
+    aria-label={totalUnread > 0 ? `Open messages, ${totalUnread} unread` : 'Open messages'}
     tabindex="0"
     class:dragging={isDragging}
   >
@@ -280,7 +281,7 @@
     >
       <div class="panel-header">
         {#if selectedUserId}
-          <button class="back-btn" on:click={goBack}>
+           <button class="back-btn" on:click={goBack} aria-label="Back to conversations">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
@@ -298,7 +299,7 @@
             <span class="online-count" title="{onlineCount} user{onlineCount !== 1 ? 's' : ''} online">{onlineCount} online</span>
           {/if}
         {/if}
-        <button class="close-btn" on:click={() => chatService.close()}>
+         <button class="close-btn" on:click={() => chatService.close()} aria-label="Close messages">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -329,7 +330,7 @@
               placeholder="Type a message..."
               class="message-input"
             />
-            <button class="send-btn" on:click={sendMessage} disabled={!newMessage.trim()}>
+             <button class="send-btn" on:click={sendMessage} aria-label="Send message" disabled={!newMessage.trim()}>
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
               </svg>

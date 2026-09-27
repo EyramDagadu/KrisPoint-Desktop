@@ -2,6 +2,7 @@
 <script>
   import { onMount } from 'svelte';
   import { macroStore } from '$lib/stores/macroStore.js';
+  import Icon from '$lib/components/ui/Icon.svelte';
   import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
   import { toastSuccess, toastError, toastWarning } from '$lib/utils/toast.js';
   
@@ -50,22 +51,22 @@
     variables: []
   };
   
-  // Categories for organization (standardized with icons)
+  // Categories for organization
   const categories = [
-    { id: 'All', label: '📋 All', icon: '📋' },
-    { id: 'General', label: '📝 General', icon: '📝' },
-    { id: 'Neuro', label: '🧠 Neuro', icon: '🧠' },
-    { id: 'Chest', label: '🫁 Chest', icon: '🫁' },
-    { id: 'Abdomen', label: '🫃 Abdomen', icon: '🫃' },
-    { id: 'MSK', label: '🦴 MSK', icon: '🦴' },
-    { id: 'Procedures', label: '💉 Procedures', icon: '💉' },
-    { id: 'Impressions', label: '💭 Impressions', icon: '💭' }
+    { id: 'All', label: 'All', icon: 'reports' },
+    { id: 'General', label: 'General', icon: 'reports' },
+    { id: 'Neuro', label: 'Neuro', icon: 'reports' },
+    { id: 'Chest', label: 'Chest', icon: 'reports' },
+    { id: 'Abdomen', label: 'Abdomen', icon: 'reports' },
+    { id: 'MSK', label: 'MSK', icon: 'reports' },
+    { id: 'Procedures', label: 'Procedures', icon: 'reports' },
+    { id: 'Impressions', label: 'Impressions', icon: 'reports' }
   ];
   
   // Get category icon for display
   function getCategoryIcon(categoryId) {
     const cat = categories.find(c => c.id === categoryId);
-    return cat ? cat.icon : '📄';
+    return cat ? cat.icon : 'reports';
   }
   
   // Common variable placeholders
@@ -197,15 +198,15 @@
   <div class="macro-controls">
     <div class="control-group">
       <button class="btn btn-primary" on:click={startAddMacro}>
-        ➕ Add New Macro
+        <Icon name="plus" /> Add New Macro
       </button>
       
       <button class="btn btn-secondary" on:click={exportMacros}>
-        📤 Export All
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 15v5h14v-5"/></svg> Export All
       </button>
       
       <label class="btn btn-secondary">
-        📥 Import
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 15V3m-5 5 5-5 5 5M5 15v5h14v-5"/></svg> Import
         <input type="file" accept=".json" on:change={importMacros} style="display: none;">
       </label>
     </div>
@@ -231,7 +232,7 @@
       <div class="macro-form">
         <div class="form-header">
           <h2>{editingMacro ? 'Edit Macro' : 'Add New Macro'}</h2>
-          <button class="btn-close" on:click={resetForm}>✕</button>
+          <button class="btn-close" on:click={resetForm} aria-label="Close macro editor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
         </div>
         
         <div class="form-grid">
@@ -320,7 +321,7 @@
           <div class="macro-card-header">
             <div class="macro-info">
               <h3 class="macro-name">{macro.name}</h3>
-              <span class="macro-category">{getCategoryIcon(macro.category)} {macro.category}</span>
+              <span class="macro-category"><Icon name={getCategoryIcon(macro.category)} size={16} /> {macro.category}</span>
             </div>
             
             <div class="macro-actions">
@@ -328,15 +329,17 @@
                 class="btn-icon" 
                 on:click={() => editMacro(macro)}
                 title="Edit macro"
+                aria-label="Edit macro"
               >
-                ✏️
+                <Icon name="edit" />
               </button>
               <button 
                 class="btn-icon btn-danger" 
                 on:click={() => deleteMacro(macro.id)}
                 title="Delete macro"
+                aria-label="Delete macro"
               >
-                🗑️
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>
               </button>
             </div>
           </div>
@@ -418,6 +421,12 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+  }
+
+  .btn svg {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.8;
   }
   
   .btn-primary {
@@ -509,6 +518,13 @@
     cursor: pointer;
     color: var(--color-text-muted, #7f8c8d);
     padding: 0.25rem;
+  }
+
+  .btn-close svg {
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke-width: 1.8;
   }
   
   .btn-close:hover {
@@ -656,6 +672,10 @@
     font-size: 0.8rem;
     font-weight: 500;
   }
+
+  .macro-category :global(svg) {
+    vertical-align: -0.2em;
+  }
   
   .macro-actions {
     display: flex;
@@ -669,6 +689,18 @@
     padding: 0.5rem;
     border-radius: 6px;
     transition: background 0.2s ease;
+  }
+
+  .btn-icon :global(svg) {
+    display: block;
+    width: 1.1rem;
+    height: 1.1rem;
+    stroke-width: 1.8;
+  }
+
+  .btn-icon:focus-visible, .btn-close:focus-visible, .btn:focus-visible {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
   }
   
   .btn-icon:hover {

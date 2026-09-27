@@ -171,7 +171,7 @@
             <h2>Welcome to KrisPoint</h2>
             <p>{isSoloEdition ? 'Create the private workspace owner account' : 'Set up the System Owner account'}</p>
             <div class="first-user-notice">
-                <span class="notice-icon">👑</span>
+                <span class="notice-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m3 7 4 4 5-7 5 7 4-4-2 13H5L3 7Z"/></svg></span>
                 <span>{isSoloEdition ? 'Only this owner can access the private workspace' : 'You will be the System Owner with full access to all features'}</span>
             </div>
         {:else}
@@ -388,7 +388,7 @@
 
             {#if registrationError || $authError}
                 <div class="error-message">
-                    <span class="error-icon">⚠️</span>
+                    <span class="error-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3 2.8 19h18.4L12 3Z"/><path d="M12 9v4m0 3h.01"/></svg></span>
                     {registrationError || $authError}
                 </div>
             {/if}
@@ -416,10 +416,10 @@
         max-width: 600px;
         margin: 0 auto;
         padding: 2rem;
-        background: var(--background-secondary, #ffffff);
+        background: var(--color-surface, #ffffff);
         border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        border: 1px solid var(--border-color, #e5e7eb);
+        border: 1px solid var(--color-border, #e5e7eb);
         min-height: auto;
         width: 100%;
         box-sizing: border-box;
@@ -509,6 +509,30 @@
         outline: none;
         border-color: var(--primary-color, #3b82f6);
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .notice-icon svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        stroke-width: 1.8;
+    }
+
+    .error-icon svg {
+        width: 1.1rem;
+        height: 1.1rem;
+        stroke-width: 1.8;
+    }
+
+    :global(button:focus-visible), :global(input:focus-visible), :global(select:focus-visible) {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 480px) {
+        .setup-form {
+            padding: 1.5rem 1.25rem;
+            border-radius: 0.875rem;
+        }
     }
 
     .form-group input.error,

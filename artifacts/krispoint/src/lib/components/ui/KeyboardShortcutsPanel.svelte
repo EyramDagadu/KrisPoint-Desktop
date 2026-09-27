@@ -171,18 +171,18 @@
     <!-- Header -->
     <div class="panel-header">
       <div class="header-title">
-        <h2>⌨️ Keyboard Shortcuts</h2>
+        <h2><svg class="heading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h.01M10 9h.01M13 9h.01M16 9h.01M7 12h.01M10 12h.01M13 12h.01M16 12h.01M8 16h8"/></svg> Keyboard Shortcuts</h2>
         <p>Customize and manage keyboard shortcuts for faster workflow</p>
       </div>
       <div class="header-actions">
         <button class="export-btn" on:click={exportShortcuts} title="Export shortcuts">
-          📤 Export
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 15v5h14v-5"/></svg> Export
         </button>
         <label class="import-btn" title="Import shortcuts">
-          📥 Import
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 15V3m-5 5 5-5 5 5M5 15v5h14v-5"/></svg> Import
           <input type="file" accept=".json" on:change={importShortcuts} style="display: none;" />
         </label>
-        <button class="close-btn" on:click={() => isOpen = false}>✕</button>
+        <button class="close-btn" on:click={() => isOpen = false} aria-label="Close keyboard shortcuts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
       </div>
     </div>
 
@@ -207,7 +207,7 @@
     <!-- Usage Statistics -->
     {#if usageStats.mostUsed && usageStats.mostUsed.length > 0}
       <div class="stats-section">
-        <h3>📊 Most Used Shortcuts</h3>
+        <h3><svg class="heading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 19V5M4 19h17M8 15v-4M13 15V8M18 15V5"/></svg> Most Used Shortcuts</h3>
         <div class="stats-grid">
           {#each usageStats.mostUsed.slice(0, 5) as stat}
             <div class="stat-item">
@@ -224,7 +224,7 @@
     <div class="shortcuts-content">
       {#if filteredShortcuts.length === 0}
         <div class="empty-state">
-          <div class="empty-icon">🔍</div>
+          <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></div>
           <h3>No shortcuts found</h3>
           <p>Try adjusting your search or filter criteria.</p>
         </div>
@@ -265,22 +265,26 @@
               
               <div class="shortcut-actions">
                 {#if customizingShortcut && customizingShortcut.key === shortcut.key}
-                  <button class="save-btn" on:click={saveCustomization}>💾</button>
-                  <button class="cancel-btn" on:click={cancelCustomization}>✕</button>
+                  <button class="save-btn" on:click={saveCustomization} aria-label="Save shortcut customization"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 4h13l3 3v13H4zM8 4v6h8V4M8 20v-6h8v6"/></svg></button>
+                  <button class="cancel-btn" on:click={cancelCustomization} aria-label="Cancel shortcut customization"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
                 {:else}
                   <button 
                     class="toggle-btn {shortcut.enabled ? 'enabled' : 'disabled'}"
                     on:click={() => toggleShortcut(shortcut)}
                     title={shortcut.enabled ? 'Disable shortcut' : 'Enable shortcut'}
+                    aria-label={shortcut.enabled ? 'Disable shortcut' : 'Enable shortcut'}
                   >
-                    {shortcut.enabled ? '🟢' : '🔴'}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                      {#if shortcut.enabled}<circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.2 2.2 4.8-4.8"/>{:else}<circle cx="12" cy="12" r="8"/><path d="M9 12h6"/>{/if}
+                    </svg>
                   </button>
                   <button 
                     class="edit-btn" 
                     on:click={() => startCustomizing(shortcut)}
                     title="Customize shortcut"
+                    aria-label="Customize shortcut"
                   >
-                    ✏️
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m14 5 5 5M4 20l4.5-1 10.8-10.8a2.1 2.1 0 0 0-3-3L5.5 16 4 20Z"/></svg>
                   </button>
                 {/if}
               </div>
@@ -292,7 +296,7 @@
 
     <!-- Quick Tips -->
     <div class="tips-section">
-      <h3>💡 Quick Tips</h3>
+      <h3><svg class="heading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M9 18h6m-5 4h4m-2-20a7 7 0 0 0-4 12.7c.6.4 1 1.1 1 1.8h6c0-.7.4-1.4 1-1.8A7 7 0 0 0 12 2Z"/></svg> Quick Tips</h3>
       <div class="tips-grid">
         <div class="tip-item">
           <strong>F1</strong> - Open this help panel anytime
@@ -485,8 +489,67 @@
   }
 
   .empty-icon {
-    font-size: 3rem;
+    display: grid;
+    place-items: center;
     margin-bottom: 1rem;
+  }
+
+  .empty-icon svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    stroke-width: 1.6;
+  }
+
+  .heading-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+    vertical-align: -0.18em;
+    stroke-width: 1.8;
+  }
+
+  .export-btn svg, .import-btn svg, .close-btn svg,
+  .toggle-btn svg, .edit-btn svg, .save-btn svg, .cancel-btn svg {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.8;
+    vertical-align: middle;
+  }
+
+  .close-btn svg {
+    display: block;
+  }
+
+  :global(button:focus-visible), :global(select:focus-visible), :global(input:focus-visible),
+  .import-btn:focus-within {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .shortcuts-overlay {
+      padding: 0;
+    }
+
+    .shortcuts-panel {
+      width: 100%;
+      height: 100dvh;
+      max-height: none;
+      border-radius: 0;
+    }
+
+    .panel-header {
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 1rem;
+    }
+
+    .header-actions {
+      width: 100%;
+    }
+
+    .shortcut-info {
+      flex-wrap: wrap;
+    }
   }
 
   .empty-state h3 {

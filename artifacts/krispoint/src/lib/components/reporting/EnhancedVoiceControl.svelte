@@ -401,29 +401,6 @@
   }
   
   // Get icon for macro category
-  function getMacroIcon(macro) {
-    const categoryIcons = {
-      'General': '📝',
-      'Chest': '🫁',
-      'chest': '🫁',
-      'Neuro': '🧠',
-      'neuro': '🧠',
-      'Abdomen': '🫃',
-      'abdomen': '🫃',
-      'MSK': '🦴',
-      'msk': '🦴',
-      'Musculoskeletal': '🦴',
-      'musculoskeletal': '🦴',
-      'Spine': '🦴',
-      'spine': '🦴',
-      'Procedures': '💉',
-      'procedures': '💉',
-      'Impressions': '💭',
-      'impressions': '💭'
-    };
-    return categoryIcons[macro.category] || '📄';
-  }
-
   // Expose toggleVoice function for parent component access
   export { toggleVoice };
 </script>
@@ -432,10 +409,10 @@
   <div class="voice-header">
     <div class="voice-status">
       <div class="status-indicator {isListening ? 'listening' : ''} {!isSupported ? 'disabled' : ''}">
-        <span class="mic-icon">🎤</span>
+        <svg class="mic-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><rect x="7" y="2.5" width="6" height="10" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v2.5m-3 0h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </div>
       <div class="status-text">
-        <div class="status-main">{statusMessage}</div>
+        <div class="status-main" aria-live="polite">{statusMessage}</div>
         {#if confidence > 0}
           <div class="confidence">Confidence: {confidence}%</div>
         {/if}
@@ -446,13 +423,13 @@
       <!-- Connection status badge -->
       <div class="connection-badge {connectionStatus}">
         {#if connectionStatus === 'connected'}
-          <span class="badge-icon">🟢</span> Connected
+          <span class="badge-icon connected-mark" aria-hidden="true"></span> Connected
         {:else if connectionStatus === 'reconnecting'}
-          <span class="badge-icon spinning">🔄</span> Reconnecting ({reconnectAttempt}/{maxReconnectAttempts})
+          <svg class="badge-icon spinning" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M16 8a6.5 6.5 0 0 0-11-3L3 7m0-4v4h4m-3 5a6.5 6.5 0 0 0 11 3l2-2m0 4v-4h-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Reconnecting ({reconnectAttempt}/{maxReconnectAttempts})
         {:else if connectionStatus === 'initializing'}
-          <span class="badge-icon spinning">⏳</span> Initializing...
+          <svg class="badge-icon spinning" aria-hidden="true" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l2.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Initializing...
         {:else}
-          <span class="badge-icon">🔴</span> Disconnected
+          <span class="badge-icon disconnected-mark" aria-hidden="true"></span> Disconnected
         {/if}
       </div>
       
@@ -479,7 +456,7 @@
               on:click={manualReconnect}
               disabled={isReconnecting}
             >
-              {isReconnecting ? '🔄 Reconnecting...' : '🔌 Reconnect'}
+              {isReconnecting ? 'Reconnecting...' : 'Reconnect'}
             </button>
           </Tooltip>
         {/if}
@@ -506,7 +483,7 @@
   
   {#if !isSupported}
     <div class="unsupported-message">
-      <p>🚫 Medical voice recognition is not available.</p>
+      <p><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="m7 7 6 6m0-6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Medical voice recognition is not available.</p>
       <p>Please ensure your browser supports modern voice features.</p>
     </div>
   {:else}
@@ -518,8 +495,9 @@
             <button 
               class="config-btn" 
               on:click={() => showMacroPicker = true}
+              aria-label="Configure shortcuts"
             >
-              ⚙️
+              <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M10 2.5v2m0 11v2m7.5-7.5h-2m-11 0h-2m12.8-5.3-1.4 1.4m-7.8 7.8-1.4 1.4m10.6 0-1.4-1.4m-7.8-7.8L5.7 4.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             </button>
           </Tooltip>
           <Tooltip 
@@ -529,8 +507,9 @@
             <button 
               class="toggle-commands" 
               on:click={() => showCommands = !showCommands}
+              aria-expanded={showCommands}
             >
-              {showCommands ? '−' : '+'}
+              <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">{#if showCommands}<path d="M5 10h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>{:else}<path d="M10 5v10m-5-5h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>{/if}</svg>
             </button>
           </Tooltip>
         </div>
@@ -541,7 +520,7 @@
           <div class="no-buttons-hint">Loading macros...</div>
         {:else if quickButtonMacros.length === 0}
           <div class="no-buttons-hint">
-            Click ⚙️ to add up to 6 shortcuts from system or personal macros
+            Use shortcut settings to add up to 6 system or personal macros
           </div>
         {:else}
           {#each quickButtonMacros as macro}
@@ -550,7 +529,7 @@
                 class="quick-command-btn" 
                 on:click={() => insertMacroContent(macro)}
               >
-                <span class="cmd-icon">{getMacroIcon(macro)}</span>
+                <svg class="cmd-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M5 3.5h7l3 3v10H5a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 5 3.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 3.8v3h3M7 10h6M7 13h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                 <span class="cmd-label">{macro.name.length > 12 ? macro.name.substring(0, 10) + '...' : macro.name}</span>
               </button>
             </Tooltip>
@@ -563,7 +542,7 @@
           <h5>Complete Voice Commands Guide</h5>
           <div class="command-list">
             <div class="command-category">
-              <strong>⚡ Smart Auto-Punctuation:</strong>
+              <strong><svg class="command-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M11.5 2.5 5 11h4l-.5 6.5L15 9h-4l.5-6.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg> Smart Auto-Punctuation:</strong>
               <ul>
                 <li><strong>Automatic:</strong> Periods (.), commas (,), and question marks (?) are inserted automatically by AI as you speak naturally</li>
                 <li><strong>Manual commands below:</strong> Only for special punctuation (semicolons, colons, quotes, etc.) that AI doesn't auto-detect</li>
@@ -658,7 +637,7 @@
     <div class="macro-picker-modal" on:click|stopPropagation>
       <div class="modal-header">
         <h3>Configure My Shortcuts</h3>
-        <button class="close-btn" on:click={() => showMacroPicker = false}>×</button>
+        <button class="close-btn" aria-label="Close shortcut settings" on:click={() => showMacroPicker = false}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
       
       <div class="modal-body">
@@ -683,13 +662,13 @@
                         on:click={() => toggleMacroInQuickButtons(macro.id)}
                         disabled={!quickButtonMacroIds.includes(macro.id) && quickButtonMacroIds.length >= 6}
                       >
-                        <span class="macro-icon">{getMacroIcon(macro)}</span>
+            <svg class="macro-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M5 3.5h7l3 3v10H5a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 5 3.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 3.8v3h3M7 10h6M7 13h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                         <div class="macro-info">
                           <span class="macro-name">{macro.name}</span>
                           <span class="macro-preview">{macro.content.substring(0, 40)}...</span>
                         </div>
                         {#if quickButtonMacroIds.includes(macro.id)}
-                          <span class="check-mark">✓</span>
+                          <svg class="check-mark" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         {/if}
                       </button>
                     {/each}
@@ -715,13 +694,13 @@
                         on:click={() => toggleMacroInQuickButtons(macro.id)}
                         disabled={!quickButtonMacroIds.includes(macro.id) && quickButtonMacroIds.length >= 6}
                       >
-                        <span class="macro-icon">{getMacroIcon(macro)}</span>
+            <svg class="macro-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M5 3.5h7l3 3v10H5a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 5 3.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 3.8v3h3M7 10h6M7 13h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                         <div class="macro-info">
                           <span class="macro-name">{macro.name}</span>
                           <span class="macro-preview">{macro.content.substring(0, 40)}...</span>
                         </div>
                         {#if quickButtonMacroIds.includes(macro.id)}
-                          <span class="check-mark">✓</span>
+                          <svg class="check-mark" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         {/if}
                       </button>
                     {/each}
@@ -1441,5 +1420,59 @@
 
   :global([data-theme="dark"]) .no-buttons-hint {
     color: #94a3b8;
+  }
+  .voice-control { color: var(--color-text-primary, #1e293b) !important; }
+  .voice-header, .quick-commands, .last-command {
+    background: var(--color-surface, #fff);
+    border-color: var(--color-border, #dbe2ea);
+    color: var(--color-text-primary, #1e293b);
+  }
+  .mic-icon { width: 1.35rem; height: 1.35rem; }
+  .badge-icon { width: .8rem; height: .8rem; vertical-align: middle; }
+  svg.badge-icon { display: inline-block; }
+  .connected-mark, .disconnected-mark { display: inline-block; border-radius: 50%; }
+  .connected-mark { background: #16a34a; }
+  .disconnected-mark { background: #dc2626; }
+  .config-btn svg { width: 1.1rem; height: 1.1rem; }
+  .toggle-commands svg { width: 1rem; height: 1rem; }
+  .cmd-icon, .macro-icon { width: 1.1rem; height: 1.1rem; flex: 0 0 auto; }
+  .check-mark { width: 1.15rem; height: 1.15rem; flex: 0 0 auto; }
+  .command-icon { display: inline; width: 1rem; height: 1rem; vertical-align: -.18em; }
+  .unsupported-message p { display: flex; justify-content: center; align-items: center; gap: .5rem; }
+  .unsupported-message svg { width: 1.2rem; height: 1.2rem; flex: 0 0 auto; }
+  .macro-picker-modal { background: var(--color-surface, #fff); color: var(--color-text-primary, #1e293b); }
+  .macro-item, .quick-command-btn, .config-btn, .toggle-commands, .voice-toggle, .reconnect-btn, .reset-btn {
+    font-family: inherit;
+  }
+  .quick-command-btn { min-height: 48px; }
+  .macro-icon, .cmd-icon { color: var(--color-primary, #2563eb); }
+  :global(:focus-visible) { outline: 3px solid var(--color-primary, #3b82f6); outline-offset: 2px; }
+  :global([data-theme="dark"]) .voice-header,
+  :global([data-theme="dark"]) .quick-commands,
+  :global([data-theme="dark"]) .last-command,
+  :global([data-theme="dark"]) .macro-picker-modal {
+    background: var(--color-surface, #1e293b);
+    color: var(--color-text-primary, #f1f5f9);
+    border-color: var(--color-border, #475569);
+  }
+  :global([data-theme="dark"]) .section-header h4,
+  :global([data-theme="dark"]) .status-main,
+  :global([data-theme="dark"]) .macro-name { color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) .macro-item { background: var(--color-surface, #1e293b); border-color: var(--color-border, #475569); }
+  :global([data-theme="dark"]) .macro-item:hover:not(:disabled) { background: var(--color-surface-hover, #334155); }
+  :global([data-theme="dark"]) .macro-item.selected { background: var(--color-background-secondary, #1e3a5f); }
+  @media (max-width: 760px) {
+    .voice-header { flex-wrap: wrap; align-items: flex-start; gap: .75rem; }
+    .voice-controls { width: 100%; }
+    .control-buttons { flex-wrap: wrap; }
+    .command-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .macro-picker-modal { width: min(100%, 680px); max-height: 90dvh; }
+  }
+  @media (max-width: 420px) {
+    .command-grid { grid-template-columns: 1fr; }
+    .connection-badge { font-size: .72rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   }
 </style>

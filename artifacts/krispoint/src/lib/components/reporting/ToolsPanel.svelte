@@ -388,12 +388,14 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
       <button 
         class="template-dropdown-btn" 
         on:click={toggleTemplateDropdown}
+        aria-expanded={showTemplateDropdown}
         title="Insert complete report template"
       >
         <span class="btn-content">
-          📝 Templates
+          <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M5 3.5h7l3 3v10H5a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 5 3.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 3.8v3h3M7 10h6M7 13h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Templates
         </span>
-        <span class="dropdown-arrow" class:open={showTemplateDropdown}>▼</span>
+        <svg class="dropdown-arrow" class:open={showTemplateDropdown} aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       
       {#if showTemplateDropdown}
@@ -417,7 +419,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
           <div class="search-box">
             <input 
               type="text" 
-              placeholder="🔍 Search templates..." 
+              placeholder="Search templates..."
               bind:value={templateSearchTerm}
               class="search-input"
               on:click={(e) => e.stopPropagation()}
@@ -426,7 +428,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
           <div class="dropdown-items">
             {#if templatesLoading}
               <div class="empty-state">
-                <div class="empty-icon">⏳</div>
+                <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l2.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
                 <div class="empty-text">Loading...</div>
               </div>
             {:else if filteredTemplates.length > 0}
@@ -441,7 +443,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
               {/each}
             {:else}
               <div class="empty-state">
-                <div class="empty-icon">🔍</div>
+                <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><circle cx="8.7" cy="8.7" r="5.7" stroke="currentColor" stroke-width="1.5"/><path d="m13 13 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
                 <div class="empty-text">{isSoloEdition ? 'No templates found' : `No ${templateScope} templates found`}</div>
                 <div class="empty-hint">{isSoloEdition ? 'Create templates in the Templates page' : templateScope === 'personal' ? 'Create personal templates in Templates page' : 'System templates are managed by admins'}</div>
               </div>
@@ -451,7 +453,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
       {/if}
       {:else}
       <button class="template-dropdown-btn locked-btn" disabled title="Premium feature - upgrade to access templates">
-        <span class="btn-content">🔒 Templates</span>
+        <span class="btn-content"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><rect x="4" y="8" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 8V6a3.5 3.5 0 0 1 7 0v2" stroke="currentColor" stroke-width="1.5"/></svg>Templates</span>
         <span class="premium-badge">Premium</span>
       </button>
       {/if}
@@ -463,12 +465,14 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
       <button 
         class="macro-dropdown-btn" 
         on:click={toggleMacroDropdown}
+        aria-expanded={showMacroDropdown}
         title="Insert saved macro"
       >
         <span class="btn-content">
-          🔖 Macros
+          <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M5 3.5h10a1 1 0 0 1 1 1v12l-6-3.5L4 16.5v-12a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Macros
         </span>
-        <span class="dropdown-arrow" class:open={showMacroDropdown}>▼</span>
+        <svg class="dropdown-arrow" class:open={showMacroDropdown} aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       
       {#if showMacroDropdown}
@@ -492,7 +496,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
           <div class="search-box">
             <input 
               type="text" 
-              placeholder="🔍 Search macros..." 
+              placeholder="Search macros..."
               bind:value={macroSearchTerm}
               class="search-input"
               on:click={(e) => e.stopPropagation()}
@@ -501,7 +505,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
           <div class="dropdown-items">
             {#if macrosLoading}
               <div class="empty-state">
-                <div class="empty-icon">⏳</div>
+                <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l2.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
                 <div class="empty-text">Loading...</div>
               </div>
             {:else if filteredMacros.length > 0}
@@ -516,7 +520,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
               {/each}
             {:else}
               <div class="empty-state">
-                <div class="empty-icon">🔍</div>
+                <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><circle cx="8.7" cy="8.7" r="5.7" stroke="currentColor" stroke-width="1.5"/><path d="m13 13 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
                 <div class="empty-text">No {macroScope} macros found</div>
                 <div class="empty-hint">{macroScope === 'personal' ? 'Create personal macros in Macros page' : 'System macros are managed by admins'}</div>
               </div>
@@ -526,7 +530,7 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
       {/if}
       {:else}
       <button class="macro-dropdown-btn locked-btn" disabled title="Premium feature - upgrade to access macros">
-        <span class="btn-content">🔒 Macros</span>
+        <span class="btn-content"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><rect x="4" y="8" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 8V6a3.5 3.5 0 0 1 7 0v2" stroke="currentColor" stroke-width="1.5"/></svg>Macros</span>
         <span class="premium-badge">Premium</span>
       </button>
       {/if}
@@ -920,5 +924,74 @@ import { uiState, reportData, reportActions, patientData } from "$lib/stores/rep
 
   :global([data-theme="dark"]) .scope-btn:hover:not(.active) {
     background: #334155;
+  }
+
+  .tools-panel { color: var(--color-text-primary, #1e293b); }
+  .panel-section h3 {
+    color: var(--color-text-primary, #1e293b);
+    letter-spacing: .01em;
+  }
+  .template-dropdown-btn, .macro-dropdown-btn {
+    border: 1px solid var(--color-primary, #2563eb);
+    background: var(--color-primary, #2563eb);
+    box-shadow: 0 2px 5px rgb(15 23 42 / .12);
+  }
+  .template-dropdown-btn:hover:not(.locked-btn), .macro-dropdown-btn:hover:not(.locked-btn) {
+    background: var(--color-primary-hover, #1d4ed8);
+  }
+  .macro-dropdown-btn { border-color: #047857; background: #047857; }
+  .btn-content { gap: .6rem; }
+  .btn-content svg { width: 1.15rem; height: 1.15rem; flex: 0 0 auto; }
+  .dropdown-arrow { width: 1rem; height: 1rem; }
+  .template-dropdown, .macro-dropdown {
+    max-height: min(70vh, 520px);
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface, #fff);
+    border-color: var(--color-border, #cbd5e1);
+    color: var(--color-text-primary, #1e293b);
+  }
+  .dropdown-items { overflow-y: auto; }
+  .template-name, .macro-name { color: var(--color-text-primary, #1e293b); }
+  .template-desc, .macro-desc { color: var(--color-text-secondary, #64748b); }
+  .template-option, .macro-option { background: var(--color-surface, #fff); border-color: var(--color-border, #e2e8f0); }
+  .template-option:hover, .macro-option:hover { background: var(--color-surface-hover, #f1f5f9); }
+  .search-input {
+    min-height: 40px;
+    background: var(--color-background, #fff);
+    color: var(--color-text-primary, #1e293b);
+    border-color: var(--color-border, #cbd5e1);
+  }
+  .search-input:focus {
+    border-color: var(--color-primary, #2563eb);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #2563eb) 22%, transparent);
+  }
+  .scope-toggle, .search-box { background: var(--color-background-secondary, #f8fafc); border-color: var(--color-border, #e2e8f0); }
+  .scope-btn { color: var(--color-text-secondary, #475569); }
+  .scope-btn.active { background: var(--color-primary, #2563eb); border-color: var(--color-primary, #2563eb); }
+  .empty-icon svg { width: 1.6rem; height: 1.6rem; }
+  :global(:focus-visible) { outline: 3px solid var(--color-primary, #3b82f6); outline-offset: 2px; }
+  :global([data-theme="dark"]) .panel-section h3,
+  :global([data-theme="dark"]) .template-name,
+  :global([data-theme="dark"]) .macro-name { color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) .template-dropdown,
+  :global([data-theme="dark"]) .macro-dropdown,
+  :global([data-theme="dark"]) .search-box,
+  :global([data-theme="dark"]) .template-option,
+  :global([data-theme="dark"]) .macro-option {
+    background: var(--color-surface, #1e293b);
+    border-color: var(--color-border, #475569);
+  }
+  :global([data-theme="dark"]) .search-input,
+  :global([data-theme="dark"]) .scope-btn { background: var(--color-background, #0f172a); color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) .template-option:hover,
+  :global([data-theme="dark"]) .macro-option:hover,
+  :global([data-theme="dark"]) .scope-btn:hover:not(.active) { background: var(--color-surface-hover, #334155); }
+  @media (max-width: 900px) {
+    .tools-panel { padding: .75rem; }
+    .template-dropdown, .macro-dropdown { position: fixed; top: auto; left: .75rem; right: .75rem; bottom: .75rem; z-index: 1100; max-height: min(70vh, 560px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: .01ms !important; }
   }
 </style>

@@ -1,8 +1,8 @@
 <!-- src/routes/+page.svelte - Dashboard with Real Data -->
 <script>
   import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
   import { browser } from '$app/environment';
+  import Icon from '$lib/components/ui/Icon.svelte';
   import { formatModality } from '$lib/utils/formatters.js';
   import { permissions } from '$lib/stores/authStore.js';
   let recentReports = [];
@@ -18,6 +18,9 @@
   let pendingStudies = 0;
   let inProgressStudies = 0;
   let completedToday = 0;
+  let worklistLoading = true;
+  let worklistError = null;
+  let loadedForRole = null;
   
   // Statistics
   let totalReports = 0;
@@ -32,10 +35,6 @@
   function continueReport(reportId) {
     // Navigate to reporting page to load existing report from server
     goto(`/reporting?reportId=${reportId}`);
-  }
-  
-  function toggleSidebar() {
-    sidebarCollapsed = !sidebarCollapsed;
   }
   
   function formatReportStatus(status) {
@@ -148,7 +147,8 @@
   
   async function loadWorklistStats() {
     if (!browser) return;
-    
+    worklistLoading = true;
+    worklistError = null;
     try {
       const res = await fetch('/api/worklist', {
         credentials: 'include'
@@ -163,22 +163,20 @@
           completedToday = data.items.filter(i => 
             i.status === 'COMPLETED' && new Date(i.createdAt).toDateString() === today
           ).length;
+        } else {
+          throw new Error(data.error || 'Failed to load worklist');
         }
-      }
+      } else throw new Error('Failed to load worklist');
     } catch (err) {
       console.error('Failed to load worklist stats:', err);
+      worklistError = err.message;
+    } finally {
+      worklistLoading = false;
     }
   }
-  
-  onMount(() => {
-    if (isFrontDeskOnly) {
-      loadWorklistStats();
-    } else {
-      loadReports();
-    }
-  });
-  
-  $: if (browser && isFrontDeskOnly !== undefined) {
+
+  $: if (browser && isFrontDeskOnly !== undefined && loadedForRole !== isFrontDeskOnly) {
+    loadedForRole = isFrontDeskOnly;
     if (isFrontDeskOnly) {
       loadWorklistStats();
     } else {
@@ -195,7 +193,7 @@
         
         <div class="quick-actions">
           <a href="/worklist" class="action-card primary">
-            <div class="action-icon">📋</div>
+            <div class="action-icon"><Icon name="worklist" size={21} /></div>
             <div class="action-content">
               <h3>Worklist</h3>
               <p>Register patients and manage studies</p>
@@ -203,7 +201,7 @@
           </a>
           
           <a href="/settings" class="action-card">
-            <div class="action-icon">⚙️</div>
+            <div class="action-icon"><Icon name="settings" size={21} /></div>
             <div class="action-content">
               <h3>Settings</h3>
               <p>Configure your preferences</p>
@@ -215,7 +213,7 @@
         
         <div class="quick-actions">
           <button class="action-card primary" on:click={createNewReport}>
-            <div class="action-icon">📝</div>
+            <div class="action-icon"><Icon name="plus" size={21} /></div>
             <div class="action-content">
               <h3>New Report</h3>
               <p>Start dictating a new radiology report</p>
@@ -223,7 +221,7 @@
           </button>
           
           <a href="/reporting" class="action-card">
-            <div class="action-icon">⚡</div>
+            <div class="action-icon"><Icon name="edit" size={21} /></div>
             <div class="action-content">
               <h3>Continue Reporting</h3>
               <p>Resume your current report</p>
@@ -232,7 +230,7 @@
           
           {#if canViewTemplates}
           <a href="/templates" class="action-card">
-            <div class="action-icon">📋</div>
+            <div class="action-icon"><Icon name="template" size={21} /></div>
             <div class="action-content">
               <h3>Templates</h3>
               <p>Manage report templates</p>
@@ -246,6 +244,11 @@
     {#if isFrontDeskOnly}
       <!-- Front Desk: Worklist Stats -->
       <div class="stats-section">
+        {#if worklistLoading}
+          <div class="stats-message skeleton" aria-label="Loading worklist statistics"></div>
+        {:else if worklistError}
+          <div class="stats-message error-state"><Icon name="alert" size={20} /><span>Unable to load worklist: {worklistError}</span><button class="retry-btn" on:click={loadWorklistStats}>Try Again</button></div>
+        {:else}
         <div class="stat-card">
           <div class="stat-number">{pendingStudies}</div>
           <div class="stat-label">Pending Studies</div>
@@ -258,6 +261,7 @@
           <div class="stat-number">{completedToday}</div>
           <div class="stat-label">Completed Today</div>
         </div>
+        {/if}
       </div>
     {:else}
       <!-- Radiologists: Recent Reports -->
@@ -269,18 +273,19 @@
         
         {#if isLoading}
           <div class="loading-state">
-            <div class="loading-spinner"></div>
+            <div class="loading-skeleton"></div>
+            <div class="loading-skeleton short"></div>
             <p>Loading reports...</p>
           </div>
         {:else if error}
           <div class="error-state">
-            <div class="error-icon">⚠️</div>
+            <div class="state-icon error-icon"><Icon name="alert" size={24} /></div>
             <p>Error loading reports: {error}</p>
             <button class="retry-btn" on:click={loadReports}>Try Again</button>
           </div>
         {:else if recentReports.length === 0}
           <div class="empty-state">
-            <div class="empty-icon">📄</div>
+            <div class="state-icon empty-icon"><Icon name="reports" size={25} /></div>
             <h3>No reports yet</h3>
             <p>Get started by creating your first radiology report</p>
             <button class="action-btn" on:click={createNewReport}>Create New Report</button>
@@ -288,7 +293,7 @@
         {:else}
           <div class="reports-list">
             {#each recentReports as report}
-              <div class="report-card" class:clickable={report.status === 'Draft'}>
+              <div class="report-card">
                 <div class="report-info">
                   <h4>{report.patient}</h4>
                   <p class="study-info">{report.study}</p>
@@ -718,5 +723,180 @@
       align-self: stretch;
       justify-content: space-between;
     }
+  }
+
+  /* Workstation dashboard: dense, quiet surfaces with a clear primary task. */
+  .dashboard { max-width: 1160px; padding: .3rem 0 2.5rem; }
+  .welcome-section { margin-bottom: 2rem; }
+  .welcome-section h1 {
+    font-size: clamp(1.6rem, 2.6vw, 2.15rem);
+    letter-spacing: -.04em;
+    line-height: 1.16;
+    margin-bottom: .45rem;
+  }
+  .welcome-section > p {
+    margin: 0 0 1.65rem;
+    font-size: .92rem;
+    color: var(--color-text-secondary);
+  }
+  .quick-actions {
+    grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+    gap: .75rem;
+    margin: 0;
+  }
+  .action-card, .action-card.primary {
+    min-height: 104px;
+    padding: 1.15rem;
+    border: 1px solid var(--color-border);
+    border-radius: .55rem;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    box-shadow: none;
+    gap: .9rem;
+    align-items: flex-start;
+    transform: none;
+  }
+  .action-card.primary {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+  }
+  .action-card:hover, .action-card.primary:hover {
+    border-color: var(--color-primary);
+    background: var(--color-surface-hover);
+    box-shadow: none;
+    transform: none;
+  }
+  .action-card.primary:hover { background: var(--color-primary-light); }
+  .action-icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    border-radius: .42rem;
+    background: var(--color-background);
+    color: var(--color-primary);
+    opacity: 1;
+  }
+  .action-card.primary .action-icon { background: var(--color-surface); border-color: var(--color-border); }
+  .action-content h3, .action-card.primary .action-content h3 {
+    color: var(--color-text-primary);
+    font-size: .9rem;
+    font-weight: 700;
+    margin: .1rem 0 .3rem;
+  }
+  .action-content p, .action-card.primary .action-content p {
+    color: var(--color-text-secondary);
+    font-size: .78rem;
+    line-height: 1.4;
+    opacity: 1;
+  }
+  .recent-section { margin-bottom: 1.5rem; }
+  .section-header { margin-bottom: .8rem; gap: 1rem; }
+  .recent-section h2 { font-size: 1rem; letter-spacing: -.015em; font-weight: 700; }
+  .view-all-link { color: var(--color-primary); font-weight: 700; }
+  .view-all-link:hover { color: var(--color-primary-hover); }
+  .reports-list {
+    gap: 0;
+    border: 1px solid var(--color-border);
+    border-radius: .55rem;
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+  .report-card {
+    padding: .85rem 1rem;
+    border-radius: 0;
+    box-shadow: none;
+    gap: 1rem;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+  .report-card:last-child { border-bottom: 0; }
+  .report-card.clickable:hover { box-shadow: none; transform: none; }
+  .report-info { min-width: 0; }
+  .report-info h4 { font-size: .88rem; }
+  .study-info { font-size: .78rem; margin-bottom: .15rem; }
+  .date-info { color: var(--color-text-muted); }
+  .status {
+    display: inline-block;
+    border-radius: .3rem;
+    font-size: .68rem;
+    letter-spacing: .025em;
+  }
+  .status.draft, .status.pending-review { color: var(--color-warning); }
+  .status.final, .status.finalized { background: var(--color-success-light); color: var(--color-success); }
+  .retry-btn, .action-btn, .continue-btn {
+    background: var(--color-primary);
+    color: var(--color-text-primary-inverse);
+    font-weight: 700;
+    border-radius: .4rem;
+    min-height: 36px;
+  }
+  .stats-section {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .75rem;
+  }
+  .stat-card {
+    text-align: left;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--color-border);
+    border-radius: .55rem;
+    box-shadow: none;
+  }
+  .stat-number {
+    font-family: var(--font-mono);
+    font-size: 1.7rem;
+    letter-spacing: -.05em;
+    line-height: 1.2;
+    margin-bottom: .45rem;
+  }
+  .stat-label {
+    font-size: .68rem;
+    color: var(--color-text-secondary);
+    letter-spacing: .065em;
+  }
+  .error-state, .empty-state, .loading-state {
+    border-radius: .55rem;
+    padding: 2.5rem 1.2rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+  .state-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1rem;
+    border-radius: .5rem;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    opacity: 1;
+  }
+  .error-icon { background: var(--color-error-light); color: var(--color-error); }
+  .loading-skeleton, .stats-message.skeleton {
+    width: min(400px, 100%);
+    height: 42px;
+    border-radius: .4rem;
+    background: var(--color-surface-hover);
+    animation: breathe 1.6s ease-in-out infinite;
+  }
+  .loading-skeleton.short { width: min(270px, 70%); height: 18px; margin: .75rem 0 1.25rem; }
+  .stats-message { grid-column: 1 / -1; }
+  .stats-message.skeleton { width: 100%; height: 90px; }
+  .stats-message.error-state { flex-direction: row; gap: 1rem; padding: 1.2rem; text-align: left; color: var(--color-error); }
+  .stats-message.error-state span { flex: 1; }
+  @keyframes breathe { 50% { opacity: .48; } }
+  @media (max-width: 700px) {
+    .dashboard { padding: .25rem 0 2rem; }
+    .quick-actions, .stats-section { grid-template-columns: 1fr; }
+    .action-card, .action-card.primary { min-height: 82px; padding: .95rem; }
+    .welcome-section { margin-bottom: 1.65rem; }
+    .section-header { flex-direction: row; align-items: center; }
+    .report-card { flex-direction: row; align-items: center; }
+    .report-actions { align-self: auto; flex-direction: column; align-items: flex-end; gap: .5rem; }
+    .stat-card { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .stat-number { margin: 0; }
+    .stat-label { text-align: right; }
+    .stats-message.error-state { flex-wrap: wrap; }
   }
 </style>

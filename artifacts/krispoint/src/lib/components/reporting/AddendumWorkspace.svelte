@@ -500,7 +500,7 @@
       <div class="addendum-editor-section">
         <div class="editor-header">
           <h4>{editingAddendum ? (editingAddendum.status === 'SUBMITTED' ? 'Review Addendum' : 'Edit Addendum') : 'New Addendum'}</h4>
-          <button class="btn-close" on:click={cancelEditor}>×</button>
+          <button class="btn-close" aria-label="Close addendum editor" on:click={cancelEditor}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
         </div>
         
         {#if error}
@@ -604,7 +604,7 @@
             </button>
           {:else if editingAddendum?.status === 'SUBMITTED'}
             <div class="waiting-review-notice">
-              <span class="status-icon">⏳</span>
+              <svg class="status-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l2.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               <span>Waiting for specialist review</span>
             </div>
           {:else if isSigner}
@@ -626,7 +626,7 @@
       </div>
     {:else if canAddAddendum && pendingAddendums.length === 0}
       <button class="btn btn-addendum-new" on:click={startNewAddendum}>
-        <span class="icon">+</span>
+        <svg class="icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         Add Addendum
       </button>
     {/if}
@@ -638,7 +638,7 @@
     <div class="modal-container" on:click|stopPropagation>
       <div class="modal-header">
         <h3>Submit Addendum</h3>
-        <button class="modal-close" on:click={closeSubmitModal}>×</button>
+        <button class="modal-close" aria-label="Close submit dialog" on:click={closeSubmitModal}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
       <div class="modal-body">
         {#if !hasSpecialistReview}
@@ -1352,5 +1352,21 @@
   
   :global([data-theme="dark"]) .modal-footer {
     border-top-color: #334155;
+  }
+  .modal-container, .editor-container { background: var(--color-surface, #fff); color: var(--color-text-primary, #1e293b); }
+  .modal-header, .modal-footer { border-color: var(--color-border, #dbe2ea); }
+  .modal-close svg, .btn-close svg { display: block; width: 1.1rem; height: 1.1rem; }
+  .icon { width: 1.1rem; height: 1.1rem; }
+  .status-icon { width: 1.1rem; height: 1.1rem; flex: 0 0 auto; }
+  :global(:focus-visible) { outline: 3px solid var(--color-primary, #3b82f6); outline-offset: 2px; }
+  :global([data-theme="dark"]) .modal-container,
+  :global([data-theme="dark"]) .editor-container { background: var(--color-surface, #1e293b); color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) .modal-header,
+  :global([data-theme="dark"]) .modal-footer { border-color: var(--color-border, #475569); }
+  @media (max-width: 600px) {
+    .modal-backdrop { padding: .5rem; align-items: flex-end; }
+    .modal-container { width: 100%; max-height: 92dvh; overflow-y: auto; border-radius: .9rem .9rem .4rem .4rem; }
+    .editor-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+    .editor-actions .btn { min-width: 0; }
   }
 </style>

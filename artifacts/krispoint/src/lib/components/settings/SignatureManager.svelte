@@ -313,7 +313,7 @@
   {:else}
     <div class="no-signature">
       <div class="upload-prompt">
-        <div class="upload-icon">✍️</div>
+        <div class="upload-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></div>
         <p>No signature uploaded yet</p>
         <button class="btn btn-primary" on:click={uploadSignature}>
           Upload Signature
@@ -386,6 +386,17 @@
 </div>
 
 <style>
+  :global(button:focus-visible), :global(input:focus-visible) {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
+  }
+
+  .upload-icon svg {
+    width: 2rem;
+    height: 2rem;
+    stroke-width: 1.7;
+  }
+
   .signature-manager {
     padding: 1.5rem;
     background: var(--color-surface, #ffffff);

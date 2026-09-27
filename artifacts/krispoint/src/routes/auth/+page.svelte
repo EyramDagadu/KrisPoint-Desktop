@@ -187,6 +187,11 @@
     .auth-container.wizard-container {
         max-width: 900px;
     }
+
+    :global(button:focus-visible), :global(input:focus-visible), :global(select:focus-visible) {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
+    }
     
     .loading-state {
         text-align: center;
@@ -240,6 +245,23 @@
     
     .switch-btn:hover {
         color: var(--color-primary-hover);
+    }
+
+    @media (max-width: 560px) {
+        .auth-page {
+            padding: 1rem 0.75rem;
+            align-items: flex-start;
+        }
+
+        .auth-container {
+            margin-block: auto;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .auth-page::after {
+            animation: none;
+        }
     }
     
     @keyframes spin {

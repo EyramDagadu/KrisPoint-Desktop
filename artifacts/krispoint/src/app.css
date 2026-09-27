@@ -1,45 +1,62 @@
-/* Global CSS Reset & Variables */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
 :root {
-  --color-background: #0f172a;
-  --color-surface: #1e293b;
-  --color-surface-2: #273449;
-  --color-background-secondary: #0f172a;
-  --color-border: #475569;
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
-  --color-text: #f1f5f9;
-  --color-text-muted: #94a3b8;
-  --color-success: #22c55e;
-  --color-danger: #ef4444;
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #cbd5e1;
-  --color-text-disabled: #64748b;
-  --color-surface-hover: #334155;
-  --color-error: #ef4444;
-  --color-error-light: #7f1d1d;
+  --color-background: #edf2f3;
+  --color-background-secondary: #e6edef;
+  --color-background-tertiary: #dce6e9;
+  --color-surface: #f8faf9;
+  --color-surface-elevated: #f8faf9;
+  --color-surface-2: #f1f6f6;
+  --color-surface-hover: #e8f0f1;
+  --color-border: #ccd9dd;
+  --color-border-light: #dce6e9;
+  --color-border-focus: #286283;
+  --color-primary: #245d7e;
+  --color-primary-hover: #194760;
+  --color-primary-light: #deedf2;
+  --color-text: #142d3b;
+  --color-text-primary: #142d3b;
+  --color-text-secondary: #3d5866;
+  --color-text-muted: #55707c;
+  --color-text-disabled: #718993;
+  --color-text-primary-inverse: #f8faf9;
+  --color-success: #1d665c;
+  --color-success-light: #e2f2ee;
+  --color-warning: #875515;
+  --color-warning-light: #fbf0da;
+  --color-danger: #a13f3d;
+  --color-error: #a13f3d;
+  --color-error-light: #f8e9e6;
+  --color-info: #245d7e;
+  --color-info-light: #deedf2;
+  --font-primary: 'DM Sans', 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
   --border-radius: 8px;
-  
-  /* Typography scale based on font size setting */
-  --base-font-size: 16px; /* Default, overridden by SettingsService */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
+  --base-font-size: 16px;
+  --text-xs: .75rem;
+  --text-sm: .875rem;
   --text-base: 1rem;
   --text-lg: 1.125rem;
   --text-xl: 1.25rem;
   --text-2xl: 1.5rem;
   --text-3xl: 1.875rem;
-  
   font-size: var(--base-font-size);
 }
-
-* {
-  box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--color-background);
-  color: var(--color-text);
-  overflow: hidden;
+  font-family: var(--font-primary);
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  line-height: 1.45;
+}
+button, input, select, textarea { font: inherit; }
+input::placeholder, textarea::placeholder { color: var(--color-text-muted); opacity: 1; }
+body[data-theme-type="dark"] input::placeholder,
+body[data-theme-type="dark"] textarea::placeholder { color: var(--color-text-muted) !important; opacity: 1; }
+button, a { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 2px; }
+::selection { background: var(--color-primary-light); color: var(--color-text-primary); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }

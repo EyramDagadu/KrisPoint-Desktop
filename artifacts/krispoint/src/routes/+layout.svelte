@@ -1,5 +1,6 @@
 <!-- Root Layout Component -->
 <script>
+  import '../app.css';
   import { browser } from '$app/environment';
   import { onMount, onDestroy } from 'svelte';
   import { page } from '$app/stores';
@@ -23,6 +24,7 @@
   $: currentUserId = $authState.currentUser?.id || 0;
   $: currentPath = $page?.url?.pathname || '/';
   $: isAuthPage = currentPath === '/auth';
+  $: if (browser && currentPath) sidebarCollapsed = true;
   
   $: pageTitle = getPageTitle(currentPath);
   
@@ -107,6 +109,9 @@
       <slot />
     {:else}
       <div class="app-layout">
+        {#if !sidebarCollapsed}
+          <button class="sidebar-backdrop" aria-label="Close navigation" on:click={() => sidebarCollapsed = true}></button>
+        {/if}
         <Sidebar collapsed={sidebarCollapsed} />
 
         <div class="main-content">
@@ -142,7 +147,8 @@
   .app-layout {
     display: flex;
     flex-direction: row;
-    height: 100vh;
+    min-height: 100dvh;
+    height: 100dvh;
     width: 100%;
     background: var(--color-background);
     overflow: hidden;
@@ -187,11 +193,12 @@
     min-width: 0;
     overflow: hidden;
   }
+  .sidebar-backdrop { display: none; }
   
   .content-area {
     flex: 1;
     overflow: auto;
-    padding: 1.5rem;
+    padding: 1.25rem 1.5rem;
     background: var(--color-background);
   }
   
@@ -206,21 +213,23 @@
   }
   
   @media (max-width: 768px) {
+    .sidebar-backdrop {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 44;
+      border: 0;
+      background: rgba(9, 28, 38, .42);
+      cursor: pointer;
+    }
     .content-area {
-      padding: 1rem;
+      padding: .9rem;
     }
     
     :global(.content-area:has(.reporting-container)),
     :global(.reporting-page) .content-area {
       padding: 0;
     }
-  }
-
-  :global(:root) {
-    --color-primary: #3b82f6;
-    --color-background: #ffffff;
-    --color-text-primary: #1e293b;
-    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   }
 
   :global(body) {

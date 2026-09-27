@@ -177,7 +177,7 @@
         <div class="loading">Loading returned items...</div>
     {:else if !hasItems}
         <div class="empty-state">
-            <div class="empty-icon">✓</div>
+            <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m5 12 4 4L19 6"/></svg></div>
             <p>No returned items</p>
             <span>Reports and addendums returned by specialists will appear here.</span>
         </div>
@@ -236,7 +236,7 @@
                                 {report.priority}
                             </span>
                             <span class="modality-badge">{report.modality}</span>
-                            <span class="returned-badge">↩️ Returned</span>
+                            <span class="returned-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/></svg> Returned</span>
                         </div>
                         
                         <div class="patient-info">
@@ -331,8 +331,8 @@
                                 {addendum.priority}
                             </span>
                             <span class="modality-badge">{addendum.modality}</span>
-                            <span class="addendum-badge">📝 Addendum</span>
-                            <span class="returned-badge">↩️ Returned</span>
+                            <span class="addendum-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/></svg> Addendum</span>
+                            <span class="returned-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/></svg> Returned</span>
                         </div>
                         
                         <div class="patient-info">
@@ -562,6 +562,32 @@
         outline: none;
         border-color: var(--color-primary, #3b82f6);
         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .empty-icon svg, .addendum-badge svg, .returned-badge svg {
+        width: 1rem;
+        height: 1rem;
+        stroke-width: 1.8;
+    }
+
+    :global(button:focus-visible), :global(select:focus-visible), :global(input:focus-visible) {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+        .returned-reports-page {
+            padding: 1rem;
+        }
+
+        .page-controls {
+            align-items: stretch;
+        }
+
+        .page-controls > * {
+            min-width: 0;
+            max-width: 100%;
+        }
     }
 
     .modality-filter {

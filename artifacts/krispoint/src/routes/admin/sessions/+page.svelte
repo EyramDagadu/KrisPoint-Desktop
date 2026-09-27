@@ -226,6 +226,7 @@
   .sessions-page {
     max-width: 1000px;
     margin: 0 auto;
+    padding: 1.5rem;
   }
 
   .page-header {
@@ -428,7 +429,21 @@
     background: var(--color-surface-elevated);
   }
 
+  :global(button:focus-visible), :global(select:focus-visible), :global(input:focus-visible) {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
+  }
+
   @media (max-width: 640px) {
+    .sessions-page {
+      padding: 1rem;
+    }
+
+    .page-header {
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
     .session-meta {
       flex-direction: column;
       gap: 0.25rem;

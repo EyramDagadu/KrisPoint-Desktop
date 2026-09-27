@@ -212,7 +212,8 @@
             disabled={!pdfData || isGenerating}
             title="Print this report"
           >
-            🖨️ Print
+            <svg class="button-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M5 7V3.5h10V7M5 14H3.5A1.5 1.5 0 0 1 2 12.5v-4A1.5 1.5 0 0 1 3.5 7h13A1.5 1.5 0 0 1 18 8.5v4a1.5 1.5 0 0 1-1.5 1.5H15" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M5 11.5h10v5H5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            Print
           </button>
           <button 
             class="btn btn-export" 
@@ -220,12 +221,13 @@
             disabled={isExporting || isGenerating}
           >
             {#if isExporting}
-              ⏳ Exporting...
+              <svg class="button-icon spinner-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5" stroke-dasharray="32 12"/></svg> Exporting...
             {:else}
-              📄 Export PDF
+              <svg class="button-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M5 2.5h7l3 3v12H5a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 2.8v3h3M7 10h6M7 13h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Export PDF
             {/if}
           </button>
-          <button class="close-button" on:click={handleClose}>&times;</button>
+          <button class="close-button" aria-label="Close PDF preview" on:click={handleClose}><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
         </div>
       </div>
       
@@ -675,5 +677,21 @@
   :global([data-theme="dark"]) .spinner {
     border-color: #475569;
     border-top-color: #3b82f6;
+  }
+  .modal-content { background: var(--color-surface, #fff); color: var(--color-text-primary, #1e293b); }
+  .modal-header, .controls { background: var(--color-background-secondary, #f8fafc); border-color: var(--color-border, #dbe2ea); }
+  .button-icon { width: 1rem; height: 1rem; flex: 0 0 auto; }
+  .spinner-icon { animation: spin 1s linear infinite; }
+  .close-button svg { width: 1.1rem; height: 1.1rem; }
+  :global(:focus-visible) { outline: 3px solid var(--color-primary, #3b82f6); outline-offset: 2px; }
+  :global([data-theme="dark"]) .modal-content { background: var(--color-surface, #1e293b); color: var(--color-text-primary, #f1f5f9); }
+  :global([data-theme="dark"]) .modal-header,
+  :global([data-theme="dark"]) .controls { background: var(--color-background-secondary, #0f172a); border-color: var(--color-border, #475569); }
+  @media (max-width: 650px) {
+    .modal-overlay { padding: .5rem; align-items: flex-end; }
+    .modal-content { width: 100%; max-height: 94dvh; border-radius: .8rem .8rem .3rem .3rem; overflow-y: auto; }
+    .modal-header { align-items: flex-start; flex-wrap: wrap; gap: .6rem; }
+    .header-actions { width: 100%; flex-wrap: wrap; }
+    .header-actions .btn { flex: 1; }
   }
 </style>

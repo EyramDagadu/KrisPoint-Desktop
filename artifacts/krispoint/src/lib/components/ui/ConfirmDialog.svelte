@@ -28,10 +28,10 @@
 </script>
 
 {#if show}
-  <div class="confirm-backdrop" role="dialog" aria-modal="true" on:click={handleBackdropClick} on:keydown={(e) => e.key === 'Escape' && handleCancel()}>
+  <div class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" tabindex="-1" on:click={handleBackdropClick} on:keydown={(e) => e.key === 'Escape' && handleCancel()}>
     <div class="confirm-dialog">
       <div class="confirm-header">
-        <h3>{title}</h3>
+        <h3 id="confirm-dialog-title">{title}</h3>
       </div>
       
       <div class="confirm-body">
@@ -80,11 +80,13 @@
   }
 
   .confirm-dialog {
-    background: #1e293b;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    max-width: 500px;
-    width: 90%;
+    background: var(--color-surface, #ffffff);
+    border: 1px solid var(--color-border, #d1d5db);
+    border-radius: 14px;
+    box-shadow: var(--shadow-xl, 0 20px 60px rgba(0, 0, 0, 0.25));
+    max-width: 32rem;
+    width: min(90%, 32rem);
+    color: var(--color-text-primary, #111827);
     animation: slideUp 0.3s ease-out;
   }
 
@@ -101,14 +103,14 @@
 
   .confirm-header {
     padding: 1.5rem 1.5rem 1rem 1.5rem;
-    border-bottom: 1px solid #334155;
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
   }
 
   .confirm-header h3 {
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: #f1f5f9;
+    color: var(--color-text-primary, #111827);
   }
 
   .confirm-body {
@@ -119,7 +121,7 @@
     margin: 0;
     font-size: 1rem;
     line-height: 1.6;
-    color: #cbd5e1;
+    color: var(--color-text-secondary, #4b5563);
   }
 
   .confirm-actions {
@@ -140,12 +142,13 @@
   }
 
   .btn-cancel {
-    background: #334155;
-    color: #e2e8f0;
+    background: var(--color-surface-secondary, #f3f4f6);
+    color: var(--color-text-primary, #111827);
+    border: 1px solid var(--color-border, #d1d5db);
   }
 
   .btn-cancel:hover {
-    background: #475569;
+    background: var(--color-surface-hover, #e5e7eb);
   }
 
   .btn-primary {
@@ -168,5 +171,20 @@
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  }
+
+  .btn:focus-visible {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 480px) {
+    .confirm-actions {
+      flex-direction: column-reverse;
+    }
+
+    .confirm-actions .btn {
+      width: 100%;
+    }
   }
 </style>

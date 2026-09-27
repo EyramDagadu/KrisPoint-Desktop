@@ -92,7 +92,7 @@
 
 <div class="voice-test">
     <div class="test-header">
-        <h2>🎤 Voice Command Testing</h2>
+        <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0m-7 7v3m-4 0h8"/></svg> Voice Command Testing</h2>
         <div class="status-indicator" class:listening={isListening} class:supported={isSupported}>
             {status}
         </div>
@@ -105,7 +105,11 @@
             on:click={toggleVoice}
             disabled={!isSupported}
         >
-            {isListening ? '🔴 Stop Listening' : '🎤 Start Voice Recognition'}
+            {#if isListening}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/></svg> Stop Listening
+            {:else}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0m-7 7v3m-4 0h8"/></svg> Start Voice Recognition
+            {/if}
         </button>
 
         <button class="clear-btn" on:click={clearResults}>
@@ -252,6 +256,17 @@
 </div>
 
 <style>
+    .test-header h2 svg, .voice-btn svg {
+        width: 1.15rem;
+        height: 1.15rem;
+        vertical-align: -0.2em;
+        stroke-width: 1.8;
+    }
+
+    :global(button:focus-visible) {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
+    }
     .voice-test {
         max-width: 1200px;
         margin: 0 auto;

@@ -294,14 +294,14 @@
 <div class="admin-container">
                 <div class="page-header">
                     <button class="btn-primary" on:click={() => showCreateModal = true}>
-                        <span class="btn-icon">+</span>
+                        <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg></span>
                         Add New User
                     </button>
                 </div>
                 
                 {#if error}
                     <div class="error-banner">
-                        <span class="error-icon">!</span>
+                        <span class="error-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v5m0 3h.01"/></svg></span>
                         {error}
                         <button class="dismiss-btn" on:click={() => error = ''}>Dismiss</button>
                     </div>
@@ -1547,5 +1547,17 @@
 
     :global([data-theme="dark"]) .user-email {
         color: #64748b;
+    }
+
+    .btn-icon svg, .error-icon svg {
+        display: block;
+        width: 1.1rem;
+        height: 1.1rem;
+        stroke-width: 1.8;
+    }
+
+    :global(button:focus-visible), :global(select:focus-visible), :global(input:focus-visible) {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
     }
 </style>

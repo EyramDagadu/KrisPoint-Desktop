@@ -479,7 +479,7 @@
       <section class="editor-panel">
         {#if readOnly}
           <div class="read-only-banner">
-            <span class="read-only-icon">🔒</span>
+            <svg class="read-only-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 9V6.5a3.5 3.5 0 0 1 7 0V9" stroke="currentColor" stroke-width="1.5"/></svg>
             <span class="read-only-text">View Only Mode - This report cannot be edited</span>
           </div>
         {/if}
@@ -505,7 +505,7 @@
       <aside class="voice-panel">
         {#if !hasVoiceFeature}
           <div class="voice-disabled-notice premium-notice">
-            <span class="premium-icon">🔒</span>
+            <svg class="premium-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 9V6.5a3.5 3.5 0 0 1 7 0V9" stroke="currentColor" stroke-width="1.5"/></svg>
             <p>Voice dictation requires a premium license.</p>
             <a href="/settings?tab=license" class="upgrade-link">Upgrade</a>
           </div>
@@ -569,7 +569,7 @@
         <h2>Welcome to Radiology Reporting</h2>
         <p>Enter patient information to begin your radiology report</p>
         <button class="btn btn-primary btn-large" on:click={handleNewReport}>
-          <span class="btn-icon">📋</span>
+          <svg class="btn-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M6 3.5h8a1.5 1.5 0 0 1 1.5 1.5v11a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 16V5A1.5 1.5 0 0 1 6 3.5Z" stroke="currentColor" stroke-width="1.5"/><path d="M7.5 7h5M7.5 10h5M7.5 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           Start New Report
         </button>
       </div>
@@ -585,7 +585,7 @@
             {$hasCompletePatientData ? 'Edit Patient Information' : 'New Radiology Report'}
           </h2>
           <button class="modal-close" on:click={handlePatientCancel} aria-label="Close">
-            ×
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
           </button>
         </div>
         <div class="modal-content">
@@ -603,18 +603,18 @@
          on:click={() => uiActions.hideNotification()}
          transition:fly={{y: -50, duration: 300}}>
       <div class="notification-content">
-        <span class="notification-icon">
+          <span class="notification-icon" aria-hidden="true">
           {#if $uiState.notification.type === 'success'}
-            ✓
+            <svg viewBox="0 0 20 20" fill="none"><path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           {:else if $uiState.notification.type === 'error'}
-            ⚠
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 3 18 17H2L10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 8v4m0 2v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           {:else}
-            ℹ
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v5m0-8v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           {/if}
         </span>
         <span class="notification-message">{$uiState.notification.message}</span>
-        <button class="notification-close" on:click|stopPropagation={() => uiActions.hideNotification()}>
-          ×
+        <button class="notification-close" aria-label="Dismiss notification" on:click|stopPropagation={() => uiActions.hideNotification()}>
+          <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         </button>
       </div>
     </div>
@@ -1044,6 +1044,7 @@
     font-weight: bold;
     flex-shrink: 0;
   }
+  .notification-icon svg { display: block; width: 1.25rem; height: 1.25rem; }
 
   .notification-message {
     flex: 1;
@@ -1072,5 +1073,46 @@
     background: rgba(255, 255, 255, 0.2);
     color: white;
     transform: scale(1.1);
+  }
+  .notification-close svg { width: 1.1rem; height: 1.1rem; }
+  .report-workspace { min-width: 0; color: var(--color-text-primary, #1e293b); }
+  .workspace-main { grid-template-columns: minmax(220px, 270px) minmax(0, 1fr) minmax(260px, 300px); }
+  .read-only-banner {
+    background: #fef3c7;
+    color: #713f12;
+    border-bottom: 1px solid #fcd34d;
+  }
+  .read-only-icon { width: 1rem; height: 1rem; flex: 0 0 auto; }
+  .voice-panel { background: var(--color-background-secondary, #f8fafc); }
+  .voice-disabled-notice { border: 1px solid var(--color-border, #dbe2ea); border-radius: .75rem; background: var(--color-surface, #fff); }
+  .premium-notice .premium-icon { width: 2rem; height: 2rem; color: var(--color-primary, #2563eb); }
+  .premium-notice .upgrade-link { background: var(--color-primary, #2563eb); }
+  .modal-close svg { width: 1.1rem; height: 1.1rem; display: block; }
+  .workspace-footer { z-index: 4; }
+  .empty-state {
+    background: var(--color-background, #f8fafc);
+    color: var(--color-text-primary, #1e293b);
+  }
+  .empty-content h2 { color: var(--color-text-primary, #1e293b); }
+  .empty-content p { color: var(--color-text-secondary, #64748b); }
+  :global(:focus-visible) { outline: 3px solid var(--color-primary, #3b82f6); outline-offset: 2px; }
+  @media (max-width: 1150px) {
+    .workspace-main { grid-template-columns: 220px minmax(0, 1fr); }
+    .voice-panel { grid-column: 1 / -1; max-height: 290px; border-top: 1px solid var(--color-border, #dbe2ea); }
+  }
+  @media (max-width: 760px) {
+    .report-workspace { height: auto; min-height: 100%; max-height: none; }
+    .workspace-main { display: flex; flex-direction: column; max-height: none; overflow: visible; }
+    .tools-panel { border-right: 0; border-bottom: 1px solid var(--color-border, #dbe2ea); }
+    .editor-panel { min-height: 55vh; border-right: 0; overflow: visible; }
+    .editor-content-area { overflow: visible; }
+    .voice-panel { max-height: none; overflow: visible; padding: .75rem; }
+    .workspace-footer { position: sticky; bottom: 0; }
+    .empty-content { padding: 2rem 1.25rem; }
+    .empty-content h2 { font-size: 1.5rem; }
+    .notification { left: .75rem; right: .75rem; top: .75rem; min-width: 0; max-width: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
   }
 </style>

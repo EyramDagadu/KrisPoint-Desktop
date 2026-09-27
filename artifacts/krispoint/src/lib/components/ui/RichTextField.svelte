@@ -305,7 +305,7 @@
     <div class="table-modal" on:click|stopPropagation>
       <div class="table-modal-header">
         <h4>Insert Table</h4>
-        <button class="table-modal-close" on:click={closeTableModal}>×</button>
+        <button class="table-modal-close" on:click={closeTableModal} aria-label="Close table options"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button>
       </div>
       <div class="table-modal-body">
         <div class="table-size-inputs">

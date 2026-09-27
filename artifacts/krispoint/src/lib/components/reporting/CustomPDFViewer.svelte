@@ -266,25 +266,25 @@
   <div class="pdf-content">
     <div class="pdf-toolbar">
       <div class="toolbar-group">
-        <button class="toolbar-btn" on:click={prevPage} disabled={currentPage <= 1}>
+        <button class="toolbar-btn" on:click={prevPage} disabled={currentPage <= 1} aria-label="Previous page">
           ‹
         </button>
         <span class="page-info">
           Page {currentPage} of {totalPages}
         </span>
-        <button class="toolbar-btn" on:click={nextPage} disabled={currentPage >= totalPages}>
+        <button class="toolbar-btn" on:click={nextPage} disabled={currentPage >= totalPages} aria-label="Next page">
           ›
         </button>
       </div>
       
       <div class="toolbar-group">
-        <button class="toolbar-btn" on:click={zoomOut} title="Zoom Out">
+        <button class="toolbar-btn" on:click={zoomOut} title="Zoom Out" aria-label="Zoom out">
           −
         </button>
-        <button class="toolbar-btn" on:click={resetZoom} title="Reset Zoom">
+        <button class="toolbar-btn" on:click={resetZoom} title="Reset Zoom" aria-label="Reset zoom">
           {Math.round(scale * 100)}%
         </button>
-        <button class="toolbar-btn" on:click={zoomIn} title="Zoom In">
+        <button class="toolbar-btn" on:click={zoomIn} title="Zoom In" aria-label="Zoom in">
           +
         </button>
       </div>
@@ -304,7 +304,7 @@
         </div>
       {:else if loadError}
         <div class="viewer-status error">
-          <p>❌ {loadError}</p>
+          <p><svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 3 2.8 19h18.4L12 3Z"/><path d="M12 9v4m0 3h.01"/></svg> {loadError}</p>
           <p class="error-detail">Check the browser console for details</p>
         </div>
       {:else if !pdfData}
@@ -317,6 +317,17 @@
 </div>
 
 <style>
+  .error-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    vertical-align: -0.2em;
+    stroke-width: 1.8;
+  }
+
+  .toolbar-btn:focus-visible, .thumbnail:focus-visible {
+    outline: 3px solid var(--color-focus, #2563eb);
+    outline-offset: 2px;
+  }
   .pdf-viewer-container {
     display: flex;
     height: 100%;

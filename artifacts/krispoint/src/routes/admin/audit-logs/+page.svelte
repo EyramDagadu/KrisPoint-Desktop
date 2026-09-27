@@ -121,16 +121,6 @@
         }
     }
     
-    function getCategoryIcon(category) {
-        switch (category) {
-            case 'AUTH': return '🔐';
-            case 'REPORTS': return '📄';
-            case 'USERS': return '👤';
-            case 'PATIENTS': return '🏥';
-            case 'SETTINGS': return '⚙️';
-            default: return '📋';
-        }
-    }
 </script>
 
 <svelte:head>
@@ -221,7 +211,7 @@
                                         </td>
                                         <td>
                                             <span class="category-badge">
-                                                {getCategoryIcon(log.category)} {log.category}
+                                                <svg class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg> {log.category}
                                             </span>
                                         </td>
                                         <td class="action-cell">{log.action}</td>
@@ -688,11 +678,11 @@
     }
 
     :global([data-theme="dark"]) .logs-table tbody tr:hover {
-        background: #f9fafb;
+        background: var(--color-surface-hover, #334155);
     }
     
     :global([data-theme="dark"]) .logs-table tbody tr:hover td {
-        color: #1e293b;
+        color: var(--color-text-primary, #f1f5f9);
     }
 
     :global([data-theme="dark"]) .pagination-footer {
@@ -720,5 +710,34 @@
 
     :global([data-theme="dark"]) .empty-state {
         color: #64748b;
+    }
+
+    .category-icon {
+        width: 1rem;
+        height: 1rem;
+        vertical-align: -0.15em;
+        stroke-width: 1.8;
+    }
+
+    :global(button:focus-visible), :global(select:focus-visible), :global(input:focus-visible) {
+        outline: 3px solid var(--color-focus, #2563eb);
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+        .page-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .pagination-footer {
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .pagination-controls {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
     }
 </style>
