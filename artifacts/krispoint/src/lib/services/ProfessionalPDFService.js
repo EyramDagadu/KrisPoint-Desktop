@@ -93,18 +93,21 @@ class ProfessionalPDFService {
         return fontMap[fontFamily] || fontMap.liberation;
     }
 
-    async generateMedicalReport(fontScale = 1.0, lineSpacing = 1.0, fontFamily = 'liberation') {
+    async generateMedicalReport(fontScale = 1.0, lineSpacing = 1.0, fontFamily = 'liberation', letterheadOverride = undefined) {
         console.log('🏁 generateMedicalReport called with fontScale:', fontScale, 'lineSpacing:', lineSpacing, 'fontFamily:', fontFamily);
         try {
             console.log('🏁 Getting report/patient/letterhead data...');
             const currentReportData = get(reportData);
             const currentPatientData = get(patientData);
             const currentLetterheadData = get(letterheadStore);
+            const selectedLetterheadData = letterheadOverride === undefined
+                ? currentLetterheadData
+                : { ...currentLetterheadData, currentLetterhead: letterheadOverride };
             console.log('🏁 Data retrieved, report content length:', currentReportData?.content?.length || 0);
             
             // Store data for multi-page use
             this.currentPatientData = currentPatientData;
-            this.currentLetterheadData = currentLetterheadData;
+            this.currentLetterheadData = selectedLetterheadData;
             this.currentReportData = currentReportData;
             
             // Apply quality settings from user preferences
@@ -176,9 +179,9 @@ class ProfessionalPDFService {
             
             // Start position - use letterhead top margin if letterhead is at top, otherwise use default margin
             let yPosition;
-            if (currentLetterheadData.currentLetterhead && currentLetterheadData.settings.position === 'top') {
-                yPosition = this.pageHeight - (currentLetterheadData.settings.topMargin || 10);
-                yPosition = await this.addLetterhead(currentPage, currentLetterheadData.currentLetterhead, currentLetterheadData.settings, yPosition, pdfDoc);
+            if (selectedLetterheadData.currentLetterhead && selectedLetterheadData.settings.position === 'top') {
+                yPosition = this.pageHeight - (selectedLetterheadData.settings.topMargin || 10);
+                yPosition = await this.addLetterhead(currentPage, selectedLetterheadData.currentLetterhead, selectedLetterheadData.settings, yPosition, pdfDoc);
             } else {
                 yPosition = this.pageHeight - this.margin;
             }
@@ -211,11 +214,11 @@ class ProfessionalPDFService {
             await this.addFootersToAllPages(pdfDoc, regularFont, currentPatientData);
 
             // Add letterhead at bottom if position is 'bottom'
-            if (currentLetterheadData.currentLetterhead && currentLetterheadData.settings.position === 'bottom') {
+            if (selectedLetterheadData.currentLetterhead && selectedLetterheadData.settings.position === 'bottom') {
                 // Add letterhead at bottom of each page
                 const pages = pdfDoc.getPages();
                 for (const page of pages) {
-                    await this.addLetterheadAtBottom(page, currentLetterheadData.currentLetterhead, currentLetterheadData.settings, pdfDoc);
+                    await this.addLetterheadAtBottom(page, selectedLetterheadData.currentLetterhead, selectedLetterheadData.settings, pdfDoc);
                 }
             }
 
@@ -2136,11 +2139,11 @@ class ProfessionalPDFService {
     }
 
     // Export functionality
-    async exportToPDF(fontScale = 1.0, lineSpacing = 1.0, fontFamily = 'liberation') {
+    async exportToPDF(fontScale = 1.0, lineSpacing = 1.0, fontFamily = 'liberation', letterheadOverride = undefined) {
         console.log('⚡ exportToPDF called with fontScale:', fontScale, 'lineSpacing:', lineSpacing, 'fontFamily:', fontFamily);
         try {
             console.log('⚡ Calling generateMedicalReport...');
-            const pdfBytes = await this.generateMedicalReport(fontScale, lineSpacing, fontFamily);
+            const pdfBytes = await this.generateMedicalReport(fontScale, lineSpacing, fontFamily, letterheadOverride);
             console.log('⚡ generateMedicalReport returned', pdfBytes?.length || 0, 'bytes');
             
             // Generate filename

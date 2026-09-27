@@ -46,8 +46,24 @@ export const POST: RequestHandler = async ({ request }) => {
     const data = await request.json();
     const { letterhead, settings } = data;
 
+    const [existing] = await db
+      .select({ id: schema.organizationSettings.id, value: schema.organizationSettings.value })
+      .from(schema.organizationSettings)
+      .where(eq(schema.organizationSettings.key, LETTERHEAD_KEY))
+      .limit(1);
+
+    // Solo keeps a collection; Hospital continues to store only its shared default.
+    const solo = process.env.VITE_KRISPOINT_EDITION === 'solo';
+    const previous = existing?.value ? JSON.parse(existing.value) : null;
+    const savedLetterheads = Array.isArray(data.letterheads)
+      ? data.letterheads
+      : Array.isArray(previous?.letterheads) ? previous.letterheads : [];
+    const letterheads = letterhead && !savedLetterheads.some((item: { id: string | number }) => item.id === letterhead.id)
+      ? [...savedLetterheads, letterhead]
+      : savedLetterheads;
     const valueToStore = JSON.stringify({
       currentLetterhead: letterhead,
+      ...(solo ? { letterheads } : {}),
       settings: settings || {
         height: 120,
         opacity: 1.0,
@@ -56,12 +72,6 @@ export const POST: RequestHandler = async ({ request }) => {
         topMargin: 10
       }
     });
-
-    const [existing] = await db
-      .select({ id: schema.organizationSettings.id })
-      .from(schema.organizationSettings)
-      .where(eq(schema.organizationSettings.key, LETTERHEAD_KEY))
-      .limit(1);
 
     if (existing) {
       await db

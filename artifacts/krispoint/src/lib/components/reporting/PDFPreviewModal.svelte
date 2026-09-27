@@ -3,7 +3,8 @@
   import CustomPDFViewer from './CustomPDFViewer.svelte';
   import { currentUser } from '$lib/stores/authStore.js';
   import { patientData, reportData } from '$lib/stores/reportStore.js';
-  import { letterheadActions } from '$lib/stores/letterheadStore.js';
+  import { letterheadActions, letterheadStore } from '$lib/stores/letterheadStore.js';
+  import { isSoloEdition } from '$lib/config/edition';
   
   export let isOpen = false;
   export let onClose = () => {};
@@ -22,9 +23,14 @@
   let error = '';
   let scaleDebounceTimeout = null;
   let letterheadLoaded = false;
+  let selectedLetterheadId = '';
+
+  function selectedLetterhead() {
+    return $letterheadStore.letterheads.find(letterhead => String(letterhead.id) === selectedLetterheadId) || null;
+  }
   
   // Load letterhead from server and generate preview when modal opens
-  $: if (isOpen && !pdfData && !isGenerating) {
+  $: if (isOpen && !pdfData && !isGenerating && !error) {
     loadLetterheadAndPreview();
   }
   
@@ -54,12 +60,27 @@
   }
   
   async function loadLetterheadAndPreview() {
+    isGenerating = true;
     if (!letterheadLoaded) {
-      await letterheadActions.loadFromServer();
+      const loaded = await letterheadActions.loadFromServer();
+      if (!isOpen) {
+        isGenerating = false;
+        return;
+      }
+      if (!loaded) {
+        error = 'Could not load letterheads. Please try again.';
+        isGenerating = false;
+        return;
+      }
       letterheadLoaded = true;
+      selectedLetterheadId = String($letterheadStore.currentLetterhead?.id ?? '');
     }
     await loadSignedAddendums();
-    generatePreview(1.0, 1.0, selectedFont);
+    if (isOpen) {
+      await generatePreview(fontScale, lineSpacing, selectedFont);
+    } else {
+      isGenerating = false;
+    }
   }
   
   async function generatePreview(scale = 1.0, spacing = 1.0, font = 'liberation') {
@@ -76,7 +97,9 @@
       }
       
       console.log('🎬 Calling professionalPDFService.generateMedicalReport...');
-      const pdfBytes = await professionalPDFService.generateMedicalReport(scale, spacing, font);
+      const pdfBytes = await professionalPDFService.generateMedicalReport(
+        scale, spacing, font, isSoloEdition ? selectedLetterhead() : undefined
+      );
       console.log('🎬 generateMedicalReport returned', pdfBytes?.length || 0, 'bytes');
       pdfData = pdfBytes;
       lastGeneratedScale = scale;
@@ -100,6 +123,10 @@
       }
       
       isExporting = true;
+      if (scaleDebounceTimeout) {
+        clearTimeout(scaleDebounceTimeout);
+        scaleDebounceTimeout = null;
+      }
       console.log('🚀 isExporting set to true');
       const scaleDiff = Math.abs(fontScale - lastGeneratedScale);
       const spacingDiff = Math.abs(lineSpacing - lastGeneratedSpacing);
@@ -110,11 +137,16 @@
       if (scaleDiff > 0.01 || spacingDiff > 0.01 || fontChanged) {
         console.log('🚀 Regenerating preview at scale:', fontScale, 'spacing:', lineSpacing, 'font:', selectedFont);
         await generatePreview(fontScale, lineSpacing, selectedFont);
+        if (error || !pdfData) {
+          throw new Error(error || 'Failed to generate PDF preview');
+        }
         console.log('🚀 Preview regeneration complete');
       }
       
       console.log('🚀 Calling exportToPDF with scale:', fontScale, 'spacing:', lineSpacing, 'font:', selectedFont);
-      const result = await professionalPDFService.exportToPDF(fontScale, lineSpacing, selectedFont);
+      const result = await professionalPDFService.exportToPDF(
+        fontScale, lineSpacing, selectedFont, isSoloEdition ? selectedLetterhead() : undefined
+      );
       console.log('🚀 exportToPDF returned:', result);
       
       if (result.success) {
@@ -143,6 +175,8 @@
     lastGeneratedSpacing = 1.0;
     lastGeneratedFont = 'liberation';
     letterheadLoaded = false;
+    selectedLetterheadId = '';
+    error = '';
     onClose();
   }
   
@@ -163,6 +197,15 @@
     if (selectedFont !== lastGeneratedFont) {
       generatePreview(fontScale, lineSpacing, selectedFont);
     }
+  }
+
+  function handleLetterheadChange(event) {
+    selectedLetterheadId = event.currentTarget.value;
+    if (scaleDebounceTimeout) {
+      clearTimeout(scaleDebounceTimeout);
+      scaleDebounceTimeout = null;
+    }
+    generatePreview(fontScale, lineSpacing, selectedFont);
   }
   
   function regenerateOnChange() {
@@ -209,7 +252,7 @@
           <button 
             class="btn btn-print" 
             on:click={handlePrint}
-            disabled={!pdfData || isGenerating}
+            disabled={!pdfData || isGenerating || !!error}
             title="Print this report"
           >
             <svg class="button-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M5 7V3.5h10V7M5 14H3.5A1.5 1.5 0 0 1 2 12.5v-4A1.5 1.5 0 0 1 3.5 7h13A1.5 1.5 0 0 1 18 8.5v4a1.5 1.5 0 0 1-1.5 1.5H15" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M5 11.5h10v5H5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
@@ -218,7 +261,7 @@
           <button 
             class="btn btn-export" 
             on:click={handleExportPDF}
-            disabled={isExporting || isGenerating}
+            disabled={isExporting || isGenerating || !pdfData || !!error}
           >
             {#if isExporting}
               <svg class="button-icon spinner-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5" stroke-dasharray="32 12"/></svg> Exporting...
@@ -232,6 +275,22 @@
       </div>
       
       <div class="controls">
+        {#if isSoloEdition}
+          <div class="control-group">
+            <label for="pdf-letterhead">Letterhead:</label>
+            <select
+              id="pdf-letterhead"
+              bind:value={selectedLetterheadId}
+              on:change={handleLetterheadChange}
+              disabled={!letterheadLoaded || isGenerating || isExporting}
+            >
+              <option value="">No letterhead</option>
+              {#each $letterheadStore.letterheads as letterhead (letterhead.id)}
+                <option value={String(letterhead.id)}>{letterhead.name}</option>
+              {/each}
+            </select>
+          </div>
+        {/if}
         <div class="control-group">
           <label for="font-family">Font:</label>
           <select 
@@ -295,7 +354,11 @@
         {#if error && !isGenerating}
           <div class="error-overlay">
             <p>{error}</p>
-            <button on:click={() => generatePreview(fontScale)}>Try Again</button>
+            <button on:click={() => {
+              error = '';
+              if (letterheadLoaded) generatePreview(fontScale, lineSpacing, selectedFont);
+              else loadLetterheadAndPreview();
+            }}>Try Again</button>
           </div>
         {/if}
       </div>

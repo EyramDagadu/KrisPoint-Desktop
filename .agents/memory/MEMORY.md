@@ -10,6 +10,7 @@
 - [Solo local worklist](solo-local-worklist.md) — Solo keeps a private local worklist even though shared multi-user worklist behavior remains Hospital-only.
 - [Solo analytics scope](solo-analytics-scope.md) — Solo shows only the owner’s personal analytics; organization-wide analytics remain Hospital-only.
 - [Solo clinical designation](solo-clinical-designation.md) — Solo’s internal owner role is distinct from the editable clinical designation shown on reports.
+- [Solo PDF letterhead choice](solo-pdf-letterhead-choice.md) — per-preview letterhead selection is Solo-only and must not change the Hospital-wide default.
 - [Solo license trust policy](solo-license-trust-policy.md) — public releases pin the license authority and use short signed offline leases tied to protected device identity.
 - [Appearance persistence](appearance-persistence.md) — theme choice is device-level and must survive logout, login, and Solo desktop relaunches.
 - [Frozen MedASR multiprocessing](frozen-medasr-multiprocessing.md) — packaged macOS voice must intercept frozen worker startup or each worker reloads the model.

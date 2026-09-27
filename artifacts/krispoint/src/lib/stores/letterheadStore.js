@@ -1,4 +1,5 @@
 import { writable, get } from 'svelte/store';
+import { isSoloEdition } from '$lib/config/edition';
 
 // Letterhead configuration store
 export const letterheadStore = writable({
@@ -80,10 +81,18 @@ export const letterheadActions = {
             
             if (response.ok) {
                 const data = await response.json();
-                if (data.success && data.letterhead) {
+                if (data.success) {
+                    const currentLetterhead = data.letterhead?.currentLetterhead || null;
+                    const savedLetterheads = isSoloEdition && Array.isArray(data.letterhead?.letterheads)
+                        ? data.letterhead.letterheads
+                        : [];
+                    // Older Solo installations stored only the current letterhead.
+                    const letterheads = isSoloEdition
+                        ? [...savedLetterheads, ...(currentLetterhead && !savedLetterheads.some(l => l.id === currentLetterhead.id) ? [currentLetterhead] : [])]
+                        : currentLetterhead ? [currentLetterhead] : [];
                     letterheadStore.set({
-                        currentLetterhead: data.letterhead.currentLetterhead || null,
-                        letterheads: data.letterhead.currentLetterhead ? [data.letterhead.currentLetterhead] : [],
+                        currentLetterhead,
+                        letterheads,
                         isUploading: false,
                         uploadProgress: 0,
                         uploadError: null,
@@ -94,9 +103,10 @@ export const letterheadActions = {
                             position: 'top',
                             margin: 20,
                             topMargin: 10,
-                            ...data.letterhead.settings 
+                            ...data.letterhead?.settings
                         }
                     });
+                    return true;
                 } else {
                     letterheadStore.update(store => ({ ...store, isLoading: false }));
                 }
@@ -107,6 +117,7 @@ export const letterheadActions = {
             console.warn('Failed to load letterhead from server:', error);
             letterheadStore.update(store => ({ ...store, isLoading: false }));
         }
+        return false;
     },
     
     async saveToServer() {
@@ -121,7 +132,8 @@ export const letterheadActions = {
                 },
                 body: JSON.stringify({
                     letterhead: store.currentLetterhead,
-                    settings: store.settings
+                    settings: store.settings,
+                    ...(isSoloEdition ? { letterheads: store.letterheads } : {})
                 })
             });
             

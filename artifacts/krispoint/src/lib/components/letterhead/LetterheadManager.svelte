@@ -5,6 +5,7 @@
     import LetterheadPreview from './LetterheadPreview.svelte';
     import ConfirmDialog from '../ui/ConfirmDialog.svelte';
     import { toastSuccess, toastError } from '$lib/utils/toast.js';
+    import { isSoloEdition } from '$lib/config/edition';
     
     export let isAdmin = true;
     
@@ -34,11 +35,14 @@
     async function confirmDelete() {
         if (letterheadToDelete) {
             letterheadActions.removeLetterhead(letterheadToDelete.id);
-            const deleted = await letterheadActions.deleteFromServer();
-            if (deleted) {
+            const result = isSoloEdition
+                ? await letterheadActions.saveToServer()
+                : { success: await letterheadActions.deleteFromServer() };
+            if (result.success) {
                 toastSuccess('Letterhead deleted successfully');
             } else {
-                toastError('Failed to delete letterhead. You may not have permission.');
+                toastError(result.error || 'Failed to delete letterhead');
+                await letterheadActions.loadFromServer();
             }
             letterheadToDelete = null;
         }
