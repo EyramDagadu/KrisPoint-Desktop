@@ -39,6 +39,8 @@ _Populate as you build — short repo map plus pointers to the source-of-truth f
 
 _Describe the high-level user-facing capabilities of this app once they exist._
 
+- UI polish and visual enhancements, including replacing icons with SVGs, must cover both Hospital and Solo editions. Verify shared and edition-specific screens in both before considering the work complete.
+
 ## User preferences
 
 _Populate as you build — explicit user instructions worth remembering across sessions._
