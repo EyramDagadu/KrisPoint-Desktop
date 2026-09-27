@@ -35,6 +35,14 @@
   let proposalAction = 'polish';
   let lastUsedTemplate = null;
 
+  // The trigger lives in the sticky editor header, which is below the sticky
+  // report footer's stacking context. Mount the dialog outside the editor so
+  // its backdrop and actions cover the entire viewport.
+  function mountDialogAtRoot(node) {
+    document.body.appendChild(node);
+    return { destroy: () => node.remove() };
+  }
+
   function sameTemplate(template, id, name) {
     return Boolean(template) && (
       (id !== null && id !== undefined && String(template.id) === String(id)) ||
@@ -256,7 +264,7 @@
 </button>
 
 {#if showModal}
-  <div class="modal-backdrop" role="presentation" on:click|self={closeModal}>
+  <div use:mountDialogAtRoot class="modal-backdrop" role="presentation" on:click|self={closeModal}>
     <div class="polish-modal" role="dialog" aria-modal="true" aria-labelledby="polish-title" tabindex="-1">
       <header class="modal-header">
         <div>
@@ -353,15 +361,15 @@
   .polish-trigger:hover:not(:disabled), .polish-trigger:focus-visible { background:var(--color-surface-hover, #f1f5f9); outline:3px solid var(--color-primary, #3b82f6); outline-offset:2px; }
   .polish-trigger:disabled { opacity:.4; cursor:not-allowed; }
   .trigger-mark { font:700 10px/1 ui-monospace,monospace; color:var(--color-primary, #1d4ed8); border:1px solid currentColor; padding:2px 3px; border-radius:3px; }
-  .modal-backdrop { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:16px; background:rgba(18,32,40,.68); }
-  .polish-modal { width:min(920px,100%); max-height:min(780px,94dvh); display:flex; flex-direction:column; overflow:hidden; border:1px solid var(--color-border, #cbd5e1); border-radius:10px; background:var(--color-surface, #fff); color:var(--color-text-primary, #1e293b); box-shadow:0 24px 70px rgba(18,40,49,.28); }
-  .modal-header,.modal-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 20px; background:var(--color-background-secondary, #f8fafc); border-bottom:1px solid var(--color-border, #dbe2ea); }
+  .modal-backdrop { position:fixed; inset:0; z-index:2100; display:grid; place-items:center; padding:16px; background:rgba(18,32,40,.68); }
+  .polish-modal { width:min(920px,100%); max-height:min(780px,calc(100dvh - 32px)); display:flex; flex-direction:column; overflow:hidden; border:1px solid var(--color-border, #cbd5e1); border-radius:10px; background:var(--color-surface, #fff); color:var(--color-text-primary, #1e293b); box-shadow:0 24px 70px rgba(18,40,49,.28); }
+  .modal-header,.modal-footer { display:flex; flex-shrink:0; align-items:center; justify-content:space-between; gap:14px; padding:16px 20px; background:var(--color-background-secondary, #f8fafc); border-bottom:1px solid var(--color-border, #dbe2ea); }
   .modal-footer { justify-content:flex-end; border-top:1px solid #d8e2e2; border-bottom:0; }
   .eyebrow { margin:0 0 3px; color:var(--color-primary, #1d4ed8); font:700 10px/1 ui-monospace,monospace; letter-spacing:.12em; text-transform:uppercase; }
   h2,h3,p { margin-top:0; } h2 { margin-bottom:0; font:650 20px/1.2 ui-sans-serif,system-ui,sans-serif; } h3 { margin-bottom:9px; font:700 11px/1 ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase; color:#52757a; }
   .icon-button { display:grid; place-items:center; width:40px; height:40px; border:0; border-radius:6px; background:none; color:var(--color-text-secondary, #475569); cursor:pointer; }
   .icon-button svg { width:1.2rem; height:1.2rem; }
-  .modal-body { overflow:auto; padding:20px; } .template-row { display:flex; align-items:center; gap:12px; } label { font:700 11px ui-monospace,monospace; text-transform:uppercase; color:#52757a; } select { flex:1; max-width:500px; padding:9px 10px; border:1px solid #bdcecf; border-radius:5px; background:#fff; color:#17313b; font:500 13px ui-sans-serif,system-ui,sans-serif; }
+  .modal-body { min-height:0; overflow:auto; padding:20px; } .template-row { display:flex; align-items:center; gap:12px; } label { font:700 11px ui-monospace,monospace; text-transform:uppercase; color:#52757a; } select { flex:1; max-width:500px; padding:9px 10px; border:1px solid #bdcecf; border-radius:5px; background:#fff; color:#17313b; font:500 13px ui-sans-serif,system-ui,sans-serif; }
   .template-note { margin:8px 0 16px 68px; color:#6a8185; font-size:12px; } .responsibility-note { margin:0 0 18px; padding:11px 13px; border-left:3px solid #d09a45; background:#fff8eb; color:#5b4932; font-size:12px; line-height:1.45; } .responsibility-note strong { display:block; margin-bottom:2px; }
   .review-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; } .review-grid article { min-width:0; padding:14px; border:1px solid #d4dfdf; border-radius:7px; background:#fff; } .review-grid article.empty { background:#f0f4f3; } .report-copy { min-height:170px; max-height:310px; overflow:auto; white-space:pre-wrap; font:13px/1.65 ui-sans-serif,system-ui,sans-serif; color:#263f47; }
   :global(.report-copy p), :global(.report-copy div) { margin:0 0 4px; }
@@ -372,7 +380,7 @@
   .identifier-review { margin:0 0 14px; padding:12px 13px; border:1px solid #d7a44c; border-radius:6px; background:#fff8e8; color:#624a22; font-size:12px; line-height:1.5; } .identifier-review p { margin:5px 0 0; }
   .button { padding:9px 14px; border-radius:5px; font:700 12px ui-sans-serif,system-ui,sans-serif; cursor:pointer; } .button.quiet { border:1px solid #bdcecf; background:#fff; color:#365860; } .button.primary { border:1px solid #285b62; background:#285b62; color:#fff; } .button:disabled { opacity:.45; cursor:not-allowed; }
   .loading-card { padding:26px 12px; text-align:center; color:#668086; } .skeleton { height:36px; border-radius:4px; background:linear-gradient(90deg,#dce6e5,#f4f7f6,#dce6e5); background-size:200% 100%; animation:shimmer 1.4s ease-in-out infinite; } .skeleton.line { width:100%; margin:8px 0; } .skeleton.short { width:62%; } @keyframes shimmer { from {background-position:200% 0} to {background-position:-200% 0} }
-  @media (max-width:640px) { .modal-backdrop { padding:0; align-items:end; } .polish-modal { max-height:94dvh; border-radius:10px 10px 0 0; } .modal-header,.modal-footer,.modal-body { padding:14px; } .template-row { align-items:flex-start; flex-direction:column; gap:7px; } select { width:100%; max-width:none; } .template-note { margin-left:0; } .review-grid { grid-template-columns:1fr; } .review-grid article { min-height:150px; } .modal-footer { flex-wrap:wrap; } .button { flex:1; } }
+  @media (max-width:640px) { .modal-backdrop { padding:0; align-items:end; } .polish-modal { max-height:100dvh; border-radius:10px 10px 0 0; } .modal-header,.modal-footer,.modal-body { padding:14px; } .template-row { align-items:flex-start; flex-direction:column; gap:7px; } select { width:100%; max-width:none; } .template-note { margin-left:0; } .review-grid { grid-template-columns:1fr; } .review-grid article { min-height:150px; } .modal-footer { flex-wrap:wrap; } .button { flex:1; } }
   .modal-header h2 { color:var(--color-text-primary, #1e293b); }
   .template-row select, .modal-body select { background:var(--color-background, #fff); color:var(--color-text-primary, #1e293b); border-color:var(--color-border, #cbd5e1); }
   .review-grid article { background:var(--color-surface, #fff); border-color:var(--color-border, #dbe2ea); }
