@@ -40,6 +40,7 @@ _Populate as you build — short repo map plus pointers to the source-of-truth f
 _Describe the high-level user-facing capabilities of this app once they exist._
 
 - UI polish and visual enhancements, including replacing icons with SVGs, must cover both Hospital and Solo editions. Verify shared and edition-specific screens in both before considering the work complete.
+- In both light and dark themes, check text/background contrast on pages, cards, inputs, menus, dialogs, tooltips, and interactive states. Avoid dark-on-dark and light-on-light text; verify actual rendered screens in both editions.
 
 ## User preferences
 
