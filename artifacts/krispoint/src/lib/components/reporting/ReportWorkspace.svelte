@@ -767,7 +767,7 @@
   }
 
   .empty-icon {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--color-primary, #2563eb);
     margin-bottom: 1.5rem;
     display: flex;
     justify-content: center;
