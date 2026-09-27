@@ -274,7 +274,7 @@
         </div>
       </div>
       
-      <div class="controls">
+      <div class="controls" class:solo-controls={isSoloEdition}>
         {#if isSoloEdition}
           <div class="control-group">
             <label for="pdf-letterhead">Letterhead:</label>
@@ -333,7 +333,9 @@
           <span class="control-value">{Math.round(lineSpacing * 100)}%</span>
         </div>
         
-        <span class="hint">Adjust to fit on one page</span>
+        {#if !isSoloEdition}
+          <span class="hint">Adjust to fit on one page</span>
+        {/if}
       </div>
       
       <!-- Keep viewer alive and overlay loading/error states -->
@@ -486,6 +488,30 @@
     border-bottom: 1px solid var(--border, #e5e7eb);
     background: var(--surface-secondary, #f9fafb);
     flex-wrap: wrap;
+  }
+
+  .controls.solo-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: 0.65rem;
+    padding-inline: 1rem;
+  }
+
+  .solo-controls .control-group {
+    min-width: 0;
+    gap: 0.5rem;
+  }
+
+  .solo-controls .control-group select,
+  .solo-controls .control-group input[type="range"] {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .solo-controls .control-value {
+    flex: 0 0 auto;
+    min-width: 2.5rem;
   }
   
   .control-group {
@@ -750,7 +776,11 @@
   :global([data-theme="dark"]) .modal-content { background: var(--color-surface, #1e293b); color: var(--color-text-primary, #f1f5f9); }
   :global([data-theme="dark"]) .modal-header,
   :global([data-theme="dark"]) .controls { background: var(--color-background-secondary, #0f172a); border-color: var(--color-border, #475569); }
+  @media (max-width: 1050px) {
+    .controls.solo-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
   @media (max-width: 650px) {
+    .controls.solo-controls { grid-template-columns: minmax(0, 1fr); }
     .modal-overlay { padding: .5rem; align-items: flex-end; }
     .modal-content { width: 100%; max-height: 94dvh; border-radius: .8rem .8rem .3rem .3rem; overflow-y: auto; }
     .modal-header { align-items: flex-start; flex-wrap: wrap; gap: .6rem; }
