@@ -1081,6 +1081,10 @@
     flex: 0 0 16px;
   }
 
+  .action-btn:only-child {
+    margin-inline: auto;
+  }
+
   .action-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
