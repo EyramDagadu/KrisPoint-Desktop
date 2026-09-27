@@ -1058,7 +1058,8 @@
   }
 
   .action-btn {
-    flex: 1;
+    flex: 0 0 auto;
+    min-height: 40px;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-border, #d1d5db);
     border-radius: 6px;
@@ -1072,6 +1073,12 @@
     align-items: center;
     justify-content: center;
     gap: 0.25rem;
+  }
+
+  .action-btn svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
   }
 
   .action-btn:hover {
