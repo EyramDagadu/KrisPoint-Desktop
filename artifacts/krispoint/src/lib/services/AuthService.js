@@ -36,14 +36,15 @@ class AuthService {
     }
 
     async hasAnyDoctors() {
-        try {
-            const response = await fetch('/api/auth/check-users');
-            const result = await response.json();
-            return result.success ? result.hasUsers : false;
-        } catch (error) {
-            console.error('Error checking users:', error);
-            return false;
+        const response = await fetch('/api/auth/check-users');
+        if (!response.ok) {
+            throw new Error(`Owner check failed (${response.status})`);
         }
+        const result = await response.json();
+        if (result.success !== true || typeof result.hasUsers !== 'boolean') {
+            throw new Error('Owner check returned an invalid response');
+        }
+        return result.hasUsers;
     }
     
     async getRoles() {

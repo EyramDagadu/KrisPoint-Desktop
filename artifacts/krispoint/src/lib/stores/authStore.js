@@ -110,12 +110,12 @@ export const authActions = {
         }
     },
 
-    // Register new doctor
-    async register(doctorData) {
+    // Register a user (the first user is the owner)
+    async register(userData) {
         authState.update(state => ({ ...state, isLoading: true, error: null }));
         
         try {
-            const result = await authService.register(doctorData);
+            const result = await authService.register(userData);
             
             if (result.success) {
                 authState.update(state => ({
@@ -123,19 +123,16 @@ export const authActions = {
                     isLoading: false,
                     error: null
                 }));
-                return { success: true, doctor: result.doctor };
+                return { success: true, user: result.user };
             } else {
                 authState.update(state => ({
                     ...state,
                     isLoading: false,
                     error: result.error
                 }));
-                // Pass through isLocked and existingUsername for single-user lock
                 return { 
                     success: false, 
-                    error: result.error,
-                    isLocked: result.isLocked,
-                    existingUsername: result.existingUsername
+                    error: result.error
                 };
             }
         } catch (error) {

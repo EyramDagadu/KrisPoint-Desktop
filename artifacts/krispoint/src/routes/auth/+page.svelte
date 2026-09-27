@@ -12,13 +12,25 @@
     let showWizard = false;
     let isLoading = true;
     let isFirstUser = false;
+    let ownerCheckError = '';
     
-    onMount(async () => {
-        const hasUsers = await authActions.hasAnyDoctors();
-        isFirstUser = !hasUsers;
-        showSetup = isFirstUser;
-        isLoading = false;
-    });
+    async function checkOwner() {
+        isLoading = true;
+        ownerCheckError = '';
+        try {
+            const hasUsers = await authActions.hasAnyDoctors();
+            isFirstUser = !hasUsers;
+            showSetup = isFirstUser;
+        } catch (error) {
+            console.error('Could not check workspace owner:', error);
+            ownerCheckError = 'Could not check whether this workspace has an owner. Check your connection and try again.';
+            showSetup = false;
+        } finally {
+            isLoading = false;
+        }
+    }
+
+    onMount(checkOwner);
     
     function getDefaultRoute(perms) {
         const canCreateReports = perms?.includes('reports.create');
@@ -78,6 +90,11 @@
             <div class="loading-state">
                 <div class="loading-spinner"></div>
                 <p>Connecting to server...</p>
+            </div>
+        {:else if ownerCheckError}
+            <div class="loading-state" role="alert">
+                <p>{ownerCheckError}</p>
+                <button type="button" on:click={checkOwner}>Try again</button>
             </div>
         {:else if showWizard}
             <SetupWizard on:setupComplete={handleWizardComplete} />

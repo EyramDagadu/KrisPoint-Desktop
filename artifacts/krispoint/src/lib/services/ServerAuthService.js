@@ -88,19 +88,42 @@ class ServerAuthService {
   }
 
   async register(userData) {
+    let response;
     try {
-      const response = await fetch('/api/auth/register', {
+      response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(userData)
       });
-
-      return await response.json();
     } catch (error) {
-      console.error('Registration error:', error);
-      return { success: false, error: 'Network error. Please try again.' };
+      console.error('Registration request failed:', error);
+      return { success: false, error: 'Could not reach the server. Check your connection and try again.' };
     }
+
+    // A proxy or an application error can return HTML (or an empty body).
+    // Do not misreport that response as a network failure or assume it did
+    // not create the owner before failing.
+    let result;
+    try {
+      result = await response.json();
+    } catch (error) {
+      console.error('Registration response could not be read:', response.status, error);
+      return {
+        success: false,
+        error: `Could not confirm account creation (server response ${response.status}). Try signing in before creating another account.`
+      };
+    }
+
+    if (!result || typeof result.success !== 'boolean' || (result.success && !response.ok)) {
+      console.error('Unexpected registration response:', response.status);
+      return {
+        success: false,
+        error: 'The server returned an unexpected registration response. Try signing in before creating another account.'
+      };
+    }
+
+    return result;
   }
 
   async getRoles() {
