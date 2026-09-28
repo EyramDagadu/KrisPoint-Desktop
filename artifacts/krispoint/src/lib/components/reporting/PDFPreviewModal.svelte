@@ -5,6 +5,7 @@
   import { patientData, reportData } from '$lib/stores/reportStore.js';
   import { letterheadActions, letterheadStore } from '$lib/stores/letterheadStore.js';
   import { isSoloEdition } from '$lib/config/edition';
+  import { previewLetterheadOverride } from './pdfLetterheadSelection.js';
   
   export let isOpen = false;
   export let onClose = () => {};
@@ -26,7 +27,7 @@
   let selectedLetterheadId = '';
 
   function selectedLetterhead() {
-    return $letterheadStore.letterheads.find(letterhead => String(letterhead.id) === selectedLetterheadId) || null;
+    return previewLetterheadOverride(isSoloEdition, $letterheadStore.letterheads, selectedLetterheadId);
   }
   
   // Load letterhead from server and generate preview when modal opens
@@ -98,7 +99,7 @@
       
       console.log('🎬 Calling professionalPDFService.generateMedicalReport...');
       const pdfBytes = await professionalPDFService.generateMedicalReport(
-        scale, spacing, font, isSoloEdition ? selectedLetterhead() : undefined
+        scale, spacing, font, selectedLetterhead()
       );
       console.log('🎬 generateMedicalReport returned', pdfBytes?.length || 0, 'bytes');
       pdfData = pdfBytes;
@@ -145,7 +146,7 @@
       
       console.log('🚀 Calling exportToPDF with scale:', fontScale, 'spacing:', lineSpacing, 'font:', selectedFont);
       const result = await professionalPDFService.exportToPDF(
-        fontScale, lineSpacing, selectedFont, isSoloEdition ? selectedLetterhead() : undefined
+        fontScale, lineSpacing, selectedFont, selectedLetterhead()
       );
       console.log('🚀 exportToPDF returned:', result);
       
