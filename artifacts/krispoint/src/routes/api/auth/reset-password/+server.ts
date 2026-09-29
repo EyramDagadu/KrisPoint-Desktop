@@ -1,17 +1,18 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { db, schema } from '$lib/server/db';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { validatePassword } from '$lib/server/passwordPolicy';
 import { logAudit } from '$lib/server/auth';
+import { verifyRecoveryProof } from '$lib/server/recoveryProof';
 import bcrypt from 'bcryptjs';
 
 export const POST: RequestHandler = async ({ request }) => {
     try {
-        const { username, newPassword } = await request.json();
+        const { username, newPassword, recoveryToken } = await request.json();
 
-        if (!username || !newPassword) {
-            return json({ success: false, error: 'Username and new password are required' }, { status: 400 });
+        if (typeof username !== 'string' || typeof newPassword !== 'string' || !username.trim() || !newPassword || typeof recoveryToken !== 'string') {
+            return json({ success: false, error: 'A verified recovery answer is required to reset the password' }, { status: 400 });
         }
 
         const passwordValidation = validatePassword(newPassword);
@@ -20,19 +21,22 @@ export const POST: RequestHandler = async ({ request }) => {
         }
 
         const user = await db.select({
-            id: schema.users.id
+            id: schema.users.id,
+            password: schema.users.password,
+            securityAnswer: schema.users.securityAnswer
         })
         .from(schema.users)
         .where(eq(schema.users.username, username.trim()))
         .limit(1);
 
-        if (user.length === 0) {
-            return json({ success: false, error: 'Username not found' }, { status: 404 });
+        if (user.length === 0 || !user[0].securityAnswer ||
+            !verifyRecoveryProof(recoveryToken, user[0].id, user[0].password, user[0].securityAnswer)) {
+            return json({ success: false, error: 'Recovery verification expired or invalid. Please answer the security question again.' }, { status: 401 });
         }
 
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
 
-        await db.update(schema.users)
+        const updated = await db.update(schema.users)
             .set({ 
                 password: hashedPassword,
                 lastPasswordChangeAt: new Date(),
@@ -41,7 +45,15 @@ export const POST: RequestHandler = async ({ request }) => {
                 lockedUntil: null,
                 updatedAt: new Date()
             })
-            .where(eq(schema.users.id, user[0].id));
+            .where(and(
+                eq(schema.users.id, user[0].id),
+                eq(schema.users.password, user[0].password),
+                eq(schema.users.securityAnswer, user[0].securityAnswer)
+            ))
+            .returning({ id: schema.users.id });
+        if (!updated.length) {
+            return json({ success: false, error: 'Recovery verification expired or invalid. Please answer the security question again.' }, { status: 401 });
+        }
 
         await db.update(schema.sessions)
             .set({ 

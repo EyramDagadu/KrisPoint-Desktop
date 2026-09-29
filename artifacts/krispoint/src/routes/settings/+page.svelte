@@ -11,6 +11,7 @@
   import { ollamaService } from '$lib/services/OllamaService.js';
   import { licenseState, licenseActions, isLicenseActive, isLicenseExpired, licenseFeatures } from '$lib/stores/licenseStore.js';
   import { isSoloEdition } from '$lib/config/edition';
+  import { securityQuestions } from '$lib/constants/securityQuestions.js';
   
   // Load last active tab from localStorage, default to 'general'
   let activeTab = typeof window !== 'undefined' ? (localStorage.getItem('settings_active_tab') || 'general') : 'general';
@@ -214,18 +215,9 @@
     answer: ''
   };
   let hasSecurityQuestion = false;
+  let savedSecurityQuestion = '';
   let securityQuestionSaving = false;
   
-  const SECURITY_QUESTIONS = [
-    "What was the name of your first patient?",
-    "In which city did you complete your medical degree?",
-    "What is your medical school mentor's last name?",
-    "What was your first hospital rotation specialty?",
-    "What is your favorite medical textbook?",
-    "What was the name of your first clinical supervisor?",
-    "In which year did you complete your medical internship?",
-    "What is your mother's maiden name?"
-  ];
 
   // Confirm dialog state
   let showResetConfirm = false;
@@ -397,9 +389,11 @@
       const result = await authActions.getSecurityQuestion($currentUser.username);
       if (result.success && result.question) {
         hasSecurityQuestion = true;
+        savedSecurityQuestion = result.question;
         securityQuestionData.question = result.question;
       } else {
         hasSecurityQuestion = false;
+        savedSecurityQuestion = '';
         securityQuestionData.question = '';
       }
     } catch (error) {
@@ -433,6 +427,7 @@
       if (result.success) {
         toastSuccess('Security question saved successfully! You can now use it to recover your password.');
         hasSecurityQuestion = true;
+        savedSecurityQuestion = securityQuestionData.question;
         // Clear the answer field for security
         securityQuestionData.answer = '';
       } else {
@@ -1006,7 +1001,10 @@
                     disabled={securityQuestionSaving}
                   >
                     <option value="">-- Select a question --</option>
-                    {#each SECURITY_QUESTIONS as question}
+                    {#if savedSecurityQuestion && !securityQuestions.includes(savedSecurityQuestion)}
+                      <option value={savedSecurityQuestion}>{savedSecurityQuestion}</option>
+                    {/if}
+                    {#each securityQuestions as question}
                       <option value={question}>{question}</option>
                     {/each}
                   </select>
@@ -1016,8 +1014,9 @@
                   <label for="security-answer">Your Answer</label>
                   <input 
                     id="security-answer"
-                    type="text" 
+                    type="password"
                     bind:value={securityQuestionData.answer}
+                    autocomplete="off"
                     placeholder={hasSecurityQuestion ? "Enter new answer to update" : "Enter your answer (case-insensitive)"}
                     disabled={securityQuestionSaving}
                   />

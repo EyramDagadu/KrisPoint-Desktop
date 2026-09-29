@@ -9,6 +9,7 @@
     let username = '';
     let securityQuestion = '';
     let securityAnswer = '';
+    let recoveryToken = '';
     let newPassword = '';
     let confirmPassword = '';
     let isSubmitting = false;
@@ -21,6 +22,7 @@
         }
 
         errorMessage = '';
+        recoveryToken = '';
         isSubmitting = true;
 
         try {
@@ -54,7 +56,9 @@
         try {
             const result = await authActions.verifySecurityAnswer(username, securityAnswer.trim());
             
-            if (result.success) {
+            if (result.success && result.recoveryToken) {
+                recoveryToken = result.recoveryToken;
+                securityAnswer = '';
                 step = 3;
             } else {
                 errorMessage = result.error || 'Incorrect answer';
@@ -86,9 +90,10 @@
         isSubmitting = true;
 
         try {
-            const result = await authActions.resetPassword(username, newPassword);
+            const result = await authActions.resetPassword(username, newPassword, recoveryToken);
             
             if (result.success) {
+                recoveryToken = '';
                 toastSuccess('Password reset successfully! You can now login with your new password.');
                 dispatch('passwordReset');
             } else {
@@ -107,6 +112,7 @@
             securityAnswer = '';
             errorMessage = '';
         } else if (step === 3) {
+            recoveryToken = '';
             step = 2;
             newPassword = '';
             confirmPassword = '';
@@ -115,6 +121,7 @@
     }
 
     function handleCancel() {
+        recoveryToken = '';
         dispatch('cancel');
     }
 </script>
@@ -183,9 +190,10 @@
             <div class="form-group">
                 <label for="security-answer">Your Answer</label>
                 <input 
-                    type="text" 
+                    type="password"
                     id="security-answer" 
                     bind:value={securityAnswer}
+                    autocomplete="off"
                     placeholder="Enter your answer"
                     disabled={isSubmitting}
                     autofocus

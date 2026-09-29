@@ -15,6 +15,8 @@ const tempDir = await mkdtemp(join(tmpdir(), 'krispoint-registration-'));
 const dbPath = join(tempDir, 'owner.db');
 const username = 'test_owner';
 const password = 'TestOwner9!';
+const securityQuestion = "What was the name of your first pet?";
+const securityAnswer = 'Cobalt';
 const freePort = () => new Promise((resolve, reject) => {
   const server = createServer();
   server.once('error', reject);
@@ -76,7 +78,8 @@ try {
 
   response = await post('/api/auth/register', {
     username, password, fullName: 'Test Owner',
-    institution: 'Test Facility', roleId: null
+    institution: 'Test Facility', roleId: null,
+    securityQuestion, securityAnswer
   });
   assert.equal(response.status, 201);
   assert.match(response.headers.get('content-type'), /application\/json/);
@@ -92,6 +95,53 @@ try {
   assert.ok(cookie?.startsWith('session_token='));
   const session = await fetch(`${base}/api/auth/session`, { headers: { cookie } });
   assert.equal((await session.json()).user.username, username);
+
+  response = await post('/api/auth/security-question', { username });
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).question, securityQuestion);
+
+  response = await post('/api/auth/reset-password', { username, newPassword: 'NewOwner9!' });
+  assert.equal(response.status, 400, 'Reset without a verified answer must be refused');
+
+  response = await post('/api/auth/verify-security-answer', { username, answer: 'wrong' });
+  assert.equal(response.status, 401);
+  response = await post('/api/auth/verify-security-answer', { username, answer: ` ${securityAnswer.toUpperCase()} ` });
+  assert.equal(response.status, 200);
+  const oldProof = (await response.json()).recoveryToken;
+  assert.ok(oldProof);
+
+  const updatedQuestion = 'What is your favorite book?';
+  response = await fetch(`${base}/api/auth/update-security-question`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', origin: base, cookie },
+    body: JSON.stringify({ securityQuestion: updatedQuestion, securityAnswer: 'Aurora' })
+  });
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).success, true);
+  response = await post('/api/auth/security-question', { username });
+  assert.equal((await response.json()).question, updatedQuestion);
+  response = await post('/api/auth/reset-password', { username, newPassword: 'NewOwner9!', recoveryToken: oldProof });
+  assert.equal(response.status, 401, 'Updating the answer must invalidate previous recovery proofs');
+
+  response = await post('/api/auth/verify-security-answer', { username, answer: 'Aurora' });
+  const proof = (await response.json()).recoveryToken;
+  assert.ok(proof);
+  response = await post('/api/auth/reset-password', { username, newPassword: 'NewOwner9!', recoveryToken: proof });
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).success, true);
+  response = await post('/api/auth/reset-password', { username, newPassword: 'AnotherOwner9!', recoveryToken: proof });
+  assert.equal(response.status, 401, 'A recovery proof must only work once');
+  response = await post('/api/auth/login', { username, password: 'NewOwner9!' });
+  assert.equal(response.status, 200);
+
+  const guesses = await Promise.all(Array.from({ length: 8 }, () =>
+    post('/api/auth/verify-security-answer', { username, answer: 'wrong guess' })
+  ));
+  const guessStatuses = guesses.map(result => result.status);
+  assert.equal(guessStatuses.filter(status => status === 401).length, 2,
+    `Only two more attempts should be allowed in this window: ${guessStatuses}`);
+  assert.equal(guessStatuses.filter(status => status === 429).length, 6,
+    `Concurrent answer guesses must not bypass the limit: ${guessStatuses}`);
 
   response = await post('/api/auth/register', {
     username: 'another_owner', password, fullName: 'Another Owner'
@@ -114,7 +164,7 @@ try {
     globalThis.fetch = originalFetch;
   }
 
-  console.log('Solo registration: invalid input, owner creation, login, single-owner guard and response errors passed.');
+  console.log('Solo registration and recovery: persisted question, settings update, verified reset, single-use proof and concurrent guess limit passed.');
 } finally {
   if (child?.pid) {
     try { process.kill(-child.pid, 'SIGTERM'); } catch { /* Already stopped. */ }

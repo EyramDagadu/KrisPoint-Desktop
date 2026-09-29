@@ -84,6 +84,14 @@ export function hmacForAudit(data: string): string {
   return createHmac('sha256', getAuditSecret()).update(data).digest('hex');
 }
 
+// Separate recovery proofs from audit signatures, using the edition's encryption secret.
+export function hmacForRecovery(data: string): Buffer {
+  return createHmac('sha256', getEncryptionKey())
+    .update('krispoint:password-recovery:v1:')
+    .update(data)
+    .digest();
+}
+
 export function verifyAuditHmac(data: string, expectedHmac: string): boolean {
   const computed = hmacForAudit(data);
   return computed === expectedHmac;

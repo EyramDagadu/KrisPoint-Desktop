@@ -293,9 +293,9 @@ export const authActions = {
     },
 
     // Reset password using security question
-    async resetPassword(username, newPassword) {
+    async resetPassword(username, newPassword, recoveryToken) {
         try {
-            const result = await authService.resetPassword(username, newPassword);
+            const result = await authService.resetPassword(username, newPassword, recoveryToken);
             return result;
         } catch (error) {
             return { success: false, error: error.message };

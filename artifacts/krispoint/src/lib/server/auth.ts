@@ -376,6 +376,8 @@ export async function register(userData: {
   department?: string;
   institution?: string;
   createdBy?: number;
+  securityQuestion?: string;
+  securityAnswer?: string;
 }): Promise<AuthResult> {
   try {
     if (process.env.VITE_KRISPOINT_EDITION === 'solo') {
@@ -400,11 +402,23 @@ export async function register(userData: {
       return { success: false, error: 'Username already exists' };
     }
 
+    if (Boolean(userData.securityQuestion?.trim()) !== Boolean(userData.securityAnswer?.trim())) {
+      return { success: false, error: 'Choose a security question and provide its answer' };
+    }
+    if (userData.securityQuestion?.trim() && userData.securityAnswer!.trim().length < 2) {
+      return { success: false, error: 'Security answer must be at least 2 characters' };
+    }
+
     const hashedPassword = await hashPassword(userData.password);
+    const hashedSecurityAnswer = userData.securityAnswer?.trim()
+      ? await hashPassword(userData.securityAnswer.trim().toLowerCase())
+      : null;
 
     const [newUser] = await db.insert(schema.users).values({
       username: userData.username,
       password: hashedPassword,
+      securityQuestion: userData.securityQuestion?.trim() || null,
+      securityAnswer: hashedSecurityAnswer,
       fullName: userData.fullName,
       email: userData.email,
       roleId: userData.roleId,

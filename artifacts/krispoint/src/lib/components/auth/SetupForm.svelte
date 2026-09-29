@@ -3,6 +3,7 @@
     import { authActions, authError, isLoading } from '../../stores/authStore.js';
     import { authService } from '../../services/AuthService.js';
     import { isSoloEdition } from '$lib/config/edition';
+    import { securityQuestions } from '$lib/constants/securityQuestions.js';
     
     const dispatch = createEventDispatcher();
     
@@ -25,17 +26,6 @@
         securityQuestion: '',
         securityAnswer: ''
     };
-    
-    const securityQuestions = [
-        "What is your mother's maiden name?",
-        "What was the name of your first pet?",
-        "What city were you born in?",
-        "What was your first car?",
-        "What is your favorite food?",
-        "What was the name of your elementary school?",
-        "What is your favorite movie?",
-        "What is your favorite book?"
-    ];
     
     const titles = ['Dr.', 'Prof.', 'Mr.', 'Mrs.', 'Ms.', 'Miss'];
     
@@ -372,9 +362,10 @@
                     <div class="form-group">
                         <label for="securityAnswer">Your Answer *</label>
                         <input 
-                            type="text" 
+                            type="password"
                             id="securityAnswer" 
                             bind:value={formData.securityAnswer}
+                            autocomplete="off"
                             placeholder="Enter your answer"
                             class:error={formErrors.securityAnswer}
                             disabled={isSubmitting}
