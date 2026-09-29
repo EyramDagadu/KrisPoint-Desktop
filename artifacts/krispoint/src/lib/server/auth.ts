@@ -6,6 +6,7 @@ import { randomBytes, createHash } from 'crypto';
 import { hmacForAudit } from './encryption';
 import { validatePassword } from './passwordPolicy';
 import { sessionEvents } from './sessionEvents';
+import { accountEmailInUse, accountEmailMatches, parseAccountEmail } from './accountEmail';
 
 const SALT_ROUNDS = 12;
 const SESSION_EXPIRY_HOURS = 24;
@@ -109,22 +110,38 @@ export async function login(
   userAgent?: string
 ): Promise<AuthResult> {
   try {
-    const user = await db
+    const identifier = username.trim();
+    let user = await db
       .select()
       .from(schema.users)
-      .where(eq(schema.users.username, username))
+      .where(eq(schema.users.username, identifier))
       .limit(1);
+
+    // Exact username lookup always takes priority, preserving existing sign-ins.
+    // An email must identify exactly one account; never pick an arbitrary match.
+    if (!user.length && identifier.includes('@')) {
+      const matches = await db.select()
+        .from(schema.users)
+        .where(accountEmailMatches(identifier))
+        .limit(2);
+      if (matches.length > 1) {
+        return { success: false, error: 'This email cannot be used to sign in. Please use your username.' };
+      }
+      user = matches;
+    }
 
     if (!user.length) {
       await logAudit({
         action: 'LOGIN_FAILED',
         category: 'AUTH',
         severity: 'WARNING',
-        description: `Failed login attempt for unknown user: ${username}`,
+        description: identifier.includes('@')
+          ? 'Failed login attempt for unknown email address'
+          : `Failed login attempt for unknown user: ${identifier}`,
         ipAddress,
         userAgent
       });
-      return { success: false, error: 'Invalid username or password' };
+      return { success: false, error: 'Invalid username/email or password' };
     }
 
     const userData = user[0];
@@ -179,7 +196,7 @@ export async function login(
         return { success: false, error: `Too many failed attempts. Account locked for ${LOCKOUT_DURATION_MINUTES} minutes.` };
       }
 
-      return { success: false, error: 'Invalid username or password' };
+      return { success: false, error: 'Invalid username/email or password' };
     }
 
     await db
@@ -402,6 +419,12 @@ export async function register(userData: {
       return { success: false, error: 'Username already exists' };
     }
 
+    const parsedEmail = parseAccountEmail(userData.email);
+    if (parsedEmail.error) return { success: false, error: parsedEmail.error };
+    if (parsedEmail.email && await accountEmailInUse(parsedEmail.email)) {
+      return { success: false, error: 'Email address already belongs to another account' };
+    }
+
     if (Boolean(userData.securityQuestion?.trim()) !== Boolean(userData.securityAnswer?.trim())) {
       return { success: false, error: 'Choose a security question and provide its answer' };
     }
@@ -420,7 +443,7 @@ export async function register(userData: {
       securityQuestion: userData.securityQuestion?.trim() || null,
       securityAnswer: hashedSecurityAnswer,
       fullName: userData.fullName,
-      email: userData.email,
+      email: parsedEmail.email,
       roleId: userData.roleId,
       title: userData.title,
       licenseNumber: userData.licenseNumber,

@@ -12,7 +12,7 @@
 
     async function handleLogin() {
         if (!username.trim() || !password.trim()) {
-            formError = 'Please enter both username and password';
+            formError = 'Please enter your username or email and password';
             return;
         }
 
@@ -54,13 +54,13 @@
 
     <form on:submit|preventDefault={handleLogin}>
         <div class="form-group">
-            <label for="username">Username</label>
+            <label for="username">Username or email</label>
             <input 
                 type="text" 
                 id="username" 
                 bind:value={username}
                 on:keydown={handleKeydown}
-                placeholder="Enter your username"
+                placeholder="Enter your username or email"
                 disabled={isSubmitting}
                 autocomplete="username"
             />

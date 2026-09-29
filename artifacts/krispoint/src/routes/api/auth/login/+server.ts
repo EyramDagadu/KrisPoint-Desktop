@@ -6,8 +6,8 @@ export const POST: RequestHandler = async ({ request, getClientAddress, cookies 
   try {
     const { username, password } = await request.json();
 
-    if (!username || !password) {
-      return json({ success: false, error: 'Username and password are required' }, { status: 400 });
+    if (typeof username !== 'string' || typeof password !== 'string' || !username.trim() || !password || username.length > 255) {
+      return json({ success: false, error: 'Username/email and password are required' }, { status: 400 });
     }
 
     const ipAddress = getClientAddress();

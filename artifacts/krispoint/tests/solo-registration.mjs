@@ -78,7 +78,14 @@ try {
 
   response = await post('/api/auth/register', {
     username, password, fullName: 'Test Owner',
-    institution: 'Test Facility', roleId: null,
+    institution: 'Test Facility', email: 'not an email'
+  });
+  assert.equal(response.status, 400);
+  assert.match((await response.json()).error, /valid email/);
+
+  response = await post('/api/auth/register', {
+    username, password, fullName: 'Test Owner',
+    institution: 'Test Facility', roleId: null, email: '  Owner@Example.COM  ',
     securityQuestion, securityAnswer
   });
   assert.equal(response.status, 201);
@@ -86,6 +93,7 @@ try {
   const created = await response.json();
   assert.equal(created.success, true);
   assert.equal(created.user.roleName, 'owner');
+  assert.equal(created.user.email, 'owner@example.com');
   assert.equal(created.user.password, undefined);
 
   response = await post('/api/auth/login', { username, password });
@@ -134,6 +142,24 @@ try {
   response = await post('/api/auth/login', { username, password: 'NewOwner9!' });
   assert.equal(response.status, 200);
 
+  response = await post('/api/auth/login', { username: ' OWNER@EXAMPLE.COM ', password: 'NewOwner9!' });
+  assert.equal(response.status, 200, 'Email sign-in should ignore case and surrounding whitespace');
+  const emailCookie = response.headers.get('set-cookie')?.split(';')[0];
+  assert.ok(emailCookie?.startsWith('session_token='));
+
+  response = await fetch(`${base}/api/users/${created.user.id}`, {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json', origin: base, cookie: emailCookie },
+    body: JSON.stringify({ email: '  Updated@Example.COM  ' })
+  });
+  assert.equal(response.status, 200, 'Owner can update the address used to sign in');
+  response = await post('/api/auth/login', { username: 'owner@example.com', password: 'NewOwner9!' });
+  assert.equal(response.status, 401, 'Previous email should stop working after profile update');
+  response = await post('/api/auth/login', { username: 'UPDATED@example.com', password: 'NewOwner9!' });
+  assert.equal(response.status, 200);
+  response = await post('/api/auth/login', { username, password: 'NewOwner9!' });
+  assert.equal(response.status, 200, 'Username sign-in must continue to work');
+
   const guesses = await Promise.all(Array.from({ length: 8 }, () =>
     post('/api/auth/verify-security-answer', { username, answer: 'wrong guess' })
   ));
@@ -164,7 +190,7 @@ try {
     globalThis.fetch = originalFetch;
   }
 
-  console.log('Solo registration and recovery: persisted question, settings update, verified reset, single-use proof and concurrent guess limit passed.');
+  console.log('Solo registration, email sign-in and recovery: normalized and updated email, username compatibility, verified reset and concurrent guess limit passed.');
 } finally {
   if (child?.pid) {
     try { process.kill(-child.pid, 'SIGTERM'); } catch { /* Already stopped. */ }

@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { validateSessionFromRequest, logAudit } from '$lib/server/auth';
 import { db, schema } from '$lib/server/db';
+import { parseAccountEmail, accountEmailInUse } from '$lib/server/accountEmail';
 import { eq } from 'drizzle-orm';
 
 export const GET: RequestHandler = async ({ params, request }) => {
@@ -114,6 +115,18 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
       .from(schema.users)
       .where(eq(schema.users.id, userId))
       .limit(1);
+
+    if ('email' in filteredUpdates) {
+      const parsedEmail = parseAccountEmail(filteredUpdates.email);
+      if (parsedEmail.error) {
+        return json({ success: false, error: parsedEmail.error }, { status: 400 });
+      }
+      filteredUpdates.email = parsedEmail.email;
+      if (parsedEmail.email && parsedEmail.email !== oldUser[0]?.email?.trim().toLowerCase()
+        && await accountEmailInUse(parsedEmail.email, userId)) {
+        return json({ success: false, error: 'Email address already belongs to another account' }, { status: 409 });
+      }
+    }
 
     await db
       .update(schema.users)
