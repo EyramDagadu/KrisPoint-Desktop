@@ -68,7 +68,10 @@ test('AI template selection uses deterministic precedence without early commit',
   assert.match(component, /sameTemplate\(template, activeTemplateId, activeTemplateName\)/);
   assert.match(component, /lastUsedTemplateId/);
   assert.match(component, /defaultTemplate/);
-  assert.match(component, /return configured \|\| fallbackTemplate\(\)/);
+  assert.match(component, /if \(active\) return active/);
+  assert.match(component, /if \(recent\) return recent/);
+  // Prefer an available matched template before synthesizing the standard fallback.
+  assert.match(component, /return configured \|\| candidates\[0\] \|\| fallbackTemplate\(\)/);
   const acceptance = component.indexOf('function acceptProposal()');
   assert.equal(component.slice(0, acceptance).includes('reportActions.setActiveTemplate'), false);
 });
