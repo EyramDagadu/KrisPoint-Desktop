@@ -3,6 +3,13 @@ import { get } from 'svelte/store';
 import { reportData, uiState, reportActions, uiActions } from '../stores/reportStore.js';
 import { browser } from '$app/environment';
 import { userStorageService } from './UserStorageService.js';
+import {
+    findVoiceCommandMatch,
+    matchVoicePattern,
+    normalizeVoiceCommand,
+    MACRO_COMMAND_PATTERN,
+    TEMPLATE_COMMAND_PATTERN
+} from '../utils/voiceCommand.js';
 
 class VoiceCommandService {
     constructor() {
@@ -154,7 +161,7 @@ class VoiceCommandService {
 
             // Template commands
             {
-                pattern: /template[\s.,:;-]+(.+)/i,
+                pattern: TEMPLATE_COMMAND_PATTERN,
                 action: (matches) => {
                     const templateName = matches[1].toLowerCase();
                     this.loadTemplate(templateName);
@@ -163,7 +170,7 @@ class VoiceCommandService {
 
             // Macro commands
             {
-                pattern: /macro[\s.,:;-]+(.+)/i,
+                pattern: MACRO_COMMAND_PATTERN,
                 action: (matches) => {
                     const macroName = matches[1].toLowerCase();
                     this.insertMacro(macroName);
@@ -252,7 +259,9 @@ class VoiceCommandService {
         
         // Find matching command pattern
         for (const commandPattern of this.commandPatterns) {
-            const matches = command.match(commandPattern.pattern);
+            const matches = matchVoicePattern(command, commandPattern.pattern, {
+                preservePayload: commandPattern.pattern.source.startsWith('dictate ')
+            });
             if (matches) {
                 try {
                     commandPattern.action(matches);
@@ -271,11 +280,14 @@ class VoiceCommandService {
     }
 
     insertMacro(macroName) {
-        const normalizedName = macroName.toLowerCase().trim();
+        const normalizedName = normalizeVoiceCommand(macroName);
         
-        const macro = this.cachedMacros.find(m => 
-            m.voiceCommand && m.voiceCommand.toLowerCase() === normalizedName
-        );
+        const macroResult = findVoiceCommandMatch(this.cachedMacros, normalizedName);
+        if (macroResult.ambiguous) {
+            this.speakFeedback(`Multiple macros match ${macroName}. Use a more specific command.`);
+            return;
+        }
+        const macro = macroResult.item;
         
         if (macro && macro.content) {
             this.insertText(macro.content + ' ');
@@ -305,11 +317,14 @@ class VoiceCommandService {
 
     loadTemplate(templateName) {
         console.log('Loading template with voice command:', templateName);
-        const normalizedName = templateName.toLowerCase().trim();
+        const normalizedName = normalizeVoiceCommand(templateName);
         
-        const template = this.cachedTemplates.find(t => 
-            t.voiceCommand && t.voiceCommand.toLowerCase() === normalizedName
-        );
+        const templateResult = findVoiceCommandMatch(this.cachedTemplates, normalizedName);
+        if (templateResult.ambiguous) {
+            this.speakFeedback(`Multiple templates match ${templateName}. Use a more specific command.`);
+            return;
+        }
+        const template = templateResult.item;
         
         console.log('Template found:', template);
         

@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 import { db, schema } from '$lib/server/db';
 import { validateSessionFromRequest, checkPermission, logAudit } from '$lib/server/auth';
 import { eq, and, ne } from 'drizzle-orm';
+import { normalizeVoiceCommand } from '$lib/utils/voiceCommand.js';
 
 export const GET: RequestHandler = async ({ request, params }) => {
   try {
@@ -73,7 +74,7 @@ export const PUT: RequestHandler = async ({ request, params }) => {
     const { name, category, modality, content, variables, voiceCommand } = body;
 
     if (voiceCommand && voiceCommand.trim()) {
-      const normalizedVoiceCommand = voiceCommand.trim().toLowerCase();
+      const normalizedVoiceCommand = normalizeVoiceCommand(voiceCommand);
       
       let conflictQuery;
       if (existingMacro.isSystem) {
@@ -98,7 +99,7 @@ export const PUT: RequestHandler = async ({ request, params }) => {
       }
 
       const existingConflict = conflictQuery.find(
-        m => m.voiceCommand?.toLowerCase() === normalizedVoiceCommand
+        m => m.voiceCommand ? normalizeVoiceCommand(m.voiceCommand) === normalizedVoiceCommand : false
       );
 
       if (existingConflict) {

@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 import { db, schema } from '$lib/server/db';
 import { validateSessionFromRequest, checkPermission, logAudit } from '$lib/server/auth';
 import { eq, and, desc, or, ne } from 'drizzle-orm';
+import { normalizeVoiceCommand } from '$lib/utils/voiceCommand.js';
 
 export const GET: RequestHandler = async ({ request, url }) => {
   try {
@@ -80,7 +81,7 @@ export const POST: RequestHandler = async ({ request }) => {
     }
 
     if (voiceCommand && voiceCommand.trim()) {
-      const normalizedVoiceCommand = voiceCommand.trim().toLowerCase();
+      const normalizedVoiceCommand = normalizeVoiceCommand(voiceCommand);
       
       let conflictQuery;
       if (isSystem) {
@@ -103,7 +104,7 @@ export const POST: RequestHandler = async ({ request }) => {
       }
 
       const existingConflict = conflictQuery.find(
-        m => m.voiceCommand?.toLowerCase() === normalizedVoiceCommand
+        m => m.voiceCommand ? normalizeVoiceCommand(m.voiceCommand) === normalizedVoiceCommand : false
       );
 
       if (existingConflict) {

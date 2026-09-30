@@ -3,6 +3,13 @@ import { get } from 'svelte/store';
 import { reportActions, uiActions, reportData, uiState } from '../stores/reportStore.js';
 import { macroStore } from '../stores/macroStore.js';
 import { medicalTermsProcessor } from '../services/MedicalTermsProcessor.js';
+import {
+    findVoiceCommandMatch,
+    matchVoicePattern,
+    normalizeVoiceCommand,
+    MACRO_COMMAND_PATTERN,
+    TEMPLATE_COMMAND_PATTERN
+} from '../utils/voiceCommand.js';
 import { whisperVoiceService } from '../services/WhisperVoiceService';
 import { browser } from '$app/environment';
 
@@ -294,7 +301,7 @@ export class EnhancedVoiceService {
 
             // Enhanced macro commands
             {
-                pattern: /macro[\s.,:;-]+(.+)/i,
+                pattern: MACRO_COMMAND_PATTERN,
                 action: async (matches) => {
                     const macroName = matches[1].toLowerCase().trim();
                     await this.insertMacroByName(macroName);
@@ -304,7 +311,7 @@ export class EnhancedVoiceService {
 
             // Template loading commands
             {
-                pattern: /template[\s.,:;-]+(.+)/i,
+                pattern: TEMPLATE_COMMAND_PATTERN,
                 action: async (matches) => {
                     const templateName = matches[1].toLowerCase().trim();
                     await this.loadTemplate(templateName);
@@ -618,7 +625,7 @@ export class EnhancedVoiceService {
         // Try to match command patterns
         for (let i = 0; i < this.commandPatterns.length; i++) {
             const commandPattern = this.commandPatterns[i];
-            const matches = command.match(commandPattern.pattern);
+            const matches = matchVoicePattern(command, commandPattern.pattern);
             
             if (matches) {
                 console.log(`✅ MATCHED: ${commandPattern.description}`);
@@ -777,7 +784,7 @@ export class EnhancedVoiceService {
     }
 
     async insertMacroByName(macroName) {
-        const searchTerm = macroName.toLowerCase().trim();
+        const searchTerm = normalizeVoiceCommand(macroName);
         console.log(`🔍 Searching for macro with voice command: "${searchTerm}"`);
         
         // Get user's macro scope preference
@@ -798,11 +805,15 @@ export class EnhancedVoiceService {
         
         // First, check macroStore (which includes locally loaded macros from the selected scope)
         const macros = get(macroStore);
-        const storeMacro = macros.find(m => 
-            m.name.toLowerCase().includes(searchTerm) ||
-            m.voiceCommand?.toLowerCase().includes(searchTerm) ||
-            (m.voiceCommand && searchTerm.includes(m.voiceCommand.toLowerCase()))
-        );
+        const storeResult = findVoiceCommandMatch(macros, searchTerm, {
+            includeName: true,
+            allowPartial: true
+        });
+        if (storeResult.ambiguous) {
+            uiActions.showErrorNotification(`Multiple macros match "${macroName}". Use a more specific command.`);
+            return;
+        }
+        const storeMacro = storeResult.item;
 
         if (storeMacro) {
             this.insertText(storeMacro.content + ' ');
@@ -820,13 +831,15 @@ export class EnhancedVoiceService {
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && data.macros) {
-                    const dbMacro = data.macros.find(m => 
-                        m.voiceCommand && (
-                            m.voiceCommand.toLowerCase() === searchTerm ||
-                            m.voiceCommand.toLowerCase().includes(searchTerm) ||
-                            searchTerm.includes(m.voiceCommand.toLowerCase())
-                        )
-                    );
+                    const dbResult = findVoiceCommandMatch(data.macros, searchTerm, {
+                        includeName: true,
+                        allowPartial: true
+                    });
+                    if (dbResult.ambiguous) {
+                        uiActions.showErrorNotification(`Multiple macros match "${macroName}". Use a more specific command.`);
+                        return;
+                    }
+                    const dbMacro = dbResult.item;
                     
                     if (dbMacro) {
                         console.log(`📋 Found ${macroScope} macro: ${dbMacro.name}`);
@@ -845,7 +858,7 @@ export class EnhancedVoiceService {
     }
 
     async loadTemplate(templateName) {
-        const searchTerm = templateName.toLowerCase().trim();
+        const searchTerm = normalizeVoiceCommand(templateName);
         console.log(`🔍 Searching for template with voice command: "${searchTerm}"`);
         
         // Get user's template scope preference
@@ -873,14 +886,15 @@ export class EnhancedVoiceService {
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && data.templates) {
-                    // Find template by voice command (partial match for flexibility)
-                    const dbTemplate = data.templates.find(t => 
-                        t.voiceCommand && (
-                            t.voiceCommand.toLowerCase() === searchTerm ||
-                            t.voiceCommand.toLowerCase().includes(searchTerm) ||
-                            searchTerm.includes(t.voiceCommand.toLowerCase())
-                        )
-                    );
+                    const dbResult = findVoiceCommandMatch(data.templates, searchTerm, {
+                        includeName: true,
+                        allowPartial: true
+                    });
+                    if (dbResult.ambiguous) {
+                        uiActions.showErrorNotification(`Multiple templates match "${templateName}". Use a more specific command.`);
+                        return;
+                    }
+                    const dbTemplate = dbResult.item;
                     
                     if (dbTemplate) {
                         console.log(`📋 Found ${templateScope} template: ${dbTemplate.name}`);
