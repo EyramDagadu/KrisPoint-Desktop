@@ -18,5 +18,6 @@
 - [Appearance persistence](appearance-persistence.md) — theme choice is device-level and must survive logout, login, and Solo desktop relaunches.
 - [Frozen MedASR multiprocessing](frozen-medasr-multiprocessing.md) — packaged macOS voice must intercept frozen worker startup or each worker reloads the model.
 - [Release type-check boundary](release-type-check-boundary.md) — keep the release check clean; expand strict typing incrementally instead of restoring the legacy error flood.
+- [Mixed Vite plugin types](mixed-vite-plugin-types.md) — preview plugins without Vite peers can pick up the wrong hoisted Vite types in this mixed-version workspace.
 - [Browser auth request interception](browser-auth-request-interception.md) — block service workers when mocking first-run API responses in Playwright.
 - [Playwright browser binary](playwright-browser-binary.md) — use the installed Chromium executable when the default Playwright cache is empty.
