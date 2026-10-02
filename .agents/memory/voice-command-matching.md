@@ -8,3 +8,9 @@ Treat punctuation and spacing variants as equivalent when resolving spoken comma
 **Why:** ASR punctuation can vary between transcriptions, while the literal dictated report text and deliberate punctuation-insertion commands must retain their original meaning. Broad fuzzy or first-match behavior risks inserting the wrong clinical content.
 
 **How to apply:** Keep normalization confined to command detection and lookup; do not rewrite the inserted report content or the stored display text. Apply the same key rule to both editions and duplicate checks.
+
+Clinical words containing command prefixes, such as macrocalcifications, macroadenoma, and macrophages, must remain ordinary dictation.
+
+**Why:** The user specifically raised the risk that a natural medical word could be mistaken for a failed macro command and disappear from the transcript.
+
+**How to apply:** Require a separate command word rather than a substring inside a medical word. Distinguish this from an ASR transcript that actually splits the word into “macro calcifications,” which can resemble an explicit command.

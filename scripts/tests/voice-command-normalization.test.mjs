@@ -21,6 +21,20 @@ test('spoken command prefixes tolerate punctuation inserted by transcription', (
   }
 });
 
+test('medical words containing macro remain dictation rather than macro commands', () => {
+  for (const transcript of [
+    'macrocalcifications',
+    'Macrocalcifications are present.',
+    'There are coarse macrocalcifications within the nodule.',
+    'A pituitary macroadenoma is identified.',
+    'Macrophages are present.',
+    'No macroscopic fat is demonstrated.',
+    'Macronodules are seen.'
+  ]) {
+    assert.equal(matchVoicePattern(transcript, MACRO_COMMAND_PATTERN), null, transcript);
+  }
+});
+
 test('matching ignores punctuation, case and spacing without changing the source text', () => {
   const macros = [{ name: 'Follow-up', voiceCommand: 'follow-up', content: 'Follow-up is recommended.' }];
   assert.equal(findVoiceCommandMatch(macros, 'follow. up!', { includeName: true }).item, macros[0]);
