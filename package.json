@@ -14,7 +14,7 @@
     "dev:solo": "node scripts/run-solo.mjs dev --host 0.0.0.0 --port 5000",
     "build:solo": "node scripts/run-solo.mjs build && node scripts/package-solo-backend.mjs && node scripts/package-solo-voice.mjs",
     "build:solo:installer": "tauri build",
-    "test:solo:installer": "node --test scripts/tests/solo-installer.test.mjs",
+    "test:solo:installer": "node --test scripts/tests/solo-installer.test.mjs scripts/tests/voice-command-normalization.test.mjs scripts/tests/voice-command-fallback.test.mjs",
     "test:ai": "node --test scripts/tests/ai-polish.test.mjs && pnpm --dir artifacts/api-server test",
     "test:migration": "node --test scripts/tests/migration.test.mjs",
     "test:voice": "node --test scripts/tests/voice-ticket.test.mjs && python3 -m unittest discover -s vosk-server/tests -p 'test_*.py'",

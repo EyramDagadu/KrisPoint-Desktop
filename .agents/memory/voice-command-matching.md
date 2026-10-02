@@ -14,3 +14,9 @@ Clinical words containing command prefixes, such as macrocalcifications, macroad
 **Why:** The user specifically raised the risk that a natural medical word could be mistaken for a failed macro command and disappear from the transcript.
 
 **How to apply:** Require a separate command word rather than a substring inside a medical word. Distinguish this from an ASR transcript that actually splits the word into “macro calcifications,” which can resemble an explicit command.
+
+Preserve unresolved spoken macro/template invocations as dictation while still warning the user. Do not run command-alias rewriting over that literal fallback.
+
+**Why:** The user chose to preserve unmatched speech so an ASR-split medical term cannot disappear following a failed command lookup.
+
+**How to apply:** Await the lookup outcome before consuming speech, keep the original utterance on failure, and do not insert a command phrase after a successful clinical insert. This fallback applies to speech, not clicked command buttons.

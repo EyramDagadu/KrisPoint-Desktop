@@ -56,6 +56,7 @@ export class EnhancedVoiceService {
         this.lastTranscription = '';
         this.lastTranscriptionTime = 0;
         this.deduplicationWindow = 1500; // ms - reject same text within this window
+        this.transcriptQueue = Promise.resolve();
         
         this.callbacks = {
             onResult: null,
@@ -304,7 +305,7 @@ export class EnhancedVoiceService {
                 pattern: MACRO_COMMAND_PATTERN,
                 action: async (matches) => {
                     const macroName = matches[1].toLowerCase().trim();
-                    await this.insertMacroByName(macroName);
+                    return await this.insertMacroByName(macroName);
                 },
                 description: 'Insert macro by name using "macro [name]"'
             },
@@ -314,7 +315,7 @@ export class EnhancedVoiceService {
                 pattern: TEMPLATE_COMMAND_PATTERN,
                 action: async (matches) => {
                     const templateName = matches[1].toLowerCase().trim();
-                    await this.loadTemplate(templateName);
+                    return await this.loadTemplate(templateName);
                 },
                 description: 'Load medical template by voice command'
             },
@@ -612,7 +613,27 @@ export class EnhancedVoiceService {
         console.log(`✅ Enhanced commands setup complete: ${this.commandPatterns.length} patterns registered`);
     }
 
-    processCommand(transcript, confidence = 1.0) {
+    processTranscript(transcript, confidence = 1.0) {
+        // Serialize speech so a slow lookup cannot reorder subsequent dictation.
+        // Only speech uses this fallback; quick-button commands must not insert their labels.
+        const pending = this.transcriptQueue.then(async () => {
+            const wasCommand = await this.processCommand(transcript, confidence);
+            if (!wasCommand) {
+                const namedCommand = matchVoicePattern(transcript, MACRO_COMMAND_PATTERN) ||
+                    matchVoicePattern(transcript, TEMPLATE_COMMAND_PATTERN);
+                this.insertText(transcript + ' ', { preserveTranscript: Boolean(namedCommand) });
+            }
+            return wasCommand;
+        });
+        // Recover the queue for the next utterance without retrying an insertion.
+        this.transcriptQueue = pending.catch(error => {
+            console.error('Failed to insert voice transcript:', error);
+            uiActions.showErrorNotification('Could not insert spoken text. Please repeat the dictation.');
+        });
+        return pending;
+    }
+
+    async processCommand(transcript, confidence = 1.0) {
         // Strip trailing punctuation that Whisper auto-adds (. , ! ?)
         let command = transcript.toLowerCase().trim();
         command = command.replace(/[.,!?]+$/, '');
@@ -633,9 +654,10 @@ export class EnhancedVoiceService {
                 console.log(`🎯 Executing action...`);
                 try {
                     // Execute command action
-                    commandPattern.action(matches);
-                    console.log(`✅ Action executed successfully!`);
-                    return true;
+                    const handled = await commandPattern.action(matches);
+                    console.log(handled === false ? 'Command was not applied.' : '✅ Action executed successfully!');
+                    // Unresolved macro/template lookups must not consume the speech.
+                    return handled !== false;
                 } catch (error) {
                     console.error('❌ Voice command execution error:', error);
                     console.error('Error stack:', error.stack);
@@ -811,7 +833,7 @@ export class EnhancedVoiceService {
         });
         if (storeResult.ambiguous) {
             uiActions.showErrorNotification(`Multiple macros match "${macroName}". Use a more specific command.`);
-            return;
+            return false;
         }
         const storeMacro = storeResult.item;
 
@@ -819,7 +841,7 @@ export class EnhancedVoiceService {
             this.insertText(storeMacro.content + ' ');
             uiActions.showSuccessNotification(`${storeMacro.name} macro inserted`);
             this.notifyCommandExecuted(`Macro: ${storeMacro.name}`);
-            return;
+            return true;
         }
         
         // Fetch macros from the selected scope
@@ -827,9 +849,13 @@ export class EnhancedVoiceService {
             const response = await fetch(`/api/macros?scope=${macroScope}`, {
                 credentials: 'include'
             });
+            if (!response.ok) throw new Error(`Macro lookup failed (${response.status})`);
             
             if (response.ok) {
                 const data = await response.json();
+                if (!data.success || !Array.isArray(data.macros)) {
+                    throw new Error('Invalid macro lookup response');
+                }
                 if (data.success && data.macros) {
                     const dbResult = findVoiceCommandMatch(data.macros, searchTerm, {
                         includeName: true,
@@ -837,7 +863,7 @@ export class EnhancedVoiceService {
                     });
                     if (dbResult.ambiguous) {
                         uiActions.showErrorNotification(`Multiple macros match "${macroName}". Use a more specific command.`);
-                        return;
+                        return false;
                     }
                     const dbMacro = dbResult.item;
                     
@@ -846,15 +872,18 @@ export class EnhancedVoiceService {
                         this.insertText(dbMacro.content + ' ');
                         uiActions.showSuccessNotification(`${dbMacro.name} macro inserted`);
                         this.notifyCommandExecuted(`Macro: ${dbMacro.name}`);
-                        return;
+                        return true;
                     }
                 }
             }
         } catch (error) {
             console.warn(`Failed to fetch ${macroScope} macros:`, error);
+            uiActions.showErrorNotification(`Could not look up macro "${macroName}".`);
+            return false;
         }
         
         uiActions.showErrorNotification(`Macro "${macroName}" not found in ${macroScope} pool`);
+        return false;
     }
 
     async loadTemplate(templateName) {
@@ -882,9 +911,13 @@ export class EnhancedVoiceService {
             const response = await fetch(`/api/templates?scope=${templateScope}`, {
                 credentials: 'include'
             });
+            if (!response.ok) throw new Error(`Template lookup failed (${response.status})`);
             
             if (response.ok) {
                 const data = await response.json();
+                if (!data.success || !Array.isArray(data.templates)) {
+                    throw new Error('Invalid template lookup response');
+                }
                 if (data.success && data.templates) {
                     const dbResult = findVoiceCommandMatch(data.templates, searchTerm, {
                         includeName: true,
@@ -892,23 +925,26 @@ export class EnhancedVoiceService {
                     });
                     if (dbResult.ambiguous) {
                         uiActions.showErrorNotification(`Multiple templates match "${templateName}". Use a more specific command.`);
-                        return;
+                        return false;
                     }
                     const dbTemplate = dbResult.item;
                     
                     if (dbTemplate) {
                         console.log(`📋 Found ${templateScope} template: ${dbTemplate.name}`);
                         this.insertDatabaseTemplate(dbTemplate);
-                        return;
+                        return true;
                     }
                 }
             }
         } catch (error) {
             console.warn(`Failed to fetch ${templateScope} templates:`, error);
+            uiActions.showErrorNotification(`Could not look up template "${templateName}".`);
+            return false;
         }
         
         // No template found - all templates are now in the database
         uiActions.showErrorNotification(`Template "${templateName}" not found in ${templateScope} pool`);
+        return false;
     }
     
     insertDatabaseTemplate(dbTemplate) {
@@ -1003,14 +1039,17 @@ export class EnhancedVoiceService {
         return sentenceEnders.includes(lastChar);
     }
 
-    insertText(text) {
+    insertText(text, { preserveTranscript = false } = {}) {
         if (!browser) return;
 
         // Apply enhanced medical intelligence corrections before inserting
-        let enhancedText = medicalTermsProcessor.processText(text);
+        // Unresolved command-like speech must bypass command rewriting and stay literal.
+        let enhancedText = preserveTranscript ? text : medicalTermsProcessor.processText(text);
         
         // Smart capitalization: Auto-capitalize after sentence endings or at start
-        enhancedText = this.applySmartCapitalization(enhancedText);
+        if (!preserveTranscript) {
+            enhancedText = this.applySmartCapitalization(enhancedText);
+        }
 
         // First try TipTap editor (preferred) - check both main and addendum editors
         const activeEditor = getActiveEditor();

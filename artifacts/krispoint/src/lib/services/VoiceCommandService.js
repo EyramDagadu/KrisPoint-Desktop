@@ -164,7 +164,7 @@ class VoiceCommandService {
                 pattern: TEMPLATE_COMMAND_PATTERN,
                 action: (matches) => {
                     const templateName = matches[1].toLowerCase();
-                    this.loadTemplate(templateName);
+                    return this.loadTemplate(templateName);
                 }
             },
 
@@ -173,7 +173,7 @@ class VoiceCommandService {
                 pattern: MACRO_COMMAND_PATTERN,
                 action: (matches) => {
                     const macroName = matches[1].toLowerCase();
-                    this.insertMacro(macroName);
+                    return this.insertMacro(macroName);
                 }
             },
 
@@ -264,12 +264,14 @@ class VoiceCommandService {
             });
             if (matches) {
                 try {
-                    commandPattern.action(matches);
-                    return;
+                    const handled = commandPattern.action(matches);
+                    if (handled !== false) return true;
                 } catch (error) {
                     console.error('Error executing command:', error);
                     this.speakFeedback('Sorry, there was an error with that command');
                 }
+                // An unresolved command is dictation, not a different command.
+                break;
             }
         }
 
@@ -277,6 +279,7 @@ class VoiceCommandService {
         if (command.length > 0) {
             this.insertText(transcript + ' ');
         }
+        return false;
     }
 
     insertMacro(macroName) {
@@ -285,13 +288,14 @@ class VoiceCommandService {
         const macroResult = findVoiceCommandMatch(this.cachedMacros, normalizedName);
         if (macroResult.ambiguous) {
             this.speakFeedback(`Multiple macros match ${macroName}. Use a more specific command.`);
-            return;
+            return false;
         }
         const macro = macroResult.item;
         
         if (macro && macro.content) {
             this.insertText(macro.content + ' ');
             this.speakFeedback(`${macro.name} macro inserted`);
+            return true;
         } else {
             const fallbackMacros = {
                 'normal lungs': 'The lungs are clear bilaterally without focal consolidation, pneumothorax, or pleural effusion.',
@@ -309,8 +313,10 @@ class VoiceCommandService {
             if (fallbackText) {
                 this.insertText(fallbackText + ' ');
                 this.speakFeedback(`${macroName} macro inserted`);
+                return true;
             } else {
                 this.speakFeedback(`Macro ${macroName} not found`);
+                return false;
             }
         }
     }
@@ -322,7 +328,7 @@ class VoiceCommandService {
         const templateResult = findVoiceCommandMatch(this.cachedTemplates, normalizedName);
         if (templateResult.ambiguous) {
             this.speakFeedback(`Multiple templates match ${templateName}. Use a more specific command.`);
-            return;
+            return false;
         }
         const template = templateResult.item;
         
@@ -333,9 +339,11 @@ class VoiceCommandService {
             const currentSection = get(uiActions.getCurrentSection()) || 'findings';
             reportActions.updateSection(currentSection, template.content);
             this.speakFeedback(`${template.name} template loaded`);
+            return true;
         } else {
             console.log('Template not found for voice command:', templateName);
             this.speakFeedback(`Template ${templateName} not found`);
+            return false;
         }
     }
     insertText(text) {

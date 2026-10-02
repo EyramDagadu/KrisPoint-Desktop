@@ -119,13 +119,11 @@
           lastCommand = result.transcript;
           confidence = Math.round(result.confidence * 100);
           
-          // Process the transcript as command or dictation
-          const wasCommand = enhancedVoiceService.processCommand(result.transcript, result.confidence);
-          
-          if (!wasCommand) {
-            // Not a command, insert as dictation text
-            enhancedVoiceService.insertText(result.transcript + ' ');
-          }
+          // Wait for macro/template lookup before deciding whether speech is dictation.
+          // The service serializes utterances and preserves unresolved speech exactly once.
+          enhancedVoiceService.processTranscript(result.transcript, result.confidence).catch(() => {
+            statusMessage = 'Could not insert dictation. Please repeat the spoken text.';
+          });
           
           // Clear last command after 4 seconds
           setTimeout(() => {
@@ -336,13 +334,13 @@
     statusMessage = 'Disconnected';
   }
   
-  function executeQuickCommand(command) {
+  async function executeQuickCommand(command) {
     if (!voiceEnabled) {
       statusMessage = 'Voice recognition disabled in settings';
       return;
     }
     // Execute quick command through enhanced voice service
-    enhancedVoiceService.processCommand(command, 1.0);
+    await enhancedVoiceService.processCommand(command, 1.0);
   }
   
   // Insert macro content directly into the editor
